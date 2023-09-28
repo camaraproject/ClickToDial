@@ -5,7 +5,7 @@
 <a href="https://github.com/camaraproject/ClickToDial" title="Repo Size"><img src="https://img.shields.io/github/repo-size/camaraproject/ClickToDial?style=plastic"></a>
 <a href="https://github.com/camaraproject/ClickToDial/blob/main/LICENSE" title="License"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg?style=plastic"></a>
 
-# §repo_name§
+# ClickToDial
 Repository to describe, develop, document and test the ClickToDial API family
 
 ## Scope
