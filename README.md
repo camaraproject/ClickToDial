@@ -9,7 +9,7 @@
 Repository to describe, develop, document and test the ClickToDial API family
 
 ## Scope
-* Service APIs for “ClickToDial” (see APIBacklog.md)  
+* Service APIs for “Click-To-Dial” (see APIBacklog.md)  
 * It provides the customer with the ability to:  
   * establish web-based communication by clicking an object (e.g., button, image or text) to request an immediate connection with another person in real-time either by phone call, Voice-over-Internet-Protocol (VoIP), or text.
 * Describe, develop, document and test the APIs (with 1-2 Telcos)  
