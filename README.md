@@ -18,7 +18,7 @@ Repository to describe, develop, document and test the ClickToDial API family
 
 ## Meetings
 * Meetings are held virtually
-* Schedule: bi-weekly (odd weeks), Wednesday, 1 PM UTC+8
+* Schedule: bi-weekly (odd weeks), Wednesday, 3 PM CET/CEST (13:00 UTC,21:00 Beijing)
 * Meeting link: [Microsoft Teams Meeting Link](https://teams.live.com/meet/9538876420994?p=FnkCBrBmi31F4xxW)
 
 ## Contributorship and mailing list
