@@ -1,4 +1,4 @@
-# Click to Dial API Readiness minimum criteria checklist
+# CtD API Readiness minimum criteria checklist
 
 <br>
 
