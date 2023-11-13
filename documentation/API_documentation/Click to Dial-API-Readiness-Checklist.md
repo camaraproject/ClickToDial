@@ -1,4 +1,4 @@
-# QoD API Readiness minimum criteria checklist
+# Click to Dial API Readiness minimum criteria checklist
 
 <br>
 
