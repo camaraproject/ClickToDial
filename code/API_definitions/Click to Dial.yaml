@@ -1,0 +1,454 @@
+openapi: 3.0.0
+
+info:
+  title: Click to Dial Service API
+  version: 1.0.0
+  description: |
+    Service API for Click to Dial
+
+
+externalDocs:
+  description: Product documentation at Camara
+  url: https://github.com/camaraproject/
+
+servers:
+  - url: '{serverRoot}/clicktodial/{apiversion}'
+    variables:
+      apiRoot:
+        default: https://example.com
+        description: API root
+
+security:
+  - oAuth2ClientCredentials: []
+
+paths:
+  /clicktodialbegin:
+    post:
+      summary: The app calls this API to establish a call between caller and callee.
+      operationId: ClickToDialBegin
+      tags:
+        - Click To Dial Begin
+      requestBody:
+        description: Contains the information for the creation the resource.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClickToDialBeginRequest'
+      responses:
+        '200':
+          description:  The result of Click to Dial Begin 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClickToDialBeginResponse"
+        '400':
+          $ref: '#/components/responses/Generic400'
+        '403':
+          $ref: '#/components/responses/Generic403'
+        '500':
+          $ref: '#/components/responses/Generic500'          
+        '504':
+          $ref: '#/components/responses/Generic504'              
+          
+  /clicktodialstatusnotify/{callidentifier}:
+    post:
+      summary: The operator uses the API to report the call status between the caller and the callee.
+      operationId: ClickToDialStatusNotify
+      parameters:
+        - name: callidentifier
+          in: path
+          description: Call identifier that was obtained from the clicktodialbegin operation
+          required: true
+          schema:
+            $ref: "#/components/schemas/callidentifier"
+      tags:
+        - Click To Dial Status Notify
+      requestBody:
+        description: Contains the information of notification.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClickToDialStatusNotifyRequest'
+      responses:
+        '200':
+          description:  Successful notification 
+        '400':
+          $ref: '#/components/responses/Generic400'
+        '403':
+          $ref: '#/components/responses/Generic403'
+        '500':
+          $ref: '#/components/responses/Generic500'          
+        '504':
+          $ref: '#/components/responses/Generic504'                     
+
+  /clicktodialrelease/{callidentifier}:
+    post:
+      summary: The app calls this API to release a call.
+      operationId: ClickToDialRelease
+      parameters:
+        - name: callidentifier
+          in: path
+          description: Call identifier that was obtained from the clicktodialbegin operation
+          required: true
+          schema:
+            $ref: "#/components/schemas/callidentifier"
+      tags:
+        - Click To Dial Release
+      requestBody:
+        description: Contains the information of release.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClickToDialReleaseRequest'
+      responses:
+        '200':
+          description:  Successful notification 
+        '400':
+          $ref: '#/components/responses/Generic400'
+        '403':
+          $ref: '#/components/responses/Generic403'
+        '500':
+          $ref: '#/components/responses/Generic500'          
+        '504':
+          $ref: '#/components/responses/Generic504'     
+
+  /recordingdownload/{callidentifier}:
+    post:
+      summary: The app download the recording.
+      operationId: RecordingDownload
+      parameters:
+        - name: callidentifier
+          in: path
+          description: Call identifier that was obtained from the clicktodialbegin operation
+          required: true
+          schema:
+            $ref: "#/components/schemas/callidentifier"
+      tags:
+        - Recording Download
+      requestBody:
+        description: Contains the information of recording.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordingDownloadRequest'
+      responses:
+        '200':
+          description:  The result of Click to Dial Begin 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecordingDownloadResponse"
+        '400':
+          $ref: '#/components/responses/Generic400'
+        '403':
+          $ref: '#/components/responses/Generic403'
+        '500':
+          $ref: '#/components/responses/Generic500'          
+        '504':
+          $ref: '#/components/responses/Generic504'     
+          
+components:
+  securitySchemes:
+    oAuth2ClientCredentials:
+      type: oauth2
+      description: This API uses OAuth 2 with the client credentials grant flow.
+      flows:
+        clientCredentials:
+          tokenUrl: "{tokenUrl}"
+          scopes: {}
+    apiKey:
+      type: apiKey
+      description: API key to authorize requests
+      name: apikey
+      in: query
+      
+  schemas:
+    ClickToDialBeginRequest:
+      type: object
+      properties:
+        sponsor:
+          $ref: '#/components/schemas/sponsor'
+        caller:
+          $ref: '#/components/schemas/caller'
+        callee:
+          $ref: '#/components/schemas/callee'  
+      required:
+        - sponsor    
+        - caller
+        - callee 
+    sponsor:
+      type: string
+      description: Platform number, and the number format follows E.164
+      example: '01052680000'
+    caller:
+      type: string
+      description: Caller number, and the number format follows E.164
+      example: '12345678'
+    callee:
+      type: string
+      description: Callee number, and the number format follows E.164
+      example: '12345678'      
+
+    ClickToDialBeginResponse:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/code'
+        description:
+          $ref: '#/components/schemas/description'
+        result:
+          $ref: '#/components/schemas/result'
+      required:
+        - code
+        - description    
+        - result
+    code:
+      type: string
+      description: Response code
+      example: '0000000'    
+    description:
+      type: string
+      description: Response description
+      example: 'Success'  
+      
+    result:
+      type: object
+      properties:
+        callidentifier:
+          $ref: '#/components/schemas/callidentifier'
+      required:
+        - callidentifier 
+
+    callidentifier:
+      type: string
+      description: Call identification
+      example: 'A010B020'          
+
+    ClickToDialStatusNotifyRequest:
+      type: object
+      properties:
+        caller:
+          $ref: '#/components/schemas/caller'
+        callee:
+          $ref: '#/components/schemas/callee'  
+        status:
+          $ref: '#/components/schemas/status'  
+        reason:
+          $ref: '#/components/schemas/reason'         
+        recordingResult:
+          $ref: '#/components/schemas/recordingResult'        
+        recordingId:
+          $ref: '#/components/schemas/recordingId'        
+        callDuration:
+          $ref: '#/components/schemas/callDuration'            
+        timeStamp:
+          $ref: '#/components/schemas/timeStamp'            
+      required:
+        - caller
+        - callee 
+        - status
+        - timeStamp
+    status:
+      type: string
+      enum:
+        - CallingCaller
+        - CallingCallee
+        - Connected
+        - Disconnected
+      description: Call status
+      example: 'CallingCaller'
+    reason:
+      type: string
+      enum:
+        - HangUp
+        - CallerBusy
+        - CallerNoAnswer
+        - CallerFailure
+        - CallerAbandon
+        - CalleeBusy
+        - CalleeNoAnswer
+        - CalleeFailure
+        - Other
+      description: This field indicates the disconnection reason. This field is mandatory when status is "Disconnected".
+      example: 'HangUp'
+    recordingResult:
+      type: string
+      enum:
+        - Success
+        - NoRecord
+        - Fail
+      description: Recording Result. This field is mandatory when Recording is "On".
+      example: 'Success'      
+    recordingId:
+      type: string
+      description: Recording Id. This field is mandatory when recordingResult is "Success".
+      example: '20230101120001'          
+    callDuration:
+      type: string
+      description: This field indicates the duration of the calls, in seconds. This field is mandatory when status is "Disconnected".
+      example: '1600'         
+    timeStamp:
+      type: string
+      description: Time stamp, UTC time..
+      example: '2017-12-04T18:07:57Z'       
+      
+    ClickToDialReleaseRequest:
+      type: object
+      properties:
+        operation:
+          $ref: '#/components/schemas/operation'
+      required:
+        - operation
+    operation:
+      type: string
+      enum:
+        - Continue
+        - EndCall
+      description: Operate the call
+      example: 'EndCall'      
+      
+    RecordingDownloadRequest:
+      type: object
+      properties:
+        recordingId:
+          $ref: '#/components/schemas/recordingId'
+      required:
+        - recordingId
+
+    RecordingDownloadResponse:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/code'
+        description:
+          $ref: '#/components/schemas/description'
+        result:
+          $ref: '#/components/schemas/filedata'
+      required:
+        - code
+        - description    
+        - filedata
+    filedata:
+      type: string
+      description: The voice file content.The encoding format can be implemented in the base64.
+      example: ''  
+      
+    ErrorInfo: 
+      type: object
+      required:
+        - code
+        - description
+      properties:
+        code:
+          type: string
+          description: Code given to this error
+        description:
+          type: string
+          description: Error description
+          
+  responses:
+    Generic400:
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInfo"
+              examples:
+                InvalidInputValue:
+                  summary: Invalid Input Value
+                  value:
+                    status: "0000002"
+                    description: "Invalid Input Value"              
+                UserNotExist:
+                  summary: User Not Exist
+                  value:
+                    code: "0001001"
+                    description: "User Not Exist"
+                PasswordError:
+                  summary: Password Error
+                  value:
+                    code: "0001003"
+                    description: "Password Error"
+                AuthenticationFailure:
+                  summary: Authentication Failure
+                  value:
+                    code: "0001004"
+                    description: "Authentication Failure"
+                UserInBlacklist:
+                  summary: Authentication Failure
+                  value:
+                    code: "0001008"
+                    description: "User In Blacklist"
+                NumberFormatError:
+                  summary: Number Format Error
+                  value:
+                    code: "1001001"
+                    description: "Number Format Error"
+                CallIDEror:
+                  summary: Call ID Error
+                  value:
+                    code: "1001002"
+                    description: "Call ID Error"
+                OperationError:
+                  summary: Call Operation Error
+                  value:
+                    code: "1001003"
+                    description: "Operation Error"
+                DirectionError:
+                  summary: Call Direction Error
+                  value:
+                    code: "1001004"
+                    description: "Direction Error"   
+                    
+    Generic403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInfo"
+              examples:
+                UserStatusError:
+                  summary: User Status Error
+                  value:
+                    status: "0001002"
+                    description: "User Status Error"              
+                TrafficControlFailure:
+                  summary: Audio traffic control failed
+                  value:
+                    status: "0001002"
+                    description: "Traffic Control Failure"        
+                    
+    Generic500:
+          description: Internal Service Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInfo"
+              examples:
+                InternalServiceError:
+                  summary: Internal Service Error
+                  value:
+                    status: "0000001"
+                    description: "Internal Service Error"              
+                EnginesReturnError:
+                  summary: Audio Network Element Return Error
+                  value:
+                    status: "1000002"
+                    description: "Engines Return Error"              
+                    
+    Generic504:
+          description: Gateway Timeout
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInfo"
+              examples:
+                EngineTimeout:
+                  summary: Audio Network Element Timeout
+                  value:
+                    status: "1000001"
+                    description: "Engine Timeout"                       
