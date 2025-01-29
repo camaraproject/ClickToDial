@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: Click to Dial Service API
-  version: 1.0.0
+  version: wip
   description: |
     Service API for Click to Dial
 
@@ -12,7 +12,7 @@ externalDocs:
   url: https://github.com/camaraproject/
 
 servers:
-  - url: '{serverRoot}/clicktodial/{apiversion}'
+  - url: '{serverRoot}/clicktodial/vwip'
     variables:
       apiRoot:
         default: https://example.com
