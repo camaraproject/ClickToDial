@@ -1,4 +1,4 @@
-Feature: Click to Dial Service API Validations
+Feature: CAMARA Click to Dial API, v0.1.0 - Operation clickToDialStatusNotify
     # Input to be provided by the implementation to the tester
     #
     # Implementation indications:
