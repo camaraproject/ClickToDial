@@ -1,9 +1,9 @@
 # API Readiness Checklist
 
-Checklist for quality-on-demand v1.0.0-rc.1 in r2.1
+Checklist for click-to-dial v0.1.0.alpha in r1.1
 
-| Nr | API release assets                           | alpha | release-candidate | initial<br />public | stable <br /> public | Status | Reference information                                                                                                     |
-| -- | -------------------------------------------- | :---: | :---------------: | :-----------------: | :------------------: | :----: | ------------------------------------------------------------------------------------------------------------------------- |
+| Nr | API release assets                           | alpha | release-candidate | initial<br />public | stable<br /> public | Status | Reference information                                                                                                     |
+| -- | -------------------------------------------- | :---: | :---------------: | :-----------------: | :-----------------: | :----: | ------------------------------------------------------------------------------------------------------------------------- |
 | 1  | API definition                               |   M   |         M         |          M          |          M          |   Y   | [/code/API_definitions/Click-to-Dial.yaml](/code/API_definitions/Click-to-Dial.yaml)                                         |
 | 2  | Design guidelines from Commonalities applied |   O   |         M         |          M          |          M          |   Y   | wip                                                                                                                       |
 | 3  | Guidelines from ICM applied                  |   O   |         M         |          M          |          M          |   Y   | wip                                                                                                                       |
@@ -16,8 +16,6 @@ Checklist for quality-on-demand v1.0.0-rc.1 in r2.1
 | 10 | API release numbering convention applied     |   M   |         M         |          M          |          M          |   Y   |                                                                                                                           |
 | 11 | Change log updated                           |   M   |         M         |          M          |          M          |   Y   | [/CHANGELOG.md](/CHANGELOG.md)                                                                                               |
 | 12 | Previous public release was certified        |   O   |         O         |          O          |          M          |   Y   |                                                                                                                           |
-
-(1) GSMA certified implementation of previous version by China Unicom, multiple implementation by other operators  (source: https://www.open-gateway.com/operators-map as of 2024-08-16)
 
 To fill the checklist:
 
