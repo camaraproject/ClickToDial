@@ -1,39 +1,65 @@
-
 # Changelog ClickToDial
 
 ## Table of Contents
 
-- wip
+- r1.1
 
 **Please be aware that the project will have frequent updates to the main branch. There are no compatibility guarantees associated with code in any branch, including main, until it has been released. For example, changes may be reverted before a release is published. For the best results, use the latest published release.**
 
 The below sections record the changes for each API version in each release as follows:
 
-* for an alpha release, the delta with respect to the previous release
-* for the first release-candidate, all changes since the last public release
-* for subsequent release-candidate(s), only the delta to the previous release-candidate
-* for a public release, the consolidated changes since the previous public release
+- for an alpha release, the delta with respect to the previous release
+- for the first release-candidate, all changes since the last public release
+- for subsequent release-candidate(s), only the delta to the previous release-candidate
+- for a public release, the consolidated changes since the previous public release
 
-# wip
+## r1.1
 
-**The WIP version contributed API definitions, test definitions, and some essential documentation.**
+## Release Note
 
-## Please note
+This release contains the definition and documentation of
 
-- this "release" is only tagged to document the history of the API, it is not intended to be used by implementors or API customers
-- going forward the implementation [code](https://github.com/camaraproject/QualityOnDemand/tree/50e81e0c4a6a7431c0a7f50c26415caf935be6df/code/API_code) will not be part of releases of CTD API. Instead it will be provided within separate repositories (ClickToDial_PIx).
+- click-to-dial v0.1.0-alpha.1
 
-## What's Changed
+The API definition(s) are based on
 
-* Create Click to Click to Dial_User_Story by @seekwain in https://github.com/camaraproject/ClickToDial/pull/11
-* Add API yaml files by @seekwain in https://github.com/camaraproject/ClickToDial/pull/10
-* Create Click to Dial_API.md by @wuhonglin in https://github.com/camaraproject/ClickToDial/pull/9
-* Add CTD support material by @HanbaiWang  in https://github.com/camaraproject/ClickToDial/pull/6
+- Commonalities v0.5.0
+- Identity and Consent Management v0.3.0
+
+## click-to-dial v0.1.0-alpha.1
+
+click-to-dial v0.1.0-alpha.1 is the first pre-release version of the click-to-dial API.
+
+## Added
+
+- Update for fall2025 @YadingFang in [#22](https://github.com/camaraproject/ClickToDial/pull/22), [#27](https://github.com/camaraproject/ClickToDial/pull/27), [#29](https://github.com/camaraproject/ClickToDial/pull/29), [#31](https://github.com/camaraproject/ClickToDial/pull/31)
+- Create Click to Dial_API.md by @wuhonglin in [#9](https://github.com/camaraproject/ClickToDial/pull/9)
+- Add CTD support material by @HanbaiWang  in [#6](https://github.com/camaraproject/ClickToDial/pull/6)
+- Create Click to Dial_User_Story by @seekwain in [#11](https://github.com/camaraproject/ClickToDial/pull/11)
+- Add API yaml files by @seekwain in [#10](https://github.com/camaraproject/ClickToDial/pull/10)
+- Create Click to Dial_API.md by @wuhonglin in [#9](https://github.com/camaraproject/ClickToDial/pull/9)
+- Add CTD support material by @HanbaiWang  in [#6](https://github.com/camaraproject/ClickToDial/pull/6)
+
+## Changed
+
+- N/A
+
+## Fixed
+
+- N/A
+
+## Removed
+
+- N/A
 
 ## New Contributors
 
-* @HanbaiWang made their first contribution in https://github.com/camaraproject/ClickToDial/pull/4
-* @wuhonglin  made their first contribution in https://github.com/camaraproject/ClickToDial/pull/9
-* @seekwain made their  first contribution in https://github.com/camaraproject/ClickToDial/pull/10
+- @HanbaiWang made their first contribution in [#4](https://github.com/camaraproject/ClickToDial/pull/4)
+- @rartych made their first contribution in [#5](https://github.com/camaraproject/ClickToDial/pull/5)
+- @wuhonglin made their first contribution in [#9](https://github.com/camaraproject/ClickToDial/pull/9)
+- @seekwain made their first contribution in [#10](https://github.com/camaraproject/ClickToDial/pull/10)
+- @hdamker made their first contribution in [#14](https://github.com/camaraproject/ClickToDial/pull/14)
+- @wrathwolf made their first contribution in [#19](https://github.com/camaraproject/ClickToDial/pull/19)
+- @YadingFang make their first contribution in [#22](https://github.com/camaraproject/ClickToDial/pull/22)
 
-**Full Changelog**: https://github.com/camaraproject/ClickToDial/commits/main/
+**Full Changelog**: [https://github.com/camaraproject/ClickToDial/commits/r1.1/](https://github.com/camaraproject/ClickToDial/commits/r1.1/)
