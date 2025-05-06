@@ -2,9 +2,8 @@ openapi: 3.0.0
 
 info:
   title: Click to Dial Service API
-  version: 0.1.0
   description: |
-    The Click to Dial API refers to the ability of users to initiate a call request through an enterprise platform or application. The Click to Dial API receives the request and processes it, subsequently connecting both the calling and called parties. Once the parties answer the call, it enables point-to-point voice communication between them.For specific details, please refer to [Click-to-Dial_API.md](https://github.com/camaraproject/ClickToDial/blob/main/code/API_definitions/Click-to-Dial_API.md)
+    The Click to Dial API refers to the ability of users to initiate a call request through an enterprise platform or application. The Click to Dial API receives the request and processes it, subsequently connecting both the calling and called parties. Once the parties answer the call, it enables point-to-point voice communication between them.For specific details, please refer to [click-to-dial_API.md](/documentation/API_documentation/click-to-dial_API.md)
 
     # Introduction
 
@@ -29,18 +28,22 @@ info:
     # Further info and support
 
     (FAQs will be added in a later version of the documentation)
-
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.1.0-alpha.1
+  x-camara-commonalities: 0.5
 
 externalDocs:
-  description: Product documentation at Camara
-  url: https://github.com/camaraproject/
+  description: Project documentation at Camara
+  url: https://github.com/camaraproject/ClickToDial
 
 servers:
-  - url: '{serverRoot}/click-to-dial/v0.1.0'
+  - url: '{apiRoot}/click-to-dial/v0.1alpha1'
     variables:
       apiRoot:
-        default: https://example.com
-        description: API root
+        default: http://localhost:9091
+        description: API root, defined by the service provider, e.g. `api.example.com` or `api.example.com/somepath`
 
 security:
   - oAuth2ClientCredentials: []
@@ -207,10 +210,6 @@ components:
         - sponsor    
         - caller
         - callee 
-    sponsor:
-      type: string
-      description: Platform number, and the number format follows E.164
-      example: '01052680000'
     caller:
       type: string
       description: Caller number, and the number format follows E.164

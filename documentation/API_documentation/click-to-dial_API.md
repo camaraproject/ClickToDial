@@ -83,7 +83,7 @@ The client uses the access token to make authorized API requests to access the p
 
 ### 4.1 API Version
 
-0.1.0
+0.1.0-alpha.1
 
 ### 4.2 Details
 

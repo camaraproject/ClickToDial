@@ -1,10 +1,10 @@
-Feature: CAMARA Click to Dial API, v0.1.0 - Operation recordingDownload
+Feature: CAMARA Click to Dial API, v0.1.0-alpha.1 - Operation recordingDownload
     # Input to be provided by the implementation to the tester
     #
     # Implementation indications:
     # * apiRoot: API root of the server URL
     #
-    # References to OAS spec schemas refer to schemas specified in Click to Dial.yaml, version 0.1.0
+    # References to OAS spec schemas refer to schemas specified in click-to-dial.yaml, version 0.1.0-alpha.1
 
   Background: Common RecordingDownload setup
     Given an environment at "apiRoot"       |
