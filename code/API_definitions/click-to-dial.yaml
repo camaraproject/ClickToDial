@@ -13,8 +13,8 @@ info:
 
     Based on the Click-to-Dial API, users can initiate and terminate click-to-call sessions. The Click-to-Call API has the following features:
 
-    * The API user invokes the Click-to-Dial Begin API to establish a call between the caller and the callee.
-    * The API user invokes the Click-to-Dial Release API to end the call between the caller and the callee.
+    * The API user invokes the Click-to-Dial Begin Operation to establish a call between the caller and the callee.
+    * The API user invokes the Click-to-Dial Release Operation to end the call between the caller and the callee.
     * The API user can optionally specify a callback URL (parameter) to receive status notifications at that URL. <br>
 
     # Authorization and authentication
@@ -45,9 +45,6 @@ servers:
         default: http://localhost:9091
         description: API root, defined by the service provider, e.g. `api.example.com` or `api.example.com/somepath`
 
-security:
-  - oAuth2ClientCredentials: []
-
 paths:
   /click-to-dial-begin:
     post:
@@ -70,7 +67,7 @@ paths:
             post:
               summary: Provisioning notifications callback
               description: |
-                Important: this endpoint is to be implemented by the API consumer.The CTD server will call this endpoint whenever any CTD provisioning change related event occurs.Currently only `CALL_STATUS_CHANGED` event is defined.
+                Important: this endpoint is to be implemented by the API consumer.The Click To Dial server will call this endpoint whenever any Click To Dial provisioning change related event occurs.Currently only `CALL_STATUS_CHANGED` event is defined.
               operationId: postProvisioningNotification
               parameters:
                 - $ref: "#/components/parameters/x-correlator"
@@ -95,10 +92,6 @@ paths:
                   $ref: "#/components/responses/Generic401"
                 "403":
                   $ref: "#/components/responses/Generic403"
-                "500":
-                  $ref: "#/components/responses/Generic500"
-                "503":
-                  $ref: "#/components/responses/Generic503"
       responses:
         '200':
           description:  The result of Click to Dial Begin 
@@ -110,8 +103,9 @@ paths:
           $ref: '#/components/responses/Generic400'
         '403':
           $ref: '#/components/responses/Generic403'
-        '500':
-          $ref: '#/components/responses/Generic500'          
+      security:
+        - openId:
+            - "click-to-dial:click-to-dial:begin"
 
   /click-to-dial-release/{callidentifier}:
     delete:
@@ -134,8 +128,9 @@ paths:
           $ref: '#/components/responses/Generic400'
         '403':
           $ref: '#/components/responses/Generic403'
-        '500':
-          $ref: '#/components/responses/Generic500'          
+      security:
+        - openId:
+            - "click-to-dial:click-to-dial:release"      
 
   /recording-download/{callidentifier}:
     get:
@@ -162,11 +157,16 @@ paths:
           $ref: '#/components/responses/Generic400'
         '403':
           $ref: '#/components/responses/Generic403'
-        '500':
-          $ref: '#/components/responses/Generic500'          
+      security:
+        - openId:
+            - "click-to-dial:click-to-dial:recording-download"
           
 components:
   securitySchemes:
+    openId:
+      type: openIdConnect
+      description: This API uses OpenID Connect for authentication and authorization.
+      openIdConnectUrl: "https://example.com/.well-known/openid-configuration"
     oAuth2ClientCredentials:
       type: oauth2
       description: This API uses OAuth 2 with the client credentials grant flow.
@@ -185,6 +185,8 @@ components:
       description: Correlation id for the different services
       schema:
         type: string
+        pattern: '^[a-zA-Z0-9-]{0,55}$'
+        example: 'b4333c46-49c0-4f62-80d7-f0ef930f1c46'
   
   parameters:
     x-correlator:
@@ -193,6 +195,8 @@ components:
       description: Correlation id for the different services
       schema:
         type: string
+        pattern: '^[a-zA-Z0-9-]{0,55}$'
+        example: 'b4333c46-49c0-4f62-80d7-f0ef930f1c46'
       
   schemas:
     ClickToDialBeginRequest:
@@ -207,16 +211,16 @@ components:
         sinkCredential:
           $ref: '#/components/schemas/sinkCredential'
       required:
-        - sponsor    
         - caller
         - callee 
     caller:
       type: string
       description: Caller number, and the number format follows E.164
-      example: '12345678'
+      pattern: '^\+[1-9]\d{1,14}$'
+      example: '+12345678'
     sink:
       type: string
-      format: url
+      format: uri
       description: The address to which events shall be delivered, using the HTTP protocol.
       example: "https://endpoint.example.com/sink"
     sinkCredential:
@@ -224,7 +228,8 @@ components:
     callee:
       type: string
       description: Callee number, and the number format follows E.164
-      example: '12345678'  
+      pattern: '^\+[1-9]\d{1,14}$'
+      example: '+12345678'  
     SinkCredential:
       description: A sink credential provides authentication or authorization information necessary to enable delivery of events to a target.
       type: object
@@ -583,39 +588,6 @@ components:
                 status: 404
                 code: NOT_FOUND
                 message: The specified resource is not found.
-    Generic503:
-      description: Service unavailable
-      headers:
-        x-correlator:
-          $ref: "#/components/headers/x-correlator"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorInfo"
-          examples:
-            GENERIC_503_UNAVAILABLE:
-              description: Service is not available. Temporary situation usually related to maintenance process in the server side
-              value:
-                status: 503
-                code: UNAVAILABLE
-                message: Service Unavailable.
-                
-    Generic500:
-      description: Internal server error
-      headers:
-        x-correlator:
-          $ref: "#/components/headers/x-correlator"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorInfo"
-          examples:
-            GENERIC_500_INTERNAL:
-              description: Problem in Server side. Regular Server Exception
-              value:
-                status: 500
-                code: INTERNAL
-                message: Unknown server error. Typically a server bug.                 
 
   examples:
     CALL_STATUS_CHANGED_EXAMPLE:

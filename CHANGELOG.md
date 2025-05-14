@@ -38,7 +38,7 @@ click-to-dial v0.1.0-alpha.1 is the first pre-release version of the click-to-di
 
 - Update for fall2025 by @YadingFang in [#22](https://github.com/camaraproject/ClickToDial/pull/22), [#27](https://github.com/camaraproject/ClickToDial/pull/27), [#29](https://github.com/camaraproject/ClickToDial/pull/29), [#31](https://github.com/camaraproject/ClickToDial/pull/31), [#32](https://github.com/camaraproject/ClickToDial/pull/32)
 - Create Click to Dial_API.md by @wuhonglin in [#9](https://github.com/camaraproject/ClickToDial/pull/9)
-- Add CTD support material by @HanbaiWang  in [#6](https://github.com/camaraproject/ClickToDial/pull/6)
+- Add Click to Dial support material by @HanbaiWang  in [#6](https://github.com/camaraproject/ClickToDial/pull/6)
 - Create Click to Dial_User_Story by @seekwain in [#11](https://github.com/camaraproject/ClickToDial/pull/11)
 - Add API yaml files by @seekwain in [#10](https://github.com/camaraproject/ClickToDial/pull/10)
 - Create Click to Dial_API.md by @wuhonglin in [#9](https://github.com/camaraproject/ClickToDial/pull/9)
@@ -59,11 +59,8 @@ click-to-dial v0.1.0-alpha.1 is the first pre-release version of the click-to-di
 ## New Contributors
 
 - @HanbaiWang made their first contribution in [#4](https://github.com/camaraproject/ClickToDial/pull/4)
-- @rartych made their first contribution in [#5](https://github.com/camaraproject/ClickToDial/pull/5)
 - @wuhonglin made their first contribution in [#9](https://github.com/camaraproject/ClickToDial/pull/9)
 - @seekwain made their first contribution in [#10](https://github.com/camaraproject/ClickToDial/pull/10)
-- @hdamker made their first contribution in [#14](https://github.com/camaraproject/ClickToDial/pull/14)
-- @wrathwolf made their first contribution in [#19](https://github.com/camaraproject/ClickToDial/pull/19)
 - @YadingFang make their first contribution in [#22](https://github.com/camaraproject/ClickToDial/pull/22)
 
 **Full Changelog**: [https://github.com/camaraproject/ClickToDial/commits/r1.1/](https://github.com/camaraproject/ClickToDial/commits/r1.1/)
