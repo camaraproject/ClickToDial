@@ -2,9 +2,8 @@ openapi: 3.0.0
 
 info:
   title: Click to Dial Service API
-  version: 0.1.0
   description: |
-    The Click to Dial API refers to the ability of users to initiate a call request through an enterprise platform or application. The Click to Dial API receives the request and processes it, subsequently connecting both the calling and called parties. Once the parties answer the call, it enables point-to-point voice communication between them.For specific details, please refer to [Click-to-Dial_API.md](https://github.com/camaraproject/ClickToDial/blob/main/code/API_definitions/Click-to-Dial_API.md)
+    The Click to Dial API refers to the ability of users to initiate a call request through an enterprise platform or application. The Click to Dial API receives the request and processes it, subsequently connecting both the calling and called parties. Once the parties answer the call, it enables point-to-point voice communication between them.For specific details, please refer to [click-to-dial_API.md](/documentation/API_documentation/click-to-dial_API.md)
 
     # Introduction
 
@@ -14,8 +13,8 @@ info:
 
     Based on the Click-to-Dial API, users can initiate and terminate click-to-call sessions. The Click-to-Call API has the following features:
 
-    * The API user invokes the Click-to-Dial Begin API to establish a call between the caller and the callee.
-    * The API user invokes the Click-to-Dial Release API to end the call between the caller and the callee.
+    * The API user invokes the Click-to-Dial Begin Operation to establish a call between the caller and the callee.
+    * The API user invokes the Click-to-Dial Release Operation to end the call between the caller and the callee.
     * The API user can optionally specify a callback URL (parameter) to receive status notifications at that URL. <br>
 
     # Authorization and authentication
@@ -29,21 +28,22 @@ info:
     # Further info and support
 
     (FAQs will be added in a later version of the documentation)
-
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.1.0-alpha.1
+  x-camara-commonalities: 0.5
 
 externalDocs:
-  description: Product documentation at Camara
-  url: https://github.com/camaraproject/
+  description: Project documentation at Camara
+  url: https://github.com/camaraproject/ClickToDial
 
 servers:
-  - url: '{serverRoot}/click-to-dial/v0.1.0'
+  - url: '{apiRoot}/click-to-dial/v0.1alpha1'
     variables:
       apiRoot:
-        default: https://example.com
-        description: API root
-
-security:
-  - oAuth2ClientCredentials: []
+        default: http://localhost:9091
+        description: API root, defined by the service provider, e.g. `api.example.com` or `api.example.com/somepath`
 
 paths:
   /click-to-dial-begin:
@@ -65,10 +65,10 @@ paths:
         notifications:
           "{$request.body#/sink}":
             post:
-              summary: Provisioning notifications callback
+              summary: Call status notifications callback
               description: |
-                Important: this endpoint is to be implemented by the API consumer.The CTD server will call this endpoint whenever any CTD provisioning change related event occurs.Currently only `CALL_STATUS_CHANGED` event is defined.
-              operationId: postProvisioningNotification
+                Important: this endpoint is to be implemented by the API consumer.The Click To Dial server will call this endpoint whenever any Click To Dial call status change related event occurs.Currently only `CALL_STATUS_CHANGED` event is defined.
+              operationId: postNotification
               parameters:
                 - $ref: "#/components/parameters/x-correlator"
               requestBody:
@@ -92,10 +92,6 @@ paths:
                   $ref: "#/components/responses/Generic401"
                 "403":
                   $ref: "#/components/responses/Generic403"
-                "500":
-                  $ref: "#/components/responses/Generic500"
-                "503":
-                  $ref: "#/components/responses/Generic503"
       responses:
         '200':
           description:  The result of Click to Dial Begin 
@@ -107,8 +103,9 @@ paths:
           $ref: '#/components/responses/Generic400'
         '403':
           $ref: '#/components/responses/Generic403'
-        '500':
-          $ref: '#/components/responses/Generic500'          
+      security:
+        - openId:
+            - "click-to-dial:click-to-dial-begin"
 
   /click-to-dial-release/{callidentifier}:
     delete:
@@ -131,8 +128,9 @@ paths:
           $ref: '#/components/responses/Generic400'
         '403':
           $ref: '#/components/responses/Generic403'
-        '500':
-          $ref: '#/components/responses/Generic500'          
+      security:
+        - openId:
+            - "click-to-dial:click-to-dial-release"      
 
   /recording-download/{callidentifier}:
     get:
@@ -159,29 +157,24 @@ paths:
           $ref: '#/components/responses/Generic400'
         '403':
           $ref: '#/components/responses/Generic403'
-        '500':
-          $ref: '#/components/responses/Generic500'          
+      security:
+        - openId:
+            - "click-to-dial:click-to-dial-download"
           
 components:
   securitySchemes:
-    oAuth2ClientCredentials:
-      type: oauth2
-      description: This API uses OAuth 2 with the client credentials grant flow.
-      flows:
-        clientCredentials:
-          tokenUrl: "{tokenUrl}"
-          scopes: {}
-    apiKey:
-      type: apiKey
-      description: API key to authorize requests
-      name: apikey
-      in: query
+    openId:
+      type: openIdConnect
+      description: This API uses OpenID Connect for authentication and authorization.
+      openIdConnectUrl: "https://example.com/.well-known/openid-configuration"
     
   headers:
     x-correlator:
       description: Correlation id for the different services
       schema:
         type: string
+        pattern: '^[a-zA-Z0-9-]{0,55}$'
+        example: 'b4333c46-49c0-4f62-80d7-f0ef930f1c46'
   
   parameters:
     x-correlator:
@@ -190,6 +183,8 @@ components:
       description: Correlation id for the different services
       schema:
         type: string
+        pattern: '^[a-zA-Z0-9-]{0,55}$'
+        example: 'b4333c46-49c0-4f62-80d7-f0ef930f1c46'
       
   schemas:
     ClickToDialBeginRequest:
@@ -204,20 +199,16 @@ components:
         sinkCredential:
           $ref: '#/components/schemas/sinkCredential'
       required:
-        - sponsor    
         - caller
         - callee 
-    sponsor:
-      type: string
-      description: Platform number, and the number format follows E.164
-      example: '01052680000'
     caller:
       type: string
       description: Caller number, and the number format follows E.164
-      example: '12345678'
+      pattern: '^\+[1-9]\d{1,14}$'
+      example: '+12345678'
     sink:
       type: string
-      format: url
+      format: uri
       description: The address to which events shall be delivered, using the HTTP protocol.
       example: "https://endpoint.example.com/sink"
     sinkCredential:
@@ -225,7 +216,8 @@ components:
     callee:
       type: string
       description: Callee number, and the number format follows E.164
-      example: '12345678'  
+      pattern: '^\+[1-9]\d{1,14}$'
+      example: '+12345678'  
     SinkCredential:
       description: A sink credential provides authentication or authorization information necessary to enable delivery of events to a target.
       type: object
@@ -478,7 +470,7 @@ components:
           description: The type of the event.
           type: string
           enum:
-            - "org.camaraproject.qod-provisioning.v0.status-changed"
+            - "org.camaraproject.click-to-dial.v0.status-changed"
         specversion:
           description: Version of the specification to which this event conforms (must be 1.0 if it conforms to cloudevents 1.0.2 version)
           type: string
@@ -584,44 +576,11 @@ components:
                 status: 404
                 code: NOT_FOUND
                 message: The specified resource is not found.
-    Generic503:
-      description: Service unavailable
-      headers:
-        x-correlator:
-          $ref: "#/components/headers/x-correlator"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorInfo"
-          examples:
-            GENERIC_503_UNAVAILABLE:
-              description: Service is not available. Temporary situation usually related to maintenance process in the server side
-              value:
-                status: 503
-                code: UNAVAILABLE
-                message: Service Unavailable.
-                
-    Generic500:
-      description: Internal server error
-      headers:
-        x-correlator:
-          $ref: "#/components/headers/x-correlator"
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorInfo"
-          examples:
-            GENERIC_500_INTERNAL:
-              description: Problem in Server side. Regular Server Exception
-              value:
-                status: 500
-                code: INTERNAL
-                message: Unknown server error. Typically a server bug.                 
 
   examples:
     CALL_STATUS_CHANGED_EXAMPLE:
-      description: Provisioning status changed
-      summary: Cloud event example for QoD provisioning status change to UNAVAILABLE due to NETWORK_TERMINATED
+      description: Call status changed
+      summary: Cloud event example for Click To Dial status change to CallingCaller due to Calling the Caller
       value:
         id: 83a0d986-0866-4f38-b8c0-fc65bfcda452
         source: https://api.example.com/clicktodial/v0.1/clicktodialstatusnotify/123e4567-e89b-12d3-a456-426614174000

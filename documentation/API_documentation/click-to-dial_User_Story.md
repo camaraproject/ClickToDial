@@ -1,4 +1,4 @@
-# Click-to-Dial (CtD) API User Story
+# Click-to-Dial (CTD) API User Story
 
 | **Item**   | **Details**    |
 | ------------------------ | ----------- |

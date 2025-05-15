@@ -19,9 +19,9 @@ Repository to describe, develop, document and test the ClickToDial API family
 
 ## Release Information
 <!-- Use/uncomment one or multiple the following options -->
-<!-- Pre-releases of this sub project are available in https://github.com/camaraproject/§repo_name§/releases -->
-<!-- The latest public release is available here: https://github.com/camaraproject/§repo_name§/releases/latest -->
-<!-- For changes see [CHANGELOG.md](https://github.com/camaraproject/§repo_name§/blob/main/CHANGELOG.md) -->
+Pre-releases of this sub project are available in https://github.com/camaraproject/ClickToDial/releases
+<!-- The latest public release is available here: https://github.com/camaraproject/ClickToDial/releases/latest -->
+For changes see [CHANGELOG.md](https://github.com/camaraproject/ClickToDial/blob/main/CHANGELOG.md) 
 
 ## Contributing
 * Meetings are held virtually <!-- for new API families request a meeting link from the LF admin team or replace the information with the existing meeting information (of the API family) -->
