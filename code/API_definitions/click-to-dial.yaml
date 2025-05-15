@@ -65,10 +65,10 @@ paths:
         notifications:
           "{$request.body#/sink}":
             post:
-              summary: Provisioning notifications callback
+              summary: Call status notifications callback
               description: |
-                Important: this endpoint is to be implemented by the API consumer.The Click To Dial server will call this endpoint whenever any Click To Dial provisioning change related event occurs.Currently only `CALL_STATUS_CHANGED` event is defined.
-              operationId: postProvisioningNotification
+                Important: this endpoint is to be implemented by the API consumer.The Click To Dial server will call this endpoint whenever any Click To Dial call status change related event occurs.Currently only `CALL_STATUS_CHANGED` event is defined.
+              operationId: postNotification
               parameters:
                 - $ref: "#/components/parameters/x-correlator"
               requestBody:
@@ -105,7 +105,7 @@ paths:
           $ref: '#/components/responses/Generic403'
       security:
         - openId:
-            - "click-to-dial:click-to-dial:begin"
+            - "click-to-dial:click-to-dial-begin"
 
   /click-to-dial-release/{callidentifier}:
     delete:
@@ -130,7 +130,7 @@ paths:
           $ref: '#/components/responses/Generic403'
       security:
         - openId:
-            - "click-to-dial:click-to-dial:release"      
+            - "click-to-dial:click-to-dial-release"      
 
   /recording-download/{callidentifier}:
     get:
@@ -159,7 +159,7 @@ paths:
           $ref: '#/components/responses/Generic403'
       security:
         - openId:
-            - "click-to-dial:click-to-dial:recording-download"
+            - "click-to-dial:click-to-dial-download"
           
 components:
   securitySchemes:
@@ -167,18 +167,6 @@ components:
       type: openIdConnect
       description: This API uses OpenID Connect for authentication and authorization.
       openIdConnectUrl: "https://example.com/.well-known/openid-configuration"
-    oAuth2ClientCredentials:
-      type: oauth2
-      description: This API uses OAuth 2 with the client credentials grant flow.
-      flows:
-        clientCredentials:
-          tokenUrl: "{tokenUrl}"
-          scopes: {}
-    apiKey:
-      type: apiKey
-      description: API key to authorize requests
-      name: apikey
-      in: query
     
   headers:
     x-correlator:
@@ -482,7 +470,7 @@ components:
           description: The type of the event.
           type: string
           enum:
-            - "org.camaraproject.qod-provisioning.v0.status-changed"
+            - "org.camaraproject.clicktodial.v0.status-changed"
         specversion:
           description: Version of the specification to which this event conforms (must be 1.0 if it conforms to cloudevents 1.0.2 version)
           type: string
@@ -591,8 +579,8 @@ components:
 
   examples:
     CALL_STATUS_CHANGED_EXAMPLE:
-      description: Provisioning status changed
-      summary: Cloud event example for QoD provisioning status change to UNAVAILABLE due to NETWORK_TERMINATED
+      description: Call status changed
+      summary: Cloud event example for Click To Dial status change to CallingCaller due to Calling the Caller
       value:
         id: 83a0d986-0866-4f38-b8c0-fc65bfcda452
         source: https://api.example.com/clicktodial/v0.1/clicktodialstatusnotify/123e4567-e89b-12d3-a456-426614174000
