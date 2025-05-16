@@ -1,5 +1,6 @@
-| Org                    | Name                     | GitHub Username           |
-| -----------------------| -------------------------|---------------------------|
-| China Mobile | Hanbei Wang | HanbaiWang |
-| China Telecom | Dan Xu | DanXu-ChinaTelecom |
-| Huawei | Shuting Qing | ShutingQing |
+| Org           | Name        | GitHub Username    |
+| ------------- | ----------- | ------------------ |
+| China Mobile  | Yading Fang | YadingFang         |
+| China Mobile  | Hao Zheng   | Wojiaozhenghao     |
+| China Telecom | Dan Xu      | DanXu-ChinaTelecom |
+| Huawei        | Xunli Yang  | XunliYang          |
