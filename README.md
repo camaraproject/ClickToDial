@@ -5,17 +5,21 @@
 <a href="https://github.com/camaraproject/ClickToDial" title="Repo Size"><img src="https://img.shields.io/github/repo-size/camaraproject/ClickToDial?style=plastic"></a>
 <a href="https://github.com/camaraproject/ClickToDial/blob/main/LICENSE" title="License"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg?style=plastic"></a>
 <a href="https://github.com/camaraproject/ClickToDial/releases/latest" title="Latest Release"><img src="https://img.shields.io/github/release/camaraproject/ClickToDial?style=plastic"></a>
+<a href="https://github.com/camaraproject/Governance/blob/main/ProjectStructureAndRoles.md" title="Sandbox API Repository"><img src="https://img.shields.io/badge/Sandbox%20API%20Repository-yellow?style=plastic"></a>
+
 
 # ClickToDial
-Repository to describe, develop, document and test the ClickToDial API family
+
+Sandbox API Repository to describe, develop, document, and test the ClickToDial Service API(s). The repository does not yet belong to a CAMARA Sub Project.
+
+* API Repository [Click To Dial](https://lf-camaraproject.atlassian.net/wiki/x/3DHe)
 
 ## Scope
 * Service APIs for “Click-To-Dial” (see APIBacklog.md)  
 * It provides the customer with the ability to:  
-  * establish web-based communication by clicking an object (e.g., button, image or text) to request an immediate connection with another person in real-time either by phone call, Voice-over-Internet-Protocol (VoIP), or text.
-* Describe, develop, document and test the APIs (with 1-2 Telcos)  
-* Started: September 2023
-* Location: virtually  
+  * establish web-based communication by clicking an object (e.g., button, image or text) to request an immediate connection with another person in real-time either by phone call, Voice-over-Internet-Protocol (VoIP), or text
+* Describe, develop, document and test the APIs  
+* Started: September 2023  
 
 ## Release Information
 <!-- Use/uncomment one or multiple the following options -->
