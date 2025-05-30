@@ -47,7 +47,7 @@ servers:
         description: API root, defined by the service provider, e.g. `api.example.com` or `api.example.com/somepath`
 
 paths:
-  /click-to-dial-begin:
+  /begin:
     post:
       tags:
         - Click To Dial Initiation
@@ -58,7 +58,7 @@ paths:
       operationId: ClickToDialBegin
       security:
         - openId:
-            - "click-to-dial:click-to-dial-begin"
+            - "click-to-dial:begin"
       parameters:
         - $ref: "#/components/parameters/x-correlator"
       requestBody:
@@ -119,7 +119,7 @@ paths:
         '403':
           $ref: '#/components/responses/Generic403'
 
-  /click-to-dial-release/{callidentifier}: 
+  /release/{callidentifier}: 
     delete:
       tags:
         - Click To Dial Release
@@ -130,7 +130,7 @@ paths:
       operationId: ClickToDialRelease
       security:
         - openId:
-            - "click-to-dial:click-to-dial-release"      
+            - "click-to-dial:release"      
       parameters:
         - name: callidentifier
           in: path
@@ -158,7 +158,7 @@ paths:
       operationId: RecordingDownload
       security:
         - openId:
-            - "click-to-dial:click-to-dial-download"
+            - "click-to-dial:recording-download"
       parameters:
         - name: callidentifier
           in: path

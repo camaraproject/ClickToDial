@@ -22,7 +22,7 @@ The Click to Dial API allows users to initiate and manage calls via an enterpris
 #### 2.2.1 Initiate a Call
 
 ```bash
-curl -X POST "{apiRoot}/click-to-dial-begin" \
+curl -X POST "{apiRoot}/begin" \
      -H "Authorization: Bearer {access_token}" \
      -H "Content-Type: application/json" \
      -d '{
@@ -57,7 +57,7 @@ curl -X POST "{apiRoot}/click-to-dial-begin" \
 #### 2.2.3 Release a Call
 
 ```bash
-  curl -X DELETE "{apiRoot}/click-to-dial-release/A010B020" \
+  curl -X DELETE "{apiRoot}/release/A010B020" \
        -H "Authorization: Bearer {access_token}" \
 ```
 
@@ -102,9 +102,9 @@ This API uses **OpenID Connect** for authentication and authorization. Obtain yo
 
 #### 4.2.1 API sequencing
 
-1. Client calls **POST /click-to-dial-begin** to start a call.
+1. Client calls **POST /begin** to start a call.
 2. Server initiates calls to both caller and callee.
-3. (Optional) Client may call **DELETE /click-to-dial-release/{callidentifier}** to end a call.
+3. (Optional) Client may call **DELETE /release/{callidentifier}** to end a call.
 4. Status notifications are sent via HTTP POST to the provided `sink` URL.
 
 #### 4.2.1 API attributes
@@ -142,7 +142,7 @@ This API uses **OpenID Connect** for authentication and authorization. Obtain yo
 
 **Release Call**
 
-- Call identifier is provided as a path parameter in DELETE /click-to-dial-release/{callidentifier}.
+- Call identifier is provided as a path parameter in DELETE /release/{callidentifier}.
 
 **Recording Download**
 
@@ -152,8 +152,8 @@ This API uses **OpenID Connect** for authentication and authorization. Obtain yo
 
 | Endpoint                                   | Method | Description                        |
 |---------------------------------------------|--------|------------------------------------|
-| /click-to-dial-begin                       | POST   | Start a click-to-dial call         |
-| /click-to-dial-release/{callidentifier}     | DELETE | End (release) a click-to-dial call |
+| /begin                       | POST   | Start a click-to-dial call         |
+| /release/{callidentifier}     | DELETE | End (release) a click-to-dial call |
 | /recording-download/{callidentifier}        | GET    | Download call recording            |
 
 ### 4.4 Errors
@@ -179,7 +179,7 @@ N/A
 #### Start a Call
 
 ```bash
-curl -X POST "{apiRoot}/click-to-dial-begin" \
+curl -X POST "{apiRoot}/begin" \
   -H "Authorization: Bearer {access_token}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -198,7 +198,7 @@ curl -X POST "{apiRoot}/click-to-dial-begin" \
 #### Release a Call
 
 ```bash
-curl -X DELETE "{apiRoot}/click-to-dial-release/A010B020" \
+curl -X DELETE "{apiRoot}/release/A010B020" \
   -H "Authorization: Bearer {access_token}"
 ```
 
