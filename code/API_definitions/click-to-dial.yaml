@@ -3,11 +3,11 @@ openapi: 3.0.0
 info:
   title: Click to Dial Service API
   description: |
-    The Click to Dial API refers to the ability of users to initiate a call request through an enterprise platform or application. The Click to Dial API receives the request and processes it, subsequently connecting both the calling and called parties. Once the parties answer the call, it enables point-to-point voice communication between them.For specific details, please refer to [click-to-dial_API.md](/documentation/API_documentation/click-to-dial_API.md)
+    The Click to Dial API allows users to initiate and manage calls via an enterprise platform or application. The API processes call requests, sets up the call, and provides optional notifications and call recording features. For specific details, please refer to [click-to-dial_API.md](/documentation/API_documentation/click-to-dial_API.md)
 
     # Introduction
 
-    The Click to Dial API displays the enterprise business number to both users during the call to hide the numbers of both the calling and called parties, effectively protecting user privacy. Real-time feedback on call status assists in managing the call process for the enterprise. Enterprise members share a pool of minutes, with the enterprise bearing unified payment, eliminating issues such as exceeding limits or wasting leftover package resources, thus reducing costs and increasing efficiency for the enterprise.
+    The API displays the enterprise business number to both users during a call, masking both the caller and callee’s real numbers to preserve privacy. Real-time feedback and notifications are supported via HTTP callbacks. Enterprise members share a pool of minutes, with the enterprise bearing unified payment, eliminating issues such as exceeding limits or wasting leftover package resources, thus reducing costs and increasing efficiency for the enterprise.
 
     # API functionality
 
@@ -28,6 +28,7 @@ info:
     # Further info and support
 
     (FAQs will be added in a later version of the documentation)
+
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -48,10 +49,16 @@ servers:
 paths:
   /click-to-dial-begin:
     post:
-      summary: The app calls this API to establish a call between caller and callee.
-      operationId: ClickToDialBegin
       tags:
-        - Click To Dial Begin
+        - Click To Dial Initiation
+      summary: The app calls this API to establish a call between caller and callee.
+      description: |
+        Developer application calls click dial to initiate API and establish a call between the caller and the recipient
+
+      operationId: ClickToDialBegin
+      security:
+        - openId:
+            - "click-to-dial:click-to-dial-begin"
       parameters:
         - $ref: "#/components/parameters/x-correlator"
       requestBody:
@@ -65,9 +72,14 @@ paths:
         notifications:
           "{$request.body#/sink}":
             post:
-              summary: Call status notifications callback
+              tags:
+                - Call status notifications callback
+              summary: "Call status notifications callback"
               description: |
-                Important: this endpoint is to be implemented by the API consumer.The Click To Dial server will call this endpoint whenever any Click To Dial call status change related event occurs.Currently only `CALL_STATUS_CHANGED` event is defined.
+                Important: this endpoint is to be implemented by the API consumer.
+                The API provider reports the call status between the caller and the callee to the API consumer through this endpoint.
+                The API provider will call this endpoint whenever any call status change related event occurs, currently only `CALL_STATUS_CHANGED` event is defined.
+
               operationId: postNotification
               parameters:
                 - $ref: "#/components/parameters/x-correlator"
@@ -95,6 +107,9 @@ paths:
       responses:
         '200':
           description:  The result of Click to Dial Begin 
+          headers:
+            x-correlator:
+              $ref: '#/components/headers/x-correlator'
           content:
             application/json:
               schema:
@@ -103,14 +118,19 @@ paths:
           $ref: '#/components/responses/Generic400'
         '403':
           $ref: '#/components/responses/Generic403'
+
+  /click-to-dial-release/{callidentifier}: 
+    delete:
+      tags:
+        - Click To Dial Release
+      summary: The app calls this API to release a call.
+      description: |
+        The developer application calls the click dial termination API to end the call between the caller and the recipient.
+
+      operationId: ClickToDialRelease
       security:
         - openId:
-            - "click-to-dial:click-to-dial-begin"
-
-  /click-to-dial-release/{callidentifier}:
-    delete:
-      summary: The app calls this API to release a call.
-      operationId: ClickToDialRelease
+            - "click-to-dial:click-to-dial-release"      
       parameters:
         - name: callidentifier
           in: path
@@ -119,23 +139,26 @@ paths:
           schema:
             $ref: "#/components/schemas/callidentifier"
         - $ref: "#/components/parameters/x-correlator"
-      tags:
-        - Click To Dial Release
       responses:
         '200':
-          description:  Successful notification 
+          description:  Call is released 
+          headers:
+            x-correlator:
+              $ref: '#/components/headers/x-correlator'
         '400':
           $ref: '#/components/responses/Generic400'
         '403':
           $ref: '#/components/responses/Generic403'
-      security:
-        - openId:
-            - "click-to-dial:click-to-dial-release"      
 
   /recording-download/{callidentifier}:
     get:
+      tags:
+        - Recording Download
       summary: The app download the recording.
       operationId: RecordingDownload
+      security:
+        - openId:
+            - "click-to-dial:click-to-dial-download"
       parameters:
         - name: callidentifier
           in: path
@@ -144,11 +167,12 @@ paths:
           schema:
             $ref: "#/components/schemas/callidentifier"
         - $ref: "#/components/parameters/x-correlator"
-      tags:
-        - Recording Download
       responses:
         '200':
           description:  The result of Click to Dial Begin 
+          headers:
+            x-correlator:
+              $ref: '#/components/headers/x-correlator'
           content:
             application/json:
               schema:
@@ -157,9 +181,6 @@ paths:
           $ref: '#/components/responses/Generic400'
         '403':
           $ref: '#/components/responses/Generic403'
-      security:
-        - openId:
-            - "click-to-dial:click-to-dial-download"
           
 components:
   securitySchemes:
@@ -180,7 +201,7 @@ components:
     x-correlator:
       name: x-correlator
       in: header
-      description: Correlation id for the different services
+      description: Correlation ID for the different services
       schema:
         type: string
         pattern: '^[a-zA-Z0-9-]{0,55}$'
@@ -188,6 +209,7 @@ components:
       
   schemas:
     ClickToDialBeginRequest:
+      description: Common attributes of Click to Dial Initiation
       type: object
       properties:
         caller:
@@ -197,38 +219,40 @@ components:
         sink:
           $ref: '#/components/schemas/sink'
         sinkCredential:
-          $ref: '#/components/schemas/sinkCredential'
+          $ref: '#/components/schemas/SinkCredential'
       required:
         - caller
         - callee 
+
     caller:
-      type: string
       description: Caller number, and the number format follows E.164
+      type: string
       pattern: '^\+[1-9]\d{1,14}$'
       example: '+12345678'
+
     sink:
+      description: The address to which events shall be delivered, using the HTTP protocol.
       type: string
       format: uri
-      description: The address to which events shall be delivered, using the HTTP protocol.
       example: "https://endpoint.example.com/sink"
-    sinkCredential:
-      $ref: "#/components/schemas/SinkCredential"
+
     callee:
-      type: string
       description: Callee number, and the number format follows E.164
+      type: string
       pattern: '^\+[1-9]\d{1,14}$'
       example: '+12345678'  
+
     SinkCredential:
       description: A sink credential provides authentication or authorization information necessary to enable delivery of events to a target.
       type: object
       properties:
         credentialType:
+          description: "The type of the credential. Note: MUST set to ACCESSTOKEN for now"
           type: string
           enum:
             - PLAIN
             - ACCESSTOKEN
             - REFRESHTOKEN
-          description: "The type of the credential."
       discriminator:
         propertyName: credentialType
         mapping:
@@ -237,9 +261,10 @@ components:
           REFRESHTOKEN: "#/components/schemas/RefreshTokenCredential"
       required:
         - credentialType
+
     PlainCredential:
-      type: object
       description: A plain credential as a combination of an identifier and a secret.
+      type: object
       allOf:
         - $ref: "#/components/schemas/SinkCredential"
         - type: object
@@ -255,8 +280,8 @@ components:
               type: string
 
     AccessTokenCredential:
-      type: object
       description: An access token credential.
+      type: object
       allOf:
         - $ref: "#/components/schemas/SinkCredential"
         - type: object
@@ -279,8 +304,8 @@ components:
             - accessTokenType
 
     RefreshTokenCredential:
-      type: object
       description: An access token credential with a refresh token.
+      type: object
       allOf:
         - $ref: "#/components/schemas/SinkCredential"
         - type: object
@@ -312,6 +337,7 @@ components:
         - refreshTokenEndpoint
 
     ClickToDialBeginResponse:
+      description: Common attributes of Click to Dial Initiation
       type: object
       properties:
         code:
@@ -324,16 +350,19 @@ components:
         - code
         - description    
         - result
+
     code:
-      type: string
       description: Response code
-      example: '0000000'    
-    description:
       type: string
+      example: '0000000'    
+
+    description:
       description: Response description
+      type: string
       example: 'Success'  
       
     result:
+      description: Response result
       type: object
       properties:
         callidentifier:
@@ -342,11 +371,12 @@ components:
         - callidentifier 
 
     callidentifier:
-      type: string
       description: Call identification
+      type: string
       example: 'A010B020'          
 
     ClickToDialStatusNotifyRequest:
+      description: Common attributes of Click to Dial
       type: object
       properties:
         caller:
@@ -370,16 +400,19 @@ components:
         - callee 
         - status
         - timeStamp
+
     status:
+      description: Call status
       type: string
       enum:
         - CallingCaller
         - CallingCallee
         - Connected
         - Disconnected
-      description: Call status
       example: 'CallingCaller'
+
     reason:
+      description: This field indicates the disconnection reason. This field is mandatory when status is "Disconnected".
       type: string
       enum:
         - HangUp
@@ -391,30 +424,34 @@ components:
         - CalleeNoAnswer
         - CalleeFailure
         - Other
-      description: This field indicates the disconnection reason. This field is mandatory when status is "Disconnected".
       example: 'HangUp'
+
     recordingResult:
+      description: Recording Result. This field is mandatory when Recording is "On".
       type: string
       enum:
         - Success
         - NoRecord
         - Fail
-      description: Recording Result. This field is mandatory when Recording is "On".
       example: 'Success'      
+
     recordingId:
-      type: string
       description: Recording Id. This field is mandatory when recordingResult is "Success".
+      type: string
       example: '20230101120001'          
+
     callDuration:
-      type: string
       description: This field indicates the duration of the calls, in seconds. This field is mandatory when status is "Disconnected".
-      example: '1600'         
-    timeStamp:
       type: string
+      example: '1600'         
+
+    timeStamp:
       description: Time stamp, UTC time..
+      type: string
       example: '2017-12-04T18:07:57Z'       
 
     RecordingDownloadResponse:
+      description: Common attributes of Click to Dial
       type: object
       properties:
         code:
@@ -427,9 +464,10 @@ components:
         - code
         - description    
         - filedata
+
     filedata:
-      type: string
       description: The voice file content.The encoding format can be implemented in the base64.
+      type: string
       example: ''  
       
     ErrorInfo: 
@@ -580,7 +618,7 @@ components:
   examples:
     CALL_STATUS_CHANGED_EXAMPLE:
       description: Call status changed
-      summary: Cloud event example for Click To Dial status change to CallingCaller due to Calling the Caller
+      summary: Cloud event example for Click To Dial status change to Disconnected due to HangUp
       value:
         id: 83a0d986-0866-4f38-b8c0-fc65bfcda452
         source: https://api.example.com/clicktodial/v0.1/clicktodialstatusnotify/123e4567-e89b-12d3-a456-426614174000
@@ -588,11 +626,11 @@ components:
         type: org.camaraproject.clicktodial.v0.status-changed
         time: 2021-12-12T00:00:00Z
         data:
-          caller: 12345678,
-          callee: 12345678,
-          status: CallingCaller,
-          reason: HangUp,
-          recordingResult: Success,
-          recordingId: 20230101120001,
-          callDuration: 1600,
-          timeStamp: 2017-12-04T18:07:57Z
+          caller: "12345678"
+          callee: "12345678"
+          status: "Disconnected"
+          reason: "HangUp"
+          recordingResult: "Success"
+          recordingId: "20230101120001"
+          callDuration: "1600"
+          timeStamp: "2017-12-04T18:07:57Z"
