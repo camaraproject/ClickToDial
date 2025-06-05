@@ -176,7 +176,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecordingDownloadResponse"
+                $ref: "#/components/schemas/recordingDownloadResponse"
         '400':
           $ref: '#/components/responses/Generic400'
         '403':
@@ -375,31 +375,39 @@ components:
       type: string
       example: 'A010B020'          
 
-    ClickToDialStatusNotifyRequest:
+    EventCTDStatusChanged:
       description: Common attributes of Click to Dial
-      type: object
-      properties:
-        caller:
-          $ref: '#/components/schemas/caller'
-        callee:
-          $ref: '#/components/schemas/callee'  
-        status:
-          $ref: '#/components/schemas/status'  
-        reason:
-          $ref: '#/components/schemas/reason'         
-        recordingResult:
-          $ref: '#/components/schemas/recordingResult'        
-        recordingId:
-          $ref: '#/components/schemas/recordingId'        
-        callDuration:
-          $ref: '#/components/schemas/callDuration'            
-        timeStamp:
-          $ref: '#/components/schemas/timeStamp'            
-      required:
-        - caller
-        - callee 
-        - status
-        - timeStamp
+      allOf:
+        - $ref: "#/components/schemas/CloudEvent"
+        - type: object
+        properties:
+          data:
+            type: object
+            description: Event details depending on the event type
+            properties:
+              callidentifier:
+                $ref: '#/components/schemas/callidentifier'
+              caller:
+                $ref: '#/components/schemas/caller'
+              callee:
+                $ref: '#/components/schemas/callee'  
+              status:
+                $ref: '#/components/schemas/status'  
+              reason:
+                $ref: '#/components/schemas/reason'         
+              recordingResult:
+                $ref: '#/components/schemas/recordingResult'        
+              callDuration:
+                $ref: '#/components/schemas/callDuration'            
+              timeStamp:
+                $ref: '#/components/schemas/timeStamp'            
+            required:
+              - caller
+              - callee 
+              - status
+              - timeStamp
+        required:
+          - data
 
     status:
       description: Call status
@@ -435,11 +443,6 @@ components:
         - Fail
       example: 'Success'      
 
-    recordingId:
-      description: Recording Id. This field is mandatory when recordingResult is "Success".
-      type: string
-      example: '20230101120001'          
-
     callDuration:
       description: This field indicates the duration of the calls, in seconds. This field is mandatory when status is "Disconnected".
       type: string
@@ -450,7 +453,7 @@ components:
       type: string
       example: '2017-12-04T18:07:57Z'       
 
-    RecordingDownloadResponse:
+    recordingDownloadResponse:
       description: Common attributes of Click to Dial
       type: object
       properties:
@@ -490,12 +493,6 @@ components:
 
     CloudEvent:
       description: Event compliant with the CloudEvents specification
-      required:
-        - id
-        - source
-        - specversion
-        - type
-        - time
       properties:
         id:
           description: Identifier of this event, that must be unique in the source context.
@@ -527,7 +524,17 @@ components:
             Timestamp of when the occurrence happened. It must follow RFC 3339
           type: string
           format: date-time
-          
+      discriminator:
+        propertyName: 'type'
+        mapping:
+          org.camaraproject.click-to-dial.v0.status-changed: "#/components/schemas/EventCTDStatusChanged"
+      required:
+        - id
+        - source
+        - specversion
+        - type
+        - time
+              
   responses:
     Generic400:
       description: Bad Request
@@ -626,11 +633,11 @@ components:
         type: org.camaraproject.clicktodial.v0.status-changed
         time: 2021-12-12T00:00:00Z
         data:
-          caller: "12345678"
-          callee: "12345678"
+          callidentifier: "123e4567-e89b-12d3-a456-426614174000"
+          caller: "+12345678"
+          callee: "+12345678"
           status: "Disconnected"
           reason: "HangUp"
           recordingResult: "Success"
-          recordingId: "20230101120001"
           callDuration: "1600"
           timeStamp: "2017-12-04T18:07:57Z"
