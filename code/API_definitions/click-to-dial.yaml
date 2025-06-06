@@ -3,7 +3,7 @@ openapi: 3.0.0
 info:
   title: Click to Dial Service API
   description: |
-    The Click to Dial API allows users to initiate and manage calls via an enterprise platform or application. The API processes call requests, sets up the call, and provides optional notifications and call recording features. For specific details, please refer to [click-to-dial_API.md](/documentation/API_documentation/click-to-dial_API.md)
+    The Click to Dial API allows users to initiate and manage calls via an enterprise platform or application. The API processes call requests, sets up the call, and provides optional notifications and call recording features. For specific details, please refer to [click-to-dial_API.md](/documentation/API_documentation/click-to-dial_API.md)。
 
     # Introduction
 
@@ -11,15 +11,13 @@ info:
 
     # API functionality
 
-    Based on the Click-to-Dial API, users can initiate and terminate click-to-call sessions. The Click-to-Call API has the following features:
-
-    * The API user invokes the Click-to-Dial Begin Operation to establish a call between the caller and the callee.
-    * The API user invokes the Click-to-Dial Release Operation to end the call between the caller and the callee.
-    * The API user can optionally specify a callback URL (parameter) to receive status notifications at that URL. <br>
-
+    - Begin Operation: Establish a call between the caller and the callee. Include a callback URL for status notifications in the format of a valid HTTP/HTTPS URI, e.g., "https://example.com/callback".
+    - Recording Download Operation: Download the recording of the call.
+    - Release Operation: End the call between the caller and the callee.
+  
     # Authorization and authentication
 
-    The "Camara Security and Interoperability Profile" provides details of how an API consumer requests an access token. Please refer to Identity and Consent Management (https://github.com/camaraproject/IdentityAndConsentManagement/) for the released version of the profile.
+    The "Camara Security and Interoperability Profile" provides details of how an API consumer requests an access token. Please refer to Identity and Consent Management (https://github.com/camaraproject/IdentityAndConsentManagement/).
 
     The specific authorization flows to be used will be agreed upon during the onboarding process, happening between the API consumer and the API provider, taking into account the declared purpose for accessing the API, whilst also being subject to the prevailing legal framework dictated by local legislation.
 
@@ -32,7 +30,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 0.1.0-alpha.1
+  version: 0.1.0-rc.1
   x-camara-commonalities: 0.5
 
 externalDocs:
@@ -40,7 +38,7 @@ externalDocs:
   url: https://github.com/camaraproject/ClickToDial
 
 servers:
-  - url: '{apiRoot}/click-to-dial/v0.1alpha1'
+  - url: '{apiRoot}/click-to-dial/v0.1rc1'
     variables:
       apiRoot:
         default: http://localhost:9091
@@ -50,10 +48,10 @@ paths:
   /begin:
     post:
       tags:
-        - Click To Dial Initiation
-      summary: The app calls this API to establish a call between caller and callee.
+        - Click To Dial Begin
+      summary: Establish a call between caller and callee.
       description: |
-        Developer application calls click dial to initiate API and establish a call between the caller and the recipient
+        Developer application calls click dial to initiate API and establish a call between the caller and the recipient.
 
       operationId: ClickToDialBegin
       security:
@@ -62,19 +60,23 @@ paths:
       parameters:
         - $ref: "#/components/parameters/x-correlator"
       requestBody:
-        description: Contains the information for the creation the resource.
+        description: Information required to create the call session.
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ClickToDialBeginRequest'
+            example:
+              caller: "+12345678"
+              callee: "+87654321"
+              sink: "https://endpoint.example.com/sink"
       callbacks:
         notifications:
           "{$request.body#/sink}":
             post:
               tags:
                 - Call status notifications callback
-              summary: "Call status notifications callback"
+              summary: Call status notifications callback
               description: |
                 Important: this endpoint is to be implemented by the API consumer.
                 The API provider reports the call status between the caller and the callee to the API consumer through this endpoint.
@@ -106,7 +108,7 @@ paths:
                   $ref: "#/components/responses/Generic403"
       responses:
         '200':
-          description:  The result of Click to Dial Begin 
+          description: The result of Click to Dial Begin.
           headers:
             x-correlator:
               $ref: '#/components/headers/x-correlator'
@@ -116,16 +118,20 @@ paths:
                 $ref: "#/components/schemas/ClickToDialBeginResponse"
         '400':
           $ref: '#/components/responses/Generic400'
+        '401':
+          $ref: '#/components/responses/Generic401'
         '403':
           $ref: '#/components/responses/Generic403'
+        '404':
+          $ref: '#/components/responses/Generic404'
 
   /release/{callidentifier}: 
     delete:
       tags:
         - Click To Dial Release
-      summary: The app calls this API to release a call.
+      summary: End a call session.
       description: |
-        The developer application calls the click dial termination API to end the call between the caller and the recipient.
+        The developer application calls the click dial termination API to end the call between the caller and the callee.
 
       operationId: ClickToDialRelease
       security:
@@ -134,27 +140,31 @@ paths:
       parameters:
         - name: callidentifier
           in: path
-          description: Call identifier that was obtained from the clicktodialbegin operation
+          description: Call identifier that was obtained from the clicktodialbegin operation.
           required: true
           schema:
             $ref: "#/components/schemas/callidentifier"
         - $ref: "#/components/parameters/x-correlator"
       responses:
         '200':
-          description:  Call is released 
+          description: Call is released.
           headers:
             x-correlator:
               $ref: '#/components/headers/x-correlator'
         '400':
           $ref: '#/components/responses/Generic400'
+        '401':
+          $ref: '#/components/responses/Generic401'
         '403':
           $ref: '#/components/responses/Generic403'
+        '404':
+          $ref: '#/components/responses/Generic404'
 
   /recording-download/{callidentifier}:
     get:
       tags:
         - Recording Download
-      summary: The app download the recording.
+      summary: Download the call recording.
       operationId: RecordingDownload
       security:
         - openId:
@@ -162,14 +172,14 @@ paths:
       parameters:
         - name: callidentifier
           in: path
-          description: Call identifier that was obtained from the clicktodialbegin operation
+          description: Call identifier that was obtained from the clicktodialbegin operation.
           required: true
           schema:
             $ref: "#/components/schemas/callidentifier"
         - $ref: "#/components/parameters/x-correlator"
       responses:
         '200':
-          description:  The result of Click to Dial Begin 
+          description: Downloaded call recording. 
           headers:
             x-correlator:
               $ref: '#/components/headers/x-correlator'
@@ -179,8 +189,12 @@ paths:
                 $ref: "#/components/schemas/recordingDownloadResponse"
         '400':
           $ref: '#/components/responses/Generic400'
+        '401':
+          $ref: '#/components/responses/Generic401'
         '403':
           $ref: '#/components/responses/Generic403'
+        '404':
+          $ref: '#/components/responses/Generic404'
           
 components:
   securitySchemes:
@@ -191,7 +205,7 @@ components:
     
   headers:
     x-correlator:
-      description: Correlation id for the different services
+      description: Correlation ID for the different services.
       schema:
         type: string
         pattern: '^[a-zA-Z0-9-]{0,55}$'
@@ -201,7 +215,7 @@ components:
     x-correlator:
       name: x-correlator
       in: header
-      description: Correlation ID for the different services
+      description: Correlation ID for the different services.
       schema:
         type: string
         pattern: '^[a-zA-Z0-9-]{0,55}$'
@@ -209,7 +223,7 @@ components:
       
   schemas:
     ClickToDialBeginRequest:
-      description: Common attributes of Click to Dial Initiation
+      description: Parameters for Click to Dial Begin.
       type: object
       properties:
         caller:
@@ -225,10 +239,16 @@ components:
         - callee 
 
     caller:
-      description: Caller number, and the number format follows E.164
+      description: Caller number in E.164 format.
       type: string
       pattern: '^\+[1-9]\d{1,14}$'
       example: '+12345678'
+
+    callee:
+      description: Callee number in E.164 format.
+      type: string
+      pattern: '^\+[1-9]\d{1,14}$'
+      example: '+12345678'  
 
     sink:
       description: The address to which events shall be delivered, using the HTTP protocol.
@@ -236,18 +256,12 @@ components:
       format: uri
       example: "https://endpoint.example.com/sink"
 
-    callee:
-      description: Callee number, and the number format follows E.164
-      type: string
-      pattern: '^\+[1-9]\d{1,14}$'
-      example: '+12345678'  
-
     SinkCredential:
-      description: A sink credential provides authentication or authorization information necessary to enable delivery of events to a target.
+      description: Authentication or authorization credential for event delivery.
       type: object
       properties:
         credentialType:
-          description: "The type of the credential. Note: MUST set to ACCESSTOKEN for now"
+          description: Credential type (MUST be ACCESSTOKEN for now).
           type: string
           enum:
             - PLAIN
@@ -263,14 +277,10 @@ components:
         - credentialType
 
     PlainCredential:
-      description: A plain credential as a combination of an identifier and a secret.
-      type: object
+      description: Plain credential with identifier and secret.
       allOf:
         - $ref: "#/components/schemas/SinkCredential"
         - type: object
-          required:
-            - identifier
-            - secret
           properties:
             identifier:
               description: The identifier might be an account or username.
@@ -278,23 +288,25 @@ components:
             secret:
               description: The secret might be a password or passphrase.
               type: string
+          required:
+            - identifier
+            - secret
 
     AccessTokenCredential:
       description: An access token credential.
-      type: object
       allOf:
         - $ref: "#/components/schemas/SinkCredential"
         - type: object
           properties:
             accessToken:
-              description: REQUIRED. An access token is a previously acquired token granting access to the target resource.
+              description: Access token string, an access token is a previously acquired token granting access to the target resource.
               type: string
             accessTokenExpiresUtc:
+              description: UTC expiration timestamp.
               type: string
               format: date-time
-              description: REQUIRED. An absolute UTC instant at which the token shall be considered expired.
             accessTokenType:
-              description: REQUIRED. Type of the access token (See [OAuth 2.0](https://tools.ietf.org/html/rfc6749#section-7.1)).
+              description: Token type.
               type: string
               enum:
                 - bearer
@@ -304,40 +316,39 @@ components:
             - accessTokenType
 
     RefreshTokenCredential:
-      description: An access token credential with a refresh token.
-      type: object
+      description: Access token credential with a refresh token.
       allOf:
         - $ref: "#/components/schemas/SinkCredential"
         - type: object
           properties:
             accessToken:
-              description: REQUIRED. An access token is a previously acquired token granting access to the target resource.
+              description: An access token is a previously acquired token granting access to the target resource.
               type: string
             accessTokenExpiresUtc:
+              description: UTC expiration timestamp. An absolute UTC instant at which the token shall be considered expired.
               type: string
               format: date-time
-              description: REQUIRED. An absolute UTC instant at which the token shall be considered expired.
             accessTokenType:
-              description: REQUIRED. Type of the access token (See [OAuth 2.0](https://tools.ietf.org/html/rfc6749#section-7.1)).
+              description: Token type.
               type: string
               enum:
                 - bearer
             refreshToken:
-              description: REQUIRED. An refresh token credential used to acquire access tokens.
+              description: A refresh token credential used to acquire access tokens.
               type: string
             refreshTokenEndpoint:
               type: string
               format: uri
-              description: REQUIRED. A URL at which the refresh token can be traded for an access token.
-      required:
-        - accessToken
-        - accessTokenExpiresUtc
-        - accessTokenType
-        - refreshToken
-        - refreshTokenEndpoint
+              description: URL for exchanging refresh token for access token.
+          required:
+            - accessToken
+            - accessTokenExpiresUtc
+            - accessTokenType
+            - refreshToken
+            - refreshTokenEndpoint
 
     ClickToDialBeginResponse:
-      description: Common attributes of Click to Dial Initiation
+      description: Response to ClickToDialBegin operation.
       type: object
       properties:
         code:
@@ -352,17 +363,17 @@ components:
         - result
 
     code:
-      description: Response code
+      description: Response code.
       type: string
       example: '0000000'    
 
     description:
-      description: Response description
+      description: Response description.
       type: string
       example: 'Success'  
       
     result:
-      description: Response result
+      description: Response result.
       type: object
       properties:
         callidentifier:
@@ -380,37 +391,37 @@ components:
       allOf:
         - $ref: "#/components/schemas/CloudEvent"
         - type: object
-        properties:
-          data:
-            type: object
-            description: Event details depending on the event type
-            properties:
-              callidentifier:
-                $ref: '#/components/schemas/callidentifier'
-              caller:
-                $ref: '#/components/schemas/caller'
-              callee:
-                $ref: '#/components/schemas/callee'  
-              status:
-                $ref: '#/components/schemas/status'  
-              reason:
-                $ref: '#/components/schemas/reason'         
-              recordingResult:
-                $ref: '#/components/schemas/recordingResult'        
-              callDuration:
-                $ref: '#/components/schemas/callDuration'            
-              timeStamp:
-                $ref: '#/components/schemas/timeStamp'            
-            required:
-              - caller
-              - callee 
-              - status
-              - timeStamp
-        required:
-          - data
+          properties:
+            data:
+              type: object
+              description: Event details depending on the event type
+              properties:
+                callidentifier:
+                  $ref: '#/components/schemas/callidentifier'
+                caller:
+                  $ref: '#/components/schemas/caller'
+                callee:
+                  $ref: '#/components/schemas/callee'  
+                status:
+                  $ref: '#/components/schemas/status'  
+                reason:
+                  $ref: '#/components/schemas/reason'         
+                recordingResult:
+                  $ref: '#/components/schemas/recordingResult'        
+                callDuration:
+                  $ref: '#/components/schemas/callDuration'            
+                timeStamp:
+                  $ref: '#/components/schemas/timeStamp'            
+              required:
+                - caller
+                - callee 
+                - status
+                - timeStamp
+          required:
+            - data
 
     status:
-      description: Call status
+      description: Call status.
       type: string
       enum:
         - CallingCaller
@@ -454,14 +465,14 @@ components:
       example: '2017-12-04T18:07:57Z'       
 
     recordingDownloadResponse:
-      description: Common attributes of Click to Dial
+      description: Downloaded recording file.
       type: object
       properties:
         code:
           $ref: '#/components/schemas/code'
         description:
           $ref: '#/components/schemas/description'
-        result:
+        filedata:
           $ref: '#/components/schemas/filedata'
       required:
         - code
@@ -469,8 +480,9 @@ components:
         - filedata
 
     filedata:
-      description: The voice file content.The encoding format can be implemented in the base64.
+      description: Voice file content (base64-encoded).
       type: string
+      format: byte
       example: ''  
       
     ErrorInfo: 
@@ -478,14 +490,14 @@ components:
       type: object
       properties:
         status:
+          description: HTTP status code
           type: integer
-          description: HTTP status code returned along with this error response
         code:
+          description: Error code
           type: string
-          description: Code given to this error
         message:
+          description: Error message
           type: string
-          description: Detailed error description
       required:
         - status
         - code
@@ -493,6 +505,7 @@ components:
 
     CloudEvent:
       description: Event compliant with the CloudEvents specification
+      type: object
       properties:
         id:
           description: Identifier of this event, that must be unique in the source context.
@@ -517,11 +530,10 @@ components:
           enum:
             - "application/json"
         data:
-          description: Event notification details payload, which depends on the event type
+          description: Event notification payload, which depends on the event type.
           type: object
         time:
-          description: |
-            Timestamp of when the occurrence happened. It must follow RFC 3339
+          description: Timestamp of when the occurrence happened. It must follow RFC 3339.
           type: string
           format: date-time
       discriminator:
@@ -593,13 +605,13 @@ components:
             $ref: "#/components/schemas/ErrorInfo"
           examples:
             GENERIC_403_PERMISSION_DENIED:
-              description: Permission denied. OAuth2 token access does not have the required scope or when the user fails operational security
+              description: Permission denied.
               value:
                 status: 403
                 code: PERMISSION_DENIED
                 message: Client does not have sufficient permissions to perform this action.
             GENERIC_403_INVALID_TOKEN_CONTEXT:
-              description: Reflect some inconsistency between information in some field of the API and the related OAuth2 Token
+              description: Reflect some inconsistency between information in some field of the API and the related Token.
               value:
                 status: 403
                 code: INVALID_TOKEN_CONTEXT
@@ -624,7 +636,7 @@ components:
 
   examples:
     CALL_STATUS_CHANGED_EXAMPLE:
-      description: Call status changed
+      description: Call status changed example.
       summary: Cloud event example for Click To Dial status change to Disconnected due to HangUp
       value:
         id: 83a0d986-0866-4f38-b8c0-fc65bfcda452
