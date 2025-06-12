@@ -31,7 +31,7 @@ The API definition(s) are based on
 click-to-dial v0.1.0-alpha.1 is the first pre-release version of the click-to-dial API.
 - API definition **with inline documentation**:
   - [View it on ReDoc](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.1/code/API_definitions/click-to-dial.yaml&nocors)
-  - [View it on Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.1/code/API_definitions/click-to-dial.yaml)
+  - [View it on Swagger Editor](https://camaraproject.github.io/swagger-ui/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.1/code/API_definitions/click-to-dial.yaml)
   - OpenAPI [YAML spec file](https://github.com/camaraproject/ClickToDial/blob/r1.1/code/API_definitions/click-to-dial.yaml)
 
 ## Added
