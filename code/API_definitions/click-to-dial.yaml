@@ -3,7 +3,7 @@ openapi: 3.0.0
 info:
   title: Click to Dial Service API
   description: |
-    The Click to Dial API allows users to initiate and manage calls via an enterprise platform or application. The API processes call requests, sets up the call, and provides optional notifications and call recording features. For specific details, please refer to [click-to-dial_API.md](/documentation/API_documentation/click-to-dial_API.md)。
+    The Click to Dial API allows users to initiate and manage calls via an enterprise platform or application. The API processes call requests, sets up the call, and provides optional notifications and call recording features. For specific details, please refer to [click-to-dial_API.md](/documentation/API_documentation/click-to-dial_API.md).
 
     # Introduction
 
