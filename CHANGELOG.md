@@ -24,8 +24,8 @@ This release contains the definition and documentation of
 
 The API definition(s) are based on
 
-- Commonalities v0.5.0
-- Identity and Consent Management v0.3.0
+- Commonalities v0.6.0
+- Identity and Consent Management v0.4.0
 
 ## click-to-dial v0.1.0-rc.1
 
