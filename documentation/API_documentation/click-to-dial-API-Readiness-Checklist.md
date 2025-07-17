@@ -1,6 +1,6 @@
 # API Readiness Checklist
 
-Checklist for click-to-dial v0.1.0.rc1 in r1.2
+Checklist for click-to-dial v0.1.0-rc.1 in r1.2
 
 | Nr | API release assets                           | alpha | release-candidate | initial public | stable public | Status | Reference information                                                                                                     |
 | -- | -------------------------------------------- | :---: | :---------------: | :------------: | :-----------: | :----: | ------------------------------------------------------------------------------------------------------------------------- |
