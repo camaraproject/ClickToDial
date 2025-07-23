@@ -16,7 +16,7 @@ Checklist for click-to-dial v0.1.0-rc.1 in r1.2
 | 10 | API release numbering convention applied     |   M   |         M         |       M       |       M       |   Y   |                                                                                                                           |
 | 11 | Change log updated                           |   M   |         M         |       M       |       M       |   Y   | [/CHANGELOG.md](/CHANGELOG.md)                                                                                               |
 | 12 | Previous public release was certified        |   O   |         O         |       O       |       M       |   N   |                                                                                                                           |
-| 13 | API description (for marketing)        |   O   |         O         |       M       |       M       |   Y   | [ClickToDial API Description](https://lf-camaraproject.atlassian.net/wiki/spaces/CAM/pages/81133837/ClickToDial+API+description)    |
+| 13 | API description (for marketing)        |   O   |         O         |       M       |       M       |   Y   | [ClickToDial API Description](https://lf-camaraproject.atlassian.net/wiki/spaces/CAM/pages/81133837/ClickToDial+API+description)                                                                                                       |
 
 To fill the checklist:
 
