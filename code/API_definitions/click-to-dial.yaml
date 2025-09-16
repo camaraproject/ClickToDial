@@ -380,34 +380,34 @@ components:
       allOf:
         - $ref: "#/components/schemas/CloudEvent"
         - type: object
-        properties:
-          data:
-            type: object
-            description: Event details depending on the event type
-            properties:
-              callidentifier:
-                $ref: '#/components/schemas/callidentifier'
-              caller:
-                $ref: '#/components/schemas/caller'
-              callee:
-                $ref: '#/components/schemas/callee'  
-              status:
-                $ref: '#/components/schemas/status'  
-              reason:
-                $ref: '#/components/schemas/reason'         
-              recordingResult:
-                $ref: '#/components/schemas/recordingResult'        
-              callDuration:
-                $ref: '#/components/schemas/callDuration'            
-              timeStamp:
-                $ref: '#/components/schemas/timeStamp'            
-            required:
-              - caller
-              - callee 
-              - status
-              - timeStamp
-        required:
-          - data
+          properties:
+            data:
+              type: object
+              description: Event details depending on the event type
+              properties:
+                callidentifier:
+                  $ref: '#/components/schemas/callidentifier'
+                caller:
+                  $ref: '#/components/schemas/caller'
+                callee:
+                  $ref: '#/components/schemas/callee'  
+                status:
+                  $ref: '#/components/schemas/status'  
+                reason:
+                  $ref: '#/components/schemas/reason'         
+                recordingResult:
+                  $ref: '#/components/schemas/recordingResult'        
+                callDuration:
+                  $ref: '#/components/schemas/callDuration'            
+                timeStamp:
+                  $ref: '#/components/schemas/timeStamp'            
+              required:
+                - caller
+                - callee 
+                - status
+                - timeStamp
+          required:
+            - data
 
     status:
       description: Call status
