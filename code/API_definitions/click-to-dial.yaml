@@ -39,7 +39,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 0.1.0-alpha.1
+  version: wip
   x-camara-commonalities: 0.6
 
 
@@ -48,7 +48,7 @@ externalDocs:
   url: https://github.com/camaraproject/ClickToDial
 
 servers:
-  - url: '{apiRoot}/click-to-dial/v0.1alpha1'
+  - url: '{apiRoot}/click-to-dial/vwip'
     variables:
       apiRoot:
         default: http://localhost:9091
@@ -402,32 +402,32 @@ components:
       allOf:
         - $ref: "#/components/schemas/CloudEvent"
         - type: object
-        properties:
-          data:
-            type: object
-            description: Event details depending on the event type
-            properties:
-              callidentifier:
-                $ref: '#/components/schemas/callidentifier'
-              caller:
-                $ref: '#/components/schemas/caller'
-              callee:
-                $ref: '#/components/schemas/callee'  
-              status:
-                $ref: '#/components/schemas/status'  
-              reason:
-                $ref: '#/components/schemas/reason'         
-              recordingResult:
-                $ref: '#/components/schemas/recordingResult'        
-              callDuration:
-                $ref: '#/components/schemas/callDuration'            
-              timeStamp:
-                $ref: '#/components/schemas/timeStamp'            
-            required:
-              - caller
-              - callee 
-              - status
-              - timeStamp
+          properties:
+            data:
+              type: object
+              description: Event details depending on the event type
+              properties:
+                callidentifier:
+                  $ref: '#/components/schemas/callidentifier'
+                caller:
+                  $ref: '#/components/schemas/caller'
+                callee:
+                  $ref: '#/components/schemas/callee'
+                status:
+                  $ref: '#/components/schemas/status'
+                reason:
+                  $ref: '#/components/schemas/reason'
+                recordingResult:
+                  $ref: '#/components/schemas/recordingResult'
+                callDuration:
+                  $ref: '#/components/schemas/callDuration'
+                timeStamp:
+                  $ref: '#/components/schemas/timeStamp'
+              required:
+                - caller
+                - callee
+                - status
+                - timeStamp
         required:
           - data
 

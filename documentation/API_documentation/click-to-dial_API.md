@@ -6,7 +6,6 @@ The Click to Dial API allows users to initiate and manage calls via an enterpris
 
  The API displays the enterprise business number to both users during a call, masking both the caller and callee’s real numbers to preserve privacy. Real-time feedback and notifications are supported via HTTP callbacks. Enterprise members share a pool of minutes, with the enterprise bearing unified payment, eliminating issues such as exceeding limits or wasting leftover package resources, thus reducing costs and increasing efficiency for the enterprise.
 
-
 ## 2\. Quick Start
 
 ### 2.1 Prerequisites
@@ -61,7 +60,7 @@ curl -X POST "{apiRoot}/begin" \
        -H "Authorization: Bearer {access_token}" \
 ```
 
-**Response:**  
+**Response:**
 HTTP 200 OK (no response body)
 
 #### 2.2.4 Download Recording
@@ -96,7 +95,7 @@ This API uses **OpenID Connect** for authentication and authorization. Obtain yo
 
 ### 4.1 API Version
 
-0.1.0-alpha.1
+wip
 
 ### 4.2 Details
 
@@ -109,52 +108,52 @@ This API uses **OpenID Connect** for authentication and authorization. Obtain yo
 
 #### 4.2.1 API attributes
 
-**Click to Dial Initiation Request**
+##### Click to Dial Initiation Request
 
-| Name           | Description                                           | Required | Example                       |
-|----------------|-------------------------------------------------------|----------|-------------------------------|
-| caller         | Calling party number (E.164, with "+")                | Yes      | "+12345678"                   |
-| callee         | Called party number (E.164, with "+")                 | Yes      | "+87654321"                   |
-| sink           | (Optional) Callback URL for status notifications      | No       | "https://yourapp.com/notify"  |
-| sinkCredential | (Optional) Callback authentication info (see below)   | No       | (see below)                   |
+| Name           | Description                                         | Required | Example                      |
+| -------------- | --------------------------------------------------- | -------- | ---------------------------- |
+| caller         | Calling party number (E.164, with "+")              | Yes      | "+12345678"                  |
+| callee         | Called party number (E.164, with "+")               | Yes      | "+87654321"                  |
+| sink           | (Optional) Callback URL for status notifications    | No       | "<https://yourapp.com/notify>" |
+| sinkCredential | (Optional) Callback authentication info (see below) | No       | (see below)                  |
 
-**sinkCredential (for ACCESSTOKEN type):**
+##### sinkCredential (for ACCESSTOKEN type)
 
-| Name                 | Description                  | Required | Example                      |
-|----------------------|-----------------------------|----------|------------------------------|
-| credentialType       | Must be "ACCESSTOKEN"        | Yes      | "ACCESSTOKEN"                |
-| accessToken          | Access token for callback    | Yes      | "sink_token"                 |
-| accessTokenExpiresUtc| UTC expiry timestamp         | Yes      | "2025-12-31T23:59:59Z"       |
-| accessTokenType      | Must be "bearer"             | Yes      | "bearer"                     |
+| Name                  | Description               | Required | Example                |
+| --------------------- | ------------------------- | -------- | ---------------------- |
+| credentialType        | Must be "ACCESSTOKEN"     | Yes      | "ACCESSTOKEN"          |
+| accessToken           | Access token for callback | Yes      | "sink_token"           |
+| accessTokenExpiresUtc | UTC expiry timestamp      | Yes      | "2025-12-31T23:59:59Z" |
+| accessTokenType       | Must be "bearer"          | Yes      | "bearer"               |
 
-**Click to Dial Status Notify (callback payload)**
+##### Click to Dial Status Notify (callback payload)
 
-| Name           | Description                                      | Required | Notes/Values                             |
-|----------------|--------------------------------------------------|----------|------------------------------------------|
-| caller         | Calling party number (E.164)                     | Yes      |                                          |
-| callee         | Called party number (E.164)                      | Yes      |                                          |
-| status         | Call status                                      | Yes      | CallingCaller, CallingCallee, etc.       |
-| reason         | Disconnection reason (if status is Disconnected) | Cond.    | HangUp, CallerBusy, ...                  |
-| recordingResult| Recording status (if recording enabled)          | Cond.    | Success, NoRecord, Fail                  |
-| recordingId    | Recording ID (if recording enabled)              | Cond.    |                                          |
-| callDuration   | Duration (sec, if call ended)                    | Cond.    |                                          |
-| timeStamp      | UTC timestamp                                    | Yes      | RFC 3339 format                          |
+| Name            | Description                                      | Required | Notes/Values                       |
+| --------------- | ------------------------------------------------ | -------- | ---------------------------------- |
+| caller          | Calling party number (E.164)                     | Yes      |                                    |
+| callee          | Called party number (E.164)                      | Yes      |                                    |
+| status          | Call status                                      | Yes      | CallingCaller, CallingCallee, etc. |
+| reason          | Disconnection reason (if status is Disconnected) | Cond.    | HangUp, CallerBusy, ...            |
+| recordingResult | Recording status (if recording enabled)          | Cond.    | Success, NoRecord, Fail            |
+| recordingId     | Recording ID (if recording enabled)              | Cond.    |                                    |
+| callDuration    | Duration (sec, if call ended)                    | Cond.    |                                    |
+| timeStamp       | UTC timestamp                                    | Yes      | RFC 3339 format                    |
 
-**Release Call**
+#### Release Call
 
 - Call identifier is provided as a path parameter in DELETE /release/{callidentifier}.
 
-**Recording Download**
+#### Recording Download
 
 - Call identifier as path parameter in GET /recording-download/{callidentifier}.
 
 ### 4.3 Endpoint Definitions
 
-| Endpoint                                   | Method | Description                        |
-|---------------------------------------------|--------|------------------------------------|
-| /begin                       | POST   | Start a click-to-dial call         |
-| /release/{callidentifier}     | DELETE | End (release) a click-to-dial call |
-| /recording-download/{callidentifier}        | GET    | Download call recording            |
+| Endpoint                             | Method | Description                        |
+| ------------------------------------ | ------ | ---------------------------------- |
+| /begin                               | POST   | Start a click-to-dial call         |
+| /release/{callidentifier}            | DELETE | End (release) a click-to-dial call |
+| /recording-download/{callidentifier} | GET    | Download call recording            |
 
 ### 4.4 Errors
 
@@ -209,7 +208,6 @@ curl -X GET "{apiRoot}/recording-download/A010B020" \
   -H "Authorization: Bearer {access_token}"
 ```
 
-
 ### 4.7 FAQ's
 
 To be added in future versions.
@@ -220,7 +218,10 @@ N/A
 
 ### 4.9 Release Notes
 
-0.1.0-alpha.1 — Initial release.
+This section lists release notes for historical versions.
+The current version on the main branch is **wip**.
+
+- **0.1.0-alpha.1** — Initial release (archived).
 
 ## References
 
