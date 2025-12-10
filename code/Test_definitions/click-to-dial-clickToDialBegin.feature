@@ -44,7 +44,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation clickToDialBegin
     Then the response status code is 200
     # There is no specific limit defined for the process to end
     And an event is received at the address of the request property "$.sink"
-    And the event header "Authorization" is set to "Bearer: " + the value of the request property "$.sinkCredentials.accessToken"
+    And the event header "Authorization" is set to "Bearer " + the value of the request property "$.sinkCredentials.accessToken"
     And the event header "Content-Type" is set to "application/cloudevents+json"
     And the event body complies with the OAS schema at "#/components/schemas/EventCTDStatusChanged"
     # Additionally any event body has to comply with some constraints beyond the schema compliance
