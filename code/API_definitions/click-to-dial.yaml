@@ -13,9 +13,9 @@ info:
 
     Based on the Click-to-Dial API, users can initiate and terminate click-to-call sessions. The Click-to-Call API has the following features:
 
-    * The API user invokes the Click-to-Dial Begin Operation to establish a call between the caller and the callee.
-    * The API user invokes the Click-to-Dial Release Operation to end the call between the caller and the callee.
-    * The API user can optionally specify a callback URL (parameter) to receive status notifications at that URL. <br>
+    * The API consumer calls `POST /calls` to establish a call between the caller and the callee.
+    * The API consumer calls `DELETE /calls/{callId}` to terminate an active call session.
+    * Optionally, the API consumer can provide a callback URL (`sink`) to receive status notifications.
 
     # Authorization and authentication
 
@@ -42,7 +42,6 @@ info:
   version: wip
   x-camara-commonalities: 0.6
 
-
 externalDocs:
   description: Product documentation at CAMARA
   url: https://github.com/camaraproject/ClickToDial
@@ -55,164 +54,170 @@ servers:
         description: API root, defined by the service provider, e.g. `api.example.com` or `api.example.com/somepath`
 
 paths:
-  /begin:
+  /calls:
     post:
       tags:
-        - Click To Dial Initiation
-      summary: The app calls this API to establish a call between caller and callee.
+        - Calls
+      summary: Create a new Click to Dial call session
       description: |
-        Developer application calls click dial to initiate API and establish a call between the caller and the recipient
-
-      operationId: ClickToDialBegin
+        Creates a new Click to Dial call session between the caller and the callee.
+      operationId: createCall
       security:
         - openId:
-            - "click-to-dial:begin"
+            - "click-to-dial:calls:create"
       parameters:
         - $ref: "#/components/parameters/x-correlator"
       requestBody:
-        description: Contains the information for the creation the resource.
+        description: Create a Click to Dial call session.
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClickToDialBeginRequest'
-      callbacks:
-        notifications:
-          "{$request.body#/sink}":
-            post:
-              tags:
-                - Call status notifications callback
-              summary: "Call status notifications callback"
-              description: |
-                Important: this endpoint is to be implemented by the API consumer.
-                The API provider reports the call status between the caller and the callee to the API consumer through this endpoint.
-                The API provider will call this endpoint whenever any call status change related event occurs, currently only `CALL_STATUS_CHANGED` event is defined.
-
-              operationId: postNotification
-              parameters:
-                - $ref: "#/components/parameters/x-correlator"
-              requestBody:
-                required: true
-                content:
-                  application/cloudevents+json:
-                    schema:
-                      $ref: "#/components/schemas/CloudEvent"
-                    examples:
-                      CALL_STATUS_CHANGED_EXAMPLE:
-                        $ref: "#/components/examples/CALL_STATUS_CHANGED_EXAMPLE"
-              responses:
-                "204":
-                  description: Successful notification
-                  headers:
-                    x-correlator:
-                      $ref: "#/components/headers/x-correlator"
-                "400":
-                  $ref: "#/components/responses/Generic400"
-                "401":
-                  $ref: "#/components/responses/Generic401"
-                "403":
-                  $ref: "#/components/responses/Generic403"
+              $ref: '#/components/schemas/CreateCallRequest'
       responses:
-        '200':
-          description:  The result of Click to Dial Begin 
+        '201':
+          description: Call created
           headers:
             x-correlator:
               $ref: '#/components/headers/x-correlator'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ClickToDialBeginResponse"
+                $ref: "#/components/schemas/Call"
         '400':
           $ref: '#/components/responses/Generic400'
+        '401':
+          $ref: '#/components/responses/Generic401'
         '403':
           $ref: '#/components/responses/Generic403'
+        '409':
+          $ref: '#/components/responses/Conflict409'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity422'
 
-  /release/{callidentifier}: 
-    delete:
-      tags:
-        - Click To Dial Release
-      summary: The app calls this API to release a call.
-      description: |
-        The developer application calls the click dial termination API to end the call between the caller and the recipient.
-
-      operationId: ClickToDialRelease
-      security:
-        - openId:
-            - "click-to-dial:release"      
-      parameters:
-        - name: callidentifier
-          in: path
-          description: Call identifier that was obtained from the clicktodialbegin operation
-          required: true
-          schema:
-            $ref: "#/components/schemas/callidentifier"
-        - $ref: "#/components/parameters/x-correlator"
-      responses:
-        '200':
-          description:  Call is released 
-          headers:
-            x-correlator:
-              $ref: '#/components/headers/x-correlator'
-        '400':
-          $ref: '#/components/responses/Generic400'
-        '403':
-          $ref: '#/components/responses/Generic403'
-
-  /recording-download/{callidentifier}:
+  /calls/{callId}:
     get:
       tags:
-        - Recording Download
-      summary: The app download the recording.
-      operationId: RecordingDownload
+        - Calls
+      summary: Get call details
+      description: Retrieve the details and current status of a Click to Dial call session.
+      operationId: getCall
       security:
         - openId:
-            - "click-to-dial:recording-download"
+            - "click-to-dial:calls:read"
       parameters:
-        - name: callidentifier
+        - name: callId
           in: path
-          description: Call identifier that was obtained from the clicktodialbegin operation
           required: true
+          description: Unique call identifier
           schema:
-            $ref: "#/components/schemas/callidentifier"
+            $ref: "#/components/schemas/callId"
         - $ref: "#/components/parameters/x-correlator"
       responses:
         '200':
-          description:  The result of Click to Dial Begin 
+          description: Call details
           headers:
             x-correlator:
               $ref: '#/components/headers/x-correlator'
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/recordingDownloadResponse"
+                $ref: "#/components/schemas/Call"
         '400':
           $ref: '#/components/responses/Generic400'
+        '401':
+          $ref: '#/components/responses/Generic401'
         '403':
           $ref: '#/components/responses/Generic403'
         '404':
-          description: Call identifier not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorInfo'
+          $ref: '#/components/responses/Generic404'
+
+    delete:
+      tags:
+        - Calls
+      summary: Terminate an active call
+      description: |
+        Terminates an active Click to Dial call session identified by the given callId.
+      operationId: terminateCall
+      security:
+        - openId:
+            - "click-to-dial:calls:delete"
+      parameters:
+        - name: callId
+          in: path
+          required: true
+          description: Unique call identifier
+          schema:
+            $ref: "#/components/schemas/callId"
+        - $ref: "#/components/parameters/x-correlator"
+      responses:
+        '204':
+          description: Call terminated
           headers:
             x-correlator:
               $ref: '#/components/headers/x-correlator'
-              
+        '400':
+          $ref: '#/components/responses/Generic400'
+        '401':
+          $ref: '#/components/responses/Generic401'
+        '403':
+          $ref: '#/components/responses/Generic403'
+        '404':
+          $ref: '#/components/responses/Generic404'
+        '409':
+          $ref: '#/components/responses/Conflict409'
+
+  /calls/{callId}/recording:
+    get:
+      tags:
+        - Recording
+      summary: Get call recording
+      description: Retrieve the recording associated with the given callId.
+      operationId: getRecording
+      security:
+        - openId:
+            - "click-to-dial:recordings:read"
+      parameters:
+        - name: callId
+          in: path
+          required: true
+          description: Unique call identifier
+          schema:
+            $ref: "#/components/schemas/callId"
+        - $ref: "#/components/parameters/x-correlator"
+      responses:
+        '200':
+          description: Call recording resource
+          headers:
+            x-correlator:
+              $ref: '#/components/headers/x-correlator'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecordingResource"
+        '400':
+          $ref: '#/components/responses/Generic400'
+        '401':
+          $ref: '#/components/responses/Generic401'
+        '403':
+          $ref: '#/components/responses/Generic403'
+        '404':
+          $ref: '#/components/responses/Generic404'
+
 components:
   securitySchemes:
     openId:
       type: openIdConnect
       description: This API uses OpenID Connect for authentication and authorization.
       openIdConnectUrl: "https://example.com/.well-known/openid-configuration"
-    
+
   headers:
     x-correlator:
       description: Correlation id for the different services
       schema:
         $ref: '#/components/schemas/XCorrelator'
       example: 'b4333c46-49c0-4f62-80d7-f0ef930f1c46'
-  
+
   parameters:
     x-correlator:
       name: x-correlator
@@ -221,31 +226,84 @@ components:
       schema:
         $ref: '#/components/schemas/XCorrelator'
       example: 'b4333c46-49c0-4f62-80d7-f0ef930f1c46'
-      
+
   schemas:
     XCorrelator:
       type: string
       pattern: '^[a-zA-Z0-9-_:;./<>{}]{0,256}$'
       description: Correlation id for tracking API calls across systems.
 
-    ClickToDialBeginRequest:
-      description: Common attributes of Click to Dial Initiation
+    callId:
+      description: Call identification
+      type: string
+      example: 'call_550e8400-e29b-41d4-a716-446655440000'
+
+    Call:
+      description: Click to Dial call session resource
+      type: object
+      properties:
+        callId:
+          $ref: '#/components/schemas/callId'
+        caller:
+          $ref: '#/components/schemas/Caller'
+        callee:
+          $ref: '#/components/schemas/Callee'
+        status:
+          $ref: '#/components/schemas/status'
+        createdAt:
+          type: string
+          format: date-time
+          description: >
+            Time when the call session was created.
+            It must follow RFC 3339 and must have time zone.
+            Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ.
+        recordingEnabled:
+          type: boolean
+          description: Whether recording is enabled for this call.
+      required:
+        - callId
+        - caller
+        - callee
+        - status
+        - createdAt
+
+    CreateCallRequest:
+      description: Request to create a new Click to Dial call session
       type: object
       properties:
         caller:
-          $ref: '#/components/schemas/caller'
+          $ref: '#/components/schemas/Caller'
         callee:
-          $ref: '#/components/schemas/callee'  
+          $ref: '#/components/schemas/Callee'
         sink:
           $ref: '#/components/schemas/sink'
         sinkCredential:
           $ref: '#/components/schemas/SinkCredential'
+        recordingEnabled:
+          type: boolean
+          description: Whether call recording is enabled.
       required:
         - caller
-        - callee 
+        - callee
 
-    caller:
-      description: Caller number, and the number format follows E.164
+    Caller:
+      type: object
+      properties:
+        number:
+          $ref: '#/components/schemas/PhoneNumber'
+      required:
+        - number
+
+    Callee:
+      type: object
+      properties:
+        number:
+          $ref: '#/components/schemas/PhoneNumber'
+      required:
+        - number
+
+    PhoneNumber:
+      description: Phone number in E.164 format
       type: string
       pattern: '^\+[1-9]\d{1,14}$'
       example: '+12345678'
@@ -255,12 +313,6 @@ components:
       type: string
       format: uri
       example: "https://endpoint.example.com/sink"
-
-    callee:
-      description: Callee number, and the number format follows E.164
-      type: string
-      pattern: '^\+[1-9]\d{1,14}$'
-      example: '+12345678'  
 
     SinkCredential:
       description: A sink credential provides authentication or authorization information necessary to enable delivery of events to a target.
@@ -351,51 +403,41 @@ components:
               type: string
               format: uri
               description: REQUIRED. A URL at which the refresh token can be traded for an access token.
-      required:
-        - accessToken
-        - accessTokenExpiresUtc
-        - accessTokenType
-        - refreshToken
-        - refreshTokenEndpoint
+          required:
+            - accessToken
+            - accessTokenExpiresUtc
+            - accessTokenType
+            - refreshToken
+            - refreshTokenEndpoint
 
-    ClickToDialBeginResponse:
-      description: Common attributes of Click to Dial Initiation
+    RecordingResource:
+      description: Recording file for a Click to Dial call
       type: object
       properties:
-        code:
-          $ref: '#/components/schemas/code'
-        description:
-          $ref: '#/components/schemas/description'
-        result:
-          $ref: '#/components/schemas/result'
+        callId:
+          $ref: '#/components/schemas/callId'
+        content:
+          type: string
+          description: Base64 encoded audio content.
+        contentType:
+          type: string
+          description: MIME type of the audio file.
+          enum:
+            - audio/wav
+            - audio/mp3
+            - audio/mpeg
+            - audio/ogg
+        generatedAt:
+          type: string
+          format: date-time
+          description: >
+            Timestamp when the recording was generated.
+            It must follow RFC 3339 and must have time zone.
+            Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ.
       required:
-        - code
-        - description    
-        - result
-
-    code:
-      description: Response code
-      type: string
-      example: '0000000'    
-
-    description:
-      description: Response description
-      type: string
-      example: 'Success'  
-      
-    result:
-      description: Response result
-      type: object
-      properties:
-        callidentifier:
-          $ref: '#/components/schemas/callidentifier'
-      required:
-        - callidentifier 
-
-    callidentifier:
-      description: Call identification
-      type: string
-      example: 'A010B020'          
+        - callId
+        - content
+        - contentType
 
     EventCTDStatusChanged:
       description: Common attributes of Click to Dial
@@ -407,12 +449,12 @@ components:
               type: object
               description: Event details depending on the event type
               properties:
-                callidentifier:
-                  $ref: '#/components/schemas/callidentifier'
+                callId:
+                  $ref: '#/components/schemas/callId'
                 caller:
-                  $ref: '#/components/schemas/caller'
+                  $ref: '#/components/schemas/PhoneNumber'
                 callee:
-                  $ref: '#/components/schemas/callee'
+                  $ref: '#/components/schemas/PhoneNumber'
                 status:
                   $ref: '#/components/schemas/status'
                 reason:
@@ -421,56 +463,59 @@ components:
                   $ref: '#/components/schemas/recordingResult'
                 callDuration:
                   $ref: '#/components/schemas/callDuration'
-                timeStamp:
-                  $ref: '#/components/schemas/timeStamp'
+                timestamp:
+                  $ref: '#/components/schemas/timestamp'
               required:
+                - callId
                 - caller
                 - callee
                 - status
-                - timeStamp
-        required:
-          - data
+                - timestamp
+          required:
+            - data
 
     status:
       description: Call status
       type: string
       enum:
-        - CallingCaller
-        - CallingCallee
-        - Connected
-        - Disconnected
-      example: 'CallingCaller'
+        - initiating
+        - callingCaller
+        - callingCallee
+        - connected
+        - disconnected
+        - failed
+      example: 'callingCaller'
 
     reason:
-      description: This field indicates the disconnection reason. This field is mandatory when status is "Disconnected".
+      description: This field indicates the disconnection reason. This field is mandatory when status is 'disconnected'.
       type: string
       enum:
-        - HangUp
-        - CallerBusy
-        - CallerNoAnswer
-        - CallerFailure
-        - CallerAbandon
-        - CalleeBusy
-        - CalleeNoAnswer
-        - CalleeFailure
-        - Other
-      example: 'HangUp'
+        - hangUp
+        - callerBusy
+        - callerNoAnswer
+        - callerFailure
+        - callerAbandon
+        - calleeBusy
+        - calleeNoAnswer
+        - calleeFailure
+        - other
+      example: 'hangUp'
 
     recordingResult:
-      description: Recording Result. This field is mandatory when Recording is "On".
+      description: Recording Result. This field is mandatory when recording is enabled and the call is finished.
       type: string
       enum:
-        - Success
-        - NoRecord
-        - Fail
-      example: 'Success'      
+        - success
+        - noRecord
+        - fail
+      example: 'success'
 
     callDuration:
-      description: This field indicates the duration of the calls, in seconds. This field is mandatory when status is "Disconnected".
+      description: This field indicates the duration of the calls, in seconds. This field is mandatory when status is 'disconnected'.
       type: string
-      example: '1600'         
+      example: '1600'
 
-    timeStamp:
+    timestamp:
       description: >
         Time stamp, UTC time.
         It must follow RFC 3339 and must have time zone.
@@ -479,27 +524,7 @@ components:
       format: date-time
       example: '2017-12-04T18:07:57Z'
 
-    recordingDownloadResponse:
-      description: Common attributes of Click to Dial
-      type: object
-      properties:
-        code:
-          $ref: '#/components/schemas/code'
-        description:
-          $ref: '#/components/schemas/description'
-        result:
-          $ref: '#/components/schemas/filedata'
-      required:
-        - code
-        - description    
-        - filedata
-
-    filedata:
-      description: The voice file content.The encoding format can be implemented in the base64.
-      type: string
-      example: ''  
-      
-    ErrorInfo: 
+    ErrorInfo:
       description: Common schema for errors
       type: object
       properties:
@@ -519,6 +544,7 @@ components:
 
     CloudEvent:
       description: Event compliant with the CloudEvents specification
+      type: object
       properties:
         id:
           description: Identifier of this event, that must be unique in the source context.
@@ -560,7 +586,7 @@ components:
         - specversion
         - type
         - time
-              
+
   responses:
     Generic400:
       description: Bad Request
@@ -579,12 +605,12 @@ components:
                 code: INVALID_ARGUMENT
                 message: Client specified an invalid argument, request body or query param.
             GENERIC_400_OUT_OF_RANGE:
-              description: Out of Range. Specific Syntax Exception used when a given field has a pre-defined range or a invalid filter criteria combination is requested
+              description: Out of Range. Specific syntax exception used when a given field has a pre-defined range or an invalid filter criteria combination is requested.
               value:
                 status: 400
                 code: OUT_OF_RANGE
-                message: Client specified an invalid range. 
-                
+                message: Client specified an invalid range.
+
     Generic401:
       description: Unauthorized
       headers:
@@ -596,7 +622,7 @@ components:
             $ref: "#/components/schemas/ErrorInfo"
           examples:
             GENERIC_401_UNAUTHENTICATED:
-              description: Request cannot be authenticated
+              description: Request cannot be authenticated.
               value:
                 status: 401
                 code: UNAUTHENTICATED
@@ -642,22 +668,84 @@ components:
                 code: NOT_FOUND
                 message: The specified resource is not found.
 
+    UnprocessableEntity422:
+      description: Unprocessable Entity
+      headers:
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorInfo"
+          examples:
+            INVALID_PHONE_NUMBER:
+              value:
+                status: 422
+                code: INVALID_PHONE_NUMBER
+                message: Caller or callee number is not a valid E.164 phone number.
+            SAME_CALLER_CALLEE:
+              value:
+                status: 422
+                code: SAME_CALLER_CALLEE
+                message: Caller and callee cannot be the same number.
+            RECORDING_NOT_SUPPORTED:
+              value:
+                status: 422
+                code: RECORDING_NOT_SUPPORTED
+                message: Recording is not supported for this call.
+            CALLER_NOT_AVAILABLE:
+              value:
+                status: 422
+                code: CALLER_NOT_AVAILABLE
+                message: Caller number is currently not reachable or not allowed to start a call.
+            CALLEE_NOT_AVAILABLE:
+              value:
+                status: 422
+                code: CALLEE_NOT_AVAILABLE
+                message: Callee number is currently not reachable or not allowed to receive a call.
+            INSUFFICIENT_BALANCE:
+              value:
+                status: 422
+                code: INSUFFICIENT_BALANCE
+                message: The account does not have sufficient balance or quota to start this call.
+            RESTRICTED_DESTINATION:
+              value:
+                status: 422
+                code: RESTRICTED_DESTINATION
+                message: The destination number is restricted and cannot be called.
+
+    Conflict409:
+      description: Conflict
+      headers:
+        x-correlator:
+          $ref: "#/components/headers/x-correlator"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorInfo"
+          examples:
+            CALL_ALREADY_ACTIVE:
+              value:
+                status: 409
+                code: CALL_ALREADY_ACTIVE
+                message: An active call already exists for the given caller and callee.
+
   examples:
     CALL_STATUS_CHANGED_EXAMPLE:
       description: Call status changed
-      summary: Cloud event example for Click To Dial status change to Disconnected due to HangUp
+      summary: Cloud event example for Click To Dial status change to disconnected due to hangUp
       value:
         id: 83a0d986-0866-4f38-b8c0-fc65bfcda452
-        source: https://api.example.com/clicktodial/v0.1/clicktodialstatusnotify/123e4567-e89b-12d3-a456-426614174000
+        source: https://api.example.com/clicktodial/clicktodialstatusnotify/123e4567-e89b-12d3-a456-426614174000
         specversion: "1.0"
-        type: org.camaraproject.clicktodial.v0.status-changed
+        type: org.camaraproject.click-to-dial.v0.status-changed
         time: 2021-12-12T00:00:00Z
         data:
-          callidentifier: "123e4567-e89b-12d3-a456-426614174000"
+          callId: "123e4567-e89b-12d3-a456-426614174000"
           caller: "+12345678"
           callee: "+12345678"
-          status: "Disconnected"
-          reason: "HangUp"
-          recordingResult: "Success"
+          status: "disconnected"
+          reason: "hangUp"
+          recordingResult: "success"
           callDuration: "1600"
-          timeStamp: "2017-12-04T18:07:57Z"
+          timestamp: "2017-12-04T18:07:57Z"
