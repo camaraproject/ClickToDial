@@ -517,7 +517,11 @@ components:
         - message
 
     CloudEvent:
-      description: Event compliant with the CloudEvents specification
+      description: |
+        Event compliant with the CloudEvents specification.
+        Note: Providers MUST deliver events using CloudEvents structured mode
+        (HTTP header `Content-Type: application/cloudevents+json`) and MUST include
+        the `subject` attribute identifying the resource (for example `/calls/{callId}`).
       type: object
       properties:
         id:
@@ -716,7 +720,11 @@ components:
 
   examples:
     CALL_STATUS_CHANGED_EXAMPLE:
-      description: Call status changed
+      description: |
+        Call status changed. This example shows a CloudEvent delivered in structured
+        mode (`Content-Type: application/cloudevents+json`). The event MUST include the
+        `subject` attribute (here `/calls/{callId}`) and `datacontenttype` describing
+        the `data` payload.
       summary: Cloud event example for Click To Dial status change to disconnected due to hangUp
       value:
         id: 83a0d986-0866-4f38-b8c0-fc65bfcda452
