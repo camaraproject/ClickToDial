@@ -456,9 +456,17 @@ components:
                 callee:
                   $ref: '#/components/schemas/PhoneNumber'
                 status:
-                  $ref: '#/components/schemas/status'
-                reason:
-                  $ref: '#/components/schemas/reason'
+                  type: object
+                  description: |
+                    Call status object. `state` contains the current lifecycle state
+                    and `reason` contains an optional disconnection reason when applicable.
+                  properties:
+                    state:
+                      $ref: '#/components/schemas/status'
+                    reason:
+                      $ref: '#/components/schemas/reason'
+                  required:
+                    - state
                 recordingResult:
                   $ref: '#/components/schemas/recordingResult'
                 callDuration:
@@ -547,14 +555,23 @@ components:
       type: object
       properties:
         id:
-          description: Identifier of this event, that must be unique in the source context.
+          description: Identifier of this event, unique within the event `source` context. UUID is recommended.
           type: string
+          format: uuid
+          example: 83a0d986-0866-4f38-b8c0-fc65bfcda452
         source:
-          description: Identifies the context in which an event happened in the specific Provider Implementation.
+          description: |
+            Identifies the context in which an event happened in the Provider implementation.
+            It SHOULD be an absolute URI identifying the producer (for example the API root or producer instance).
           type: string
           format: uri-reference
+          example: https://api.example.com/click-to-dial
+        subject:
+          description: Identifies the subject of the event in the context of the `source`.
+          type: string
+          example: /calls/123e4567-e89b-12d3-a456-426614174000
         type:
-          description: The type of the event.
+          description: The type of the event. Use a vendor namespaced event type.
           type: string
           enum:
             - "org.camaraproject.click-to-dial.v0.status-changed"
@@ -583,6 +600,7 @@ components:
       required:
         - id
         - source
+        - subject
         - specversion
         - type
         - time
@@ -736,16 +754,19 @@ components:
       summary: Cloud event example for Click To Dial status change to disconnected due to hangUp
       value:
         id: 83a0d986-0866-4f38-b8c0-fc65bfcda452
-        source: https://api.example.com/clicktodial/clicktodialstatusnotify/123e4567-e89b-12d3-a456-426614174000
+        source: https://api.example.com/click-to-dial
+        subject: /calls/123e4567-e89b-12d3-a456-426614174000
         specversion: "1.0"
+        datacontenttype: application/json
         type: org.camaraproject.click-to-dial.v0.status-changed
         time: 2021-12-12T00:00:00Z
         data:
           callId: "123e4567-e89b-12d3-a456-426614174000"
           caller: "+12345678"
           callee: "+12345678"
-          status: "disconnected"
-          reason: "hangUp"
+          status:
+            state: "disconnected"
+            reason: "hangUp"
           recordingResult: "success"
           callDuration: "1600"
           timestamp: "2017-12-04T18:07:57Z"
