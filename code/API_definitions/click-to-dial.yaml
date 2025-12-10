@@ -285,6 +285,18 @@ components:
       required:
         - caller
         - callee
+      example:
+        caller:
+          number: "+441234567890"
+        callee:
+          number: "+441234567891"
+        sink: "https://endpoint.example.com/sink"
+        sinkCredential:
+          credentialType: ACCESSTOKEN
+          accessToken: "ya29.A0AR...exampletoken"
+          accessTokenExpiresUtc: "2026-01-01T00:00:00Z"
+          accessTokenType: bearer
+        recordingEnabled: true
 
     Caller:
       type: object
@@ -319,7 +331,7 @@ components:
       type: object
       properties:
         credentialType:
-          description: "The type of the credential. Note: MUST set to ACCESSTOKEN for now"
+          description: "The type of the credential. MUST be set to ACCESSTOKEN. Discriminator for credential subtypes."
           type: string
           enum:
             - ACCESSTOKEN
@@ -330,23 +342,6 @@ components:
       required:
         - credentialType
 
-    PlainCredential:
-      description: A plain credential as a combination of an identifier and a secret.
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/SinkCredential"
-        - type: object
-          required:
-            - identifier
-            - secret
-          properties:
-            identifier:
-              description: The identifier might be an account or username.
-              type: string
-            secret:
-              description: The secret might be a password or passphrase.
-              type: string
-
     AccessTokenCredential:
       description: An access token credential.
       type: object
@@ -354,6 +349,12 @@ components:
         - $ref: "#/components/schemas/SinkCredential"
         - type: object
           properties:
+            credentialType:
+              description: MUST be `ACCESSTOKEN` for this concrete credential schema.
+              type: string
+              enum:
+                - ACCESSTOKEN
+              example: ACCESSTOKEN
             accessToken:
               description: REQUIRED. An access token is a previously acquired token granting access to the target resource.
               type: string
@@ -370,45 +371,10 @@ components:
               enum:
                 - bearer
           required:
+            - credentialType
             - accessToken
             - accessTokenExpiresUtc
             - accessTokenType
-
-    RefreshTokenCredential:
-      description: An access token credential with a refresh token.
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/SinkCredential"
-        - type: object
-          properties:
-            accessToken:
-              description: REQUIRED. An access token is a previously acquired token granting access to the target resource.
-              type: string
-            accessTokenExpiresUtc:
-              type: string
-              format: date-time
-              description: >
-                REQUIRED. An absolute UTC instant at which the token shall be considered expired.
-                It must follow RFC 3339 and must have time zone.
-                Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ.
-            accessTokenType:
-              description: REQUIRED. Type of the access token (See [OAuth 2.0](https://tools.ietf.org/html/rfc6749#section-7.1)).
-              type: string
-              enum:
-                - bearer
-            refreshToken:
-              description: REQUIRED. An refresh token credential used to acquire access tokens.
-              type: string
-            refreshTokenEndpoint:
-              type: string
-              format: uri
-              description: REQUIRED. A URL at which the refresh token can be traded for an access token.
-          required:
-            - accessToken
-            - accessTokenExpiresUtc
-            - accessTokenType
-            - refreshToken
-            - refreshTokenEndpoint
 
     RecordingResource:
       description: Recording file for a Click to Dial call
