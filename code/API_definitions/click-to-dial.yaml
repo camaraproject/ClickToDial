@@ -285,6 +285,18 @@ components:
       required:
         - caller
         - callee
+      example:
+        caller:
+          number: "+441234567890"
+        callee:
+          number: "+441234567891"
+        sink: "https://endpoint.example.com/sink"
+        sinkCredential:
+          credentialType: ACCESSTOKEN
+          accessToken: "ya29.A0AR...exampletoken"
+          accessTokenExpiresUtc: "2026-01-01T00:00:00Z"
+          accessTokenType: bearer
+        recordingEnabled: true
 
     Caller:
       type: object
@@ -319,7 +331,7 @@ components:
       type: object
       properties:
         credentialType:
-          description: "The type of the credential. Note: MUST set to ACCESSTOKEN for now"
+          description: "The type of the credential. MUST be set to ACCESSTOKEN. Discriminator for credential subtypes."
           type: string
           enum:
             - ACCESSTOKEN
@@ -330,23 +342,6 @@ components:
       required:
         - credentialType
 
-    PlainCredential:
-      description: A plain credential as a combination of an identifier and a secret.
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/SinkCredential"
-        - type: object
-          required:
-            - identifier
-            - secret
-          properties:
-            identifier:
-              description: The identifier might be an account or username.
-              type: string
-            secret:
-              description: The secret might be a password or passphrase.
-              type: string
-
     AccessTokenCredential:
       description: An access token credential.
       type: object
@@ -354,6 +349,12 @@ components:
         - $ref: "#/components/schemas/SinkCredential"
         - type: object
           properties:
+            credentialType:
+              description: MUST be `ACCESSTOKEN` for this concrete credential schema.
+              type: string
+              enum:
+                - ACCESSTOKEN
+              example: ACCESSTOKEN
             accessToken:
               description: REQUIRED. An access token is a previously acquired token granting access to the target resource.
               type: string
@@ -370,45 +371,10 @@ components:
               enum:
                 - bearer
           required:
+            - credentialType
             - accessToken
             - accessTokenExpiresUtc
             - accessTokenType
-
-    RefreshTokenCredential:
-      description: An access token credential with a refresh token.
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/SinkCredential"
-        - type: object
-          properties:
-            accessToken:
-              description: REQUIRED. An access token is a previously acquired token granting access to the target resource.
-              type: string
-            accessTokenExpiresUtc:
-              type: string
-              format: date-time
-              description: >
-                REQUIRED. An absolute UTC instant at which the token shall be considered expired.
-                It must follow RFC 3339 and must have time zone.
-                Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ.
-            accessTokenType:
-              description: REQUIRED. Type of the access token (See [OAuth 2.0](https://tools.ietf.org/html/rfc6749#section-7.1)).
-              type: string
-              enum:
-                - bearer
-            refreshToken:
-              description: REQUIRED. An refresh token credential used to acquire access tokens.
-              type: string
-            refreshTokenEndpoint:
-              type: string
-              format: uri
-              description: REQUIRED. A URL at which the refresh token can be traded for an access token.
-          required:
-            - accessToken
-            - accessTokenExpiresUtc
-            - accessTokenType
-            - refreshToken
-            - refreshTokenEndpoint
 
     RecordingResource:
       description: Recording file for a Click to Dial call
@@ -456,9 +422,17 @@ components:
                 callee:
                   $ref: '#/components/schemas/PhoneNumber'
                 status:
-                  $ref: '#/components/schemas/status'
-                reason:
-                  $ref: '#/components/schemas/reason'
+                  type: object
+                  description: |
+                    Call status object. `state` contains the current lifecycle state
+                    and `reason` contains an optional disconnection reason when applicable.
+                  properties:
+                    state:
+                      $ref: '#/components/schemas/status'
+                    reason:
+                      $ref: '#/components/schemas/reason'
+                  required:
+                    - state
                 recordingResult:
                   $ref: '#/components/schemas/recordingResult'
                 callDuration:
@@ -543,18 +517,31 @@ components:
         - message
 
     CloudEvent:
-      description: Event compliant with the CloudEvents specification
+      description: |
+        Event compliant with the CloudEvents specification.
+        Note: Providers MUST deliver events using CloudEvents structured mode
+        (HTTP header `Content-Type: application/cloudevents+json`) and MUST include
+        the `subject` attribute identifying the resource (for example `/calls/{callId}`).
       type: object
       properties:
         id:
-          description: Identifier of this event, that must be unique in the source context.
+          description: Identifier of this event, unique within the event `source` context. UUID is recommended.
           type: string
+          format: uuid
+          example: 83a0d986-0866-4f38-b8c0-fc65bfcda452
         source:
-          description: Identifies the context in which an event happened in the specific Provider Implementation.
+          description: |
+            Identifies the context in which an event happened in the Provider implementation.
+            It SHOULD be an absolute URI identifying the producer (for example the API root or producer instance).
           type: string
           format: uri-reference
+          example: https://api.example.com/click-to-dial
+        subject:
+          description: Identifies the subject of the event in the context of the `source`.
+          type: string
+          example: /calls/123e4567-e89b-12d3-a456-426614174000
         type:
-          description: The type of the event.
+          description: The type of the event. Use a vendor namespaced event type.
           type: string
           enum:
             - "org.camaraproject.click-to-dial.v0.status-changed"
@@ -583,6 +570,7 @@ components:
       required:
         - id
         - source
+        - subject
         - specversion
         - type
         - time
@@ -732,20 +720,27 @@ components:
 
   examples:
     CALL_STATUS_CHANGED_EXAMPLE:
-      description: Call status changed
+      description: |
+        Call status changed. This example shows a CloudEvent delivered in structured
+        mode (`Content-Type: application/cloudevents+json`). The event MUST include the
+        `subject` attribute (here `/calls/{callId}`) and `datacontenttype` describing
+        the `data` payload.
       summary: Cloud event example for Click To Dial status change to disconnected due to hangUp
       value:
         id: 83a0d986-0866-4f38-b8c0-fc65bfcda452
-        source: https://api.example.com/clicktodial/clicktodialstatusnotify/123e4567-e89b-12d3-a456-426614174000
+        source: https://api.example.com/click-to-dial
+        subject: /calls/123e4567-e89b-12d3-a456-426614174000
         specversion: "1.0"
+        datacontenttype: application/json
         type: org.camaraproject.click-to-dial.v0.status-changed
         time: 2021-12-12T00:00:00Z
         data:
           callId: "123e4567-e89b-12d3-a456-426614174000"
           caller: "+12345678"
           callee: "+12345678"
-          status: "disconnected"
-          reason: "hangUp"
+          status:
+            state: "disconnected"
+            reason: "hangUp"
           recordingResult: "success"
           callDuration: "1600"
           timestamp: "2017-12-04T18:07:57Z"
