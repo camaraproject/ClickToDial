@@ -1,0 +1,12 @@
+{
+    "MD013": false,  
+    "MD025": false,  
+    "MD033": false,  
+    "MD041": false,  
+    "MD046": { "style": "fenced" }, 
+    "MD009": { "br_spaces": 2 }, 
+    "MD012": false, 
+    "MD022": true,  
+    "MD023": true,  
+    "MD024": false  
+  }

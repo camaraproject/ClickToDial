@@ -98,7 +98,7 @@ This API uses **OpenID Connect** for authentication and authorization. Obtain yo
 
 ### 4.1 API Version
 
-wip
+0.1.0-alpha.2
 
 ### 4.2 Details
 
@@ -113,20 +113,20 @@ wip
 
 ##### Click to Dial Initiation Request
 
-| Name           | Description                                         | Required | Example                      |
-| -------------- | --------------------------------------------------- | -------- | ---------------------------- |
-| caller         | Calling party number (E.164, with "+")              | Yes      | "+12345678"                  |
-| callee         | Called party number (E.164, with "+")               | Yes      | "+87654321"                  |
+| Name           | Description                                         | Required | Example                          |
+| -------------- | --------------------------------------------------- | -------- | -------------------------------- |
+| caller         | Calling party number (E.164, with "+")              | Yes      | "+12345678"                      |
+| callee         | Called party number (E.164, with "+")               | Yes      | "+87654321"                      |
 | sink           | (Optional) Callback URL for status notifications    | No       | `<https://yourapp.com/notify>` |
-| sinkCredential | (Optional) Callback authentication info (see below) | No       | (see below)                  |
+| sinkCredential | (Optional) Callback authentication info (see below) | No       | (see below)                      |
 
 ##### sinkCredential (for `ACCESSTOKEN` type)
 
 The `SinkCredential` is a discriminator-based object. Currently the only supported `credentialType` is `ACCESSTOKEN` and the concrete `AccessTokenCredential` MUST include the fields below.
 
-| Name                  | Description                                   | Required | Example                |
-| --------------------- | --------------------------------------------- | -------- | ---------------------- |
-| credentialType        | Must be `ACCESSTOKEN` (discriminator)         | Yes      | `ACCESSTOKEN`          |
+| Name                  | Description                                   | Required | Example                  |
+| --------------------- | --------------------------------------------- | -------- | ------------------------ |
+| credentialType        | Must be `ACCESSTOKEN` (discriminator)       | Yes      | `ACCESSTOKEN`          |
 | accessToken           | Access token used to authenticate event POSTs | Yes      | `sink_token`           |
 | accessTokenExpiresUtc | UTC expiry timestamp for the access token     | Yes      | `2025-12-31T23:59:59Z` |
 | accessTokenType       | Token type (OAuth token type)                 | Yes      | `bearer`               |
@@ -135,16 +135,16 @@ The `SinkCredential` is a discriminator-based object. Currently the only support
 
 Status notifications are delivered as CloudEvents (see CloudEvent section below). The `data` payload for `EventCTDStatusChanged` contains the following fields. Note that `status` is now an object containing `state` and optional `reason`.
 
-| Name            | Description                                              | Required | Notes/Values                                                                 |
-| --------------- | -------------------------------------------------------- | -------- | ----------------------------------------------------------------------------- |
-| caller          | Calling party number (E.164)                             | Yes      |                                                                               |
-| callee          | Called party number (E.164)                              | Yes      |                                                                               |
-| status          | Object with `state` (lifecycle) and optional `reason`    | Yes      | `state`: `initiating`,`callingCaller`,`callingCallee`,`connected`,`disconnected`,`failed` |
-| status.reason   | Disconnection reason (if `state` is `disconnected`)      | Cond.    | `hangUp`,`callerBusy`,`callerNoAnswer`,`callerFailure`,`callerAbandon`,`calleeBusy`,`calleeNoAnswer`,`calleeFailure`,`other` |
-| recordingResult | Recording result when recording enabled                  | Cond.    | `success`,`noRecord`,`fail`                                                   |
-| callDuration    | Duration in seconds (present when call ended)            | Cond.    |                                                                               |
-| timestamp       | UTC timestamp of the event / state change                | Yes      | RFC 3339 format                                                               |
-| callId          | Identifier of the call (matches the `callId` returned)   | Yes      | UUID style string                                                             |
+| Name            | Description                                               | Required | Notes/Values                                                                                                                                   |
+| --------------- | --------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| caller          | Calling party number (E.164)                              | Yes      |                                                                                                                                                |
+| callee          | Called party number (E.164)                               | Yes      |                                                                                                                                                |
+| status          | Object with `state` (lifecycle) and optional `reason` | Yes      | `state`: `initiating`,`callingCaller`,`callingCallee`,`connected`,`disconnected`,`failed`                                        |
+| status.reason   | Disconnection reason (if `state` is `disconnected`)   | Cond.    | `hangUp`,`callerBusy`,`callerNoAnswer`,`callerFailure`,`callerAbandon`,`calleeBusy`,`calleeNoAnswer`,`calleeFailure`,`other` |
+| recordingResult | Recording result when recording enabled                   | Cond.    | `success`,`noRecord`,`fail`                                                                                                              |
+| callDuration    | Duration in seconds (present when call ended)             | Cond.    |                                                                                                                                                |
+| timestamp       | UTC timestamp of the event / state change                 | Yes      | RFC 3339 format                                                                                                                                |
+| callId          | Identifier of the call (matches the `callId` returned)  | Yes      | UUID style string                                                                                                                              |
 
 #### Release Call
 
@@ -156,12 +156,12 @@ Status notifications are delivered as CloudEvents (see CloudEvent section below)
 
 ### 4.3 Endpoint Definitions
 
-| Endpoint                             | Method | Description                        |
-| ------------------------------------ | ------ | ---------------------------------- |
-| /calls                               | POST   | Start a click-to-dial call         |
-| /calls/{callId}                      | GET    | Retrieve call details              |
-| /calls/{callId}                      | DELETE | End (release) a click-to-dial call |
-| /calls/{callId}/recording            | GET    | Download call recording            |
+| Endpoint                  | Method | Description                        |
+| ------------------------- | ------ | ---------------------------------- |
+| /calls                    | POST   | Start a click-to-dial call         |
+| /calls/{callId}           | GET    | Retrieve call details              |
+| /calls/{callId}           | DELETE | End (release) a click-to-dial call |
+| /calls/{callId}/recording | GET    | Download call recording            |
 
 ### 4.4 Errors
 
@@ -233,7 +233,7 @@ N/A
 ### 4.9 Release Notes
 
 This section lists release notes for historical versions.
-The current version on the main branch is **wip**.
+The current version on the main branch is **0.1.0-alpha.2**.
 
 - **0.1.0-alpha.1** — Initial release (archived).
 
