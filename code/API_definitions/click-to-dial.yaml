@@ -94,7 +94,26 @@ paths:
           $ref: '#/components/responses/Conflict409'
         '422':
           $ref: '#/components/responses/UnprocessableEntity422'
-
+      callbacks:
+        callStatusChanged:
+          '{$request.body#/sink}':
+            post:
+              summary: Call status changed event
+              description: |
+                Event notification delivered to the sink URL when the call status
+                changes (CloudEvents structured mode).
+              requestBody:
+                required: true
+                content:
+                  application/cloudevents+json:
+                    schema:
+                      $ref: '#/components/schemas/EventCTDStatusChanged'
+                    examples:
+                      CALL_STATUS_CHANGED_EXAMPLE:
+                        $ref: '#/components/examples/CALL_STATUS_CHANGED_EXAMPLE'
+              responses:
+                '2XX':
+                  description: Event successfully received by the sink.
   /calls/{callId}:
     get:
       tags:
