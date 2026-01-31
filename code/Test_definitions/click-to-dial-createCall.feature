@@ -1,4 +1,4 @@
-Feature: CAMARA Click to Dial API, vwip - Operation createCall
+Feature: CAMARA Click to Dial API, v0.1.0-rc.1 - Operation createCall
     # Input to be provided by the implementation to the tester
     #
     # Implementation indications:

@@ -2,6 +2,7 @@
 
 ## Table of Contents
 
+- [r1.2](#r12)
 - [r1.1](#r11)
 
 **Please be aware that the project will have frequent updates to the main branch. There are no compatibility guarantees associated with code in any branch, including main, until it has been released. For example, changes may be reverted before a release is published. For the best results, use the latest published release.**
@@ -12,6 +13,74 @@ The below sections record the changes for each API version in each release as fo
 - for the first release-candidate, all changes since the last public release
 - for subsequent release-candidate(s), only the delta to the previous release-candidate
 - for a public release, the consolidated changes since the previous public release
+
+# r1.2
+
+## Release Note
+
+This release contains the definition and documentation of
+
+- click-to-dial v0.1.0-rc.1
+
+The API definition(s) are based on
+
+- Commonalities v0.6.0
+- Identity and Consent Management v0.4.0
+
+## click-to-dial v0.1.0-rc.1
+
+click-to-dial v0.1.0-rc.1 is a pre-release version of the click-to-dial API.
+
+- API definition **with inline documentation**:
+
+  - [View it on ReDoc](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.2/code/API_definitions/click-to-dial.yaml&nocors)
+  - [View it on Swagger Editor](https://camaraproject.github.io/swagger-ui/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.2/code/API_definitions/click-to-dial.yaml)
+  - OpenAPI [YAML spec file](https://github.com/camaraproject/ClickToDial/blob/r1.2/code/API_definitions/click-to-dial.yaml)
+
+### Added
+
+- Introduced the fully RESTful `/calls` resource model:  
+  - `POST /calls`
+  - `GET /calls/{callId}`
+  - `DELETE /calls/{callId}`
+  - `GET /calls/{callId}/recording`
+- CloudEvents-based call status change notifications:
+  - type: `org.camaraproject.click-to-dial.v0.status-changed`
+  - specversion: "1.0"
+- Structured `422 UnprocessableEntity` business validation error codes:
+  - `INVALID_PHONE_NUMBER`
+  - `SAME_CALLER_CALLEE`
+  - `RECORDING_NOT_SUPPORTED`
+  - `CALLER_NOT_AVAILABLE`
+  - `CALLEE_NOT_AVAILABLE`
+  - `INSUFFICIENT_BALANCE`
+  - `RESTRICTED_DESTINATION`
+
+### Changed
+
+- Enum values aligned with CAMARA lowerCamelCase conventions for status and reason.
+- Updated sink credential schema to enforce `credentialType = "ACCESSTOKEN"`.
+- Updated BDD test definitions to reflect the `/calls` endpoints and versioned base paths.
+- Improved alignment of OpenAPI definitions and markdown API documentation examples.
+
+### Fixed
+
+- Corrected CloudEvent examples to match defined schemas and enum values.
+- Resolved inconsistencies between error examples and the `ErrorInfo` schema.
+
+### Removed
+
+- Removed deprecated operations from earlier alpha versions:
+  - `beginCall`
+  - `releaseCall`
+  - `downloadRecording`
+    These have been replaced by the RESTful `/calls` design.
+
+### New Contributors
+
+- N/A
+
+**Full Changelog**: [https://github.com/camaraproject/ClickToDial/commits/r1.2/](https://github.com/camaraproject/ClickToDial/commits/r1.2/)
 
 # r1.1
 
@@ -29,6 +98,7 @@ The API definition(s) are based on
 ## click-to-dial v0.1.0-alpha.1
 
 click-to-dial v0.1.0-alpha.1 is the first pre-release version of the click-to-dial API.
+
 - API definition **with inline documentation**:
   - [View it on ReDoc](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.1/code/API_definitions/click-to-dial.yaml&nocors)
   - [View it on Swagger Editor](https://camaraproject.github.io/swagger-ui/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.1/code/API_definitions/click-to-dial.yaml)
