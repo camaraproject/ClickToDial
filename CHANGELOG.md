@@ -20,16 +20,16 @@ The below sections record the changes for each API version in each release as fo
 
 This release contains the definition and documentation of
 
-- click-to-dial v0.1.0-alpha.2
+- click-to-dial v0.1.0-rc.1
 
 The API definition(s) are based on
 
 - Commonalities v0.6.0
 - Identity and Consent Management v0.4.0
 
-## click-to-dial v0.1.0-alpha.2
+## click-to-dial v0.1.0-rc.1
 
-click-to-dial v0.1.0-alpha.2 is a pre-release version of the click-to-dial API.
+click-to-dial v0.1.0-rc.1 is a pre-release version of the click-to-dial API.
 
 - API definition **with inline documentation**:
 

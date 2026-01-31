@@ -98,7 +98,7 @@ This API uses **OpenID Connect** for authentication and authorization. Obtain yo
 
 ### 4.1 API Version
 
-0.1.0-alpha.2
+0.1.0-rc.1
 
 ### 4.2 Details
 
@@ -312,7 +312,7 @@ N/A
 ### 4.9 Release Notes
 
 This section lists release notes for historical versions.
-The current version on the main branch is **v0.1.0-alpha.2**.
+The current version on the main branch is **v0.1.0-rc.1**.
 
 - **0.1.0-alpha.1** — Initial release (archived).
 

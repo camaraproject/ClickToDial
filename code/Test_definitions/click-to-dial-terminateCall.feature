@@ -1,4 +1,4 @@
-Feature: CAMARA Click to Dial API, v0.1.0-alpha.2 - Operation terminateCall
+Feature: CAMARA Click to Dial API, v0.1.0-rc.1 - Operation terminateCall
     # Input to be provided by the implementation to the tester
     #
     # Implementation indications:

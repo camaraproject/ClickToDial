@@ -1,6 +1,6 @@
 # API Readiness Checklist
 
-Checklist for click-to-dial v0.1.0.alpha.2 in r1.2
+Checklist for click-to-dial v0.1.0-rc.1 in r1.2
 
 | Nr | API release assets                           | alpha | release-candidate | initial public | stable public | Status | Reference information                                                                                                     |
 | -- | -------------------------------------------- | :---: | :---------------: | :------------: | :-----------: | :----: | ------------------------------------------------------------------------------------------------------------------------- |
@@ -8,7 +8,7 @@ Checklist for click-to-dial v0.1.0.alpha.2 in r1.2
 | 2  | Design guidelines from Commonalities applied |   O   |         M         |       M       |       M       |   Y   | [r3.3](https://github.com/camaraproject/Commonalities/releases/tag/r3.3)                                                     |
 | 3  | Guidelines from ICM applied                  |   O   |         M         |       M       |       M       |   Y   | [r3.3](https://github.com/camaraproject/IdentityAndConsentManagement/releases/tag/r3.3)                                      |
 | 4  | API versioning convention applied            |   M   |         M         |       M       |       M       |   Y   |                                                                                                                           |
-| 5  | API documentation                            |   M   |         M         |       M       |       M       |   Y   | [/code/API_definitions/click-to-dial_API.md](/code/API_definitions/click-to-dial_API.md)                                     |
+| 5  | API documentation                            |   M   |         M         |       M       |       M       |   Y   | [/documentation/API_documentation/click-to-dial_API.md](/documentation/API_documentation/click-to-dial_API.md)                                     |
 | 6  | User stories                                 |   O   |         O         |       O       |       M       |   Y   | [/documentation/API_documentation/click-to-dial_User_Story.md](/documentation/API_documentation/click-to-dial_User_Story.md) |
 | 7  | Basic API test cases & documentation         |   O   |         M         |       M       |       M       |   Y   | [/code/Test_definitions](/code/Test_definitions)                                                                             |
 | 8  | Enhanced API test cases & documentation      |   O   |         O         |       O       |       M       |   Y   | [/code/Test_definitions](/code/Test_definitions)                                                                             |
