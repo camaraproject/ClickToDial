@@ -15,8 +15,10 @@ Sandbox API Repository to describe, develop, document, and test the ClickToDial 
 
 ## Scope
 * Service APIs for “Click-To-Dial” (see APIBacklog.md)  
-* It provides the customer with the ability to:  
-  * establish web-based communication by clicking an object (e.g., button, image or text) to request an immediate connection with another person in real-time either by phone call, Voice-over-Internet-Protocol (VoIP), or text
+* It provides the API consumer with the ability to:  
+  * establish a voice call between a caller and callee
+  * terminate an active call
+  * retrieve the recording of a call (if available)
 * Describe, develop, document and test the APIs  
 * Started: September 2023  
 
