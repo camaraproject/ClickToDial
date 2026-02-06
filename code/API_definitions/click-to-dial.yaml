@@ -5,10 +5,6 @@ info:
   description: |
     The Click to Dial API allows users to initiate and manage calls via an enterprise platform or application. The API processes call requests, sets up the call, and provides optional notifications and call recording features. For specific details, please refer to [click-to-dial_API.md](/documentation/API_documentation/click-to-dial_API.md)
 
-    # Introduction
-
-    The API displays the enterprise business number to both users during a call, masking both the caller and callee’s real numbers to preserve privacy. Real-time feedback and notifications are supported via HTTP callbacks. Enterprise members share a pool of minutes, with the enterprise bearing unified payment, eliminating issues such as exceeding limits or wasting leftover package resources, thus reducing costs and increasing efficiency for the enterprise.
-
     # API functionality
 
     Based on the Click-to-Dial API, users can initiate and terminate click-to-call sessions. The Click-to-Call API has the following features:
@@ -229,6 +225,10 @@ components:
       type: openIdConnect
       description: This API uses OpenID Connect for authentication and authorization.
       openIdConnectUrl: "https://example.com/.well-known/openid-configuration"
+    notificationsBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: "{$request.body#/sinkCredential.credentialType}"
 
   headers:
     x-correlator:
@@ -539,8 +539,7 @@ components:
       description: |
         Event compliant with the CloudEvents specification.
         Note: Providers MUST deliver events using CloudEvents structured mode
-        (HTTP header `Content-Type: application/cloudevents+json`) and MUST include
-        the `subject` attribute identifying the resource (for example `/calls/{callId}`).
+        (HTTP header `Content-Type: application/cloudevents+json`).
       type: object
       properties:
         id:
@@ -555,10 +554,6 @@ components:
           type: string
           format: uri-reference
           example: https://api.example.com/click-to-dial
-        subject:
-          description: Identifies the subject of the event in the context of the `source`.
-          type: string
-          example: /calls/123e4567-e89b-12d3-a456-426614174000
         type:
           description: The type of the event. Use a vendor namespaced event type.
           type: string
@@ -589,7 +584,6 @@ components:
       required:
         - id
         - source
-        - subject
         - specversion
         - type
         - time
@@ -710,16 +704,7 @@ components:
                 status: 422
                 code: CALLEE_NOT_AVAILABLE
                 message: Callee number is currently not reachable or not allowed to receive a call.
-            INSUFFICIENT_BALANCE:
-              value:
-                status: 422
-                code: INSUFFICIENT_BALANCE
-                message: The account does not have sufficient balance or quota to start this call.
-            RESTRICTED_DESTINATION:
-              value:
-                status: 422
-                code: RESTRICTED_DESTINATION
-                message: The destination number is restricted and cannot be called.
+
 
     Conflict409:
       description: Conflict
@@ -741,14 +726,12 @@ components:
     CALL_STATUS_CHANGED_EXAMPLE:
       description: |
         Call status changed. This example shows a CloudEvent delivered in structured
-        mode (`Content-Type: application/cloudevents+json`). The event MUST include the
-        `subject` attribute (here `/calls/{callId}`) and `datacontenttype` describing
+        mode (`Content-Type: application/cloudevents+json`). The `datacontenttype` describes
         the `data` payload.
       summary: Cloud event example for Click To Dial status change to disconnected due to hangUp
       value:
         id: 83a0d986-0866-4f38-b8c0-fc65bfcda452
         source: https://api.example.com/click-to-dial
-        subject: /calls/123e4567-e89b-12d3-a456-426614174000
         specversion: "1.0"
         datacontenttype: application/json
         type: org.camaraproject.click-to-dial.v0.status-changed
