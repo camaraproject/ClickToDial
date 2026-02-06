@@ -7,9 +7,11 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     # References to OAS spec schemas refer to schemas specified in click-to-dial.yaml
 
   Background: Common createCall setup
-    Given an environment at "apiRoot"       |
+    Given an environment at "apiRoot"
+    And the resource "/click-to-dial/v0.1rc1/calls"
     And the header "Content-Type" is set to "application/json"
     And the header "Authorization" is set to a valid access token
+    And the header "x-correlator" is set to a valid UUID
         # Properties not explicitly overwritten in the Scenarios can take any values compliant with the schema
     And the request body is set by default to a request body compliant with the schema at "/components/schemas/CreateCallRequest"
 
