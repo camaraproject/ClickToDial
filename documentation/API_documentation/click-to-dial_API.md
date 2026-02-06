@@ -4,7 +4,7 @@ The Click to Dial API allows users to initiate and manage calls via an enterpris
 
 ## 1\. Introduction
 
- The API displays the enterprise business number to both users during a call, masking both the caller and callee's real numbers to preserve privacy. Real-time feedback and notifications are supported via HTTP callbacks. Enterprise members share a pool of minutes, with the enterprise bearing unified payment, eliminating issues such as exceeding limits or wasting leftover package resources, thus reducing costs and increasing efficiency for the enterprise.
+
 
 ## 2\. Quick Start
 
