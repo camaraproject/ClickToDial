@@ -2,7 +2,7 @@
 
 | **Item**                    | **Details**                                                                                                                                                                                                                                                                                                                                                                                          |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Summary**                 | As an application developer for enterprise clients, I want to allow our corporate customers to initiate Click-to-Dial call sessions via the provider API so that two parties (caller and callee) are connected by masked numbers and can converse while the platform protects their privacy. The API should support call creation, termination, optional recording, and asynchronous status notifications. |
+| **Summary**                 | As an application developer for enterprise clients, I want to allow our corporate customers to initiate Click-to-Dial call sessions via the provider API so that two parties (caller and callee) can be connected via a voice call. The API should support call creation, termination, optional recording, and asynchronous status notifications. |
 | **Roles, Actors and Scope** | **Roles:** Customer / User; **Actors:** Application developers, integration engineers, CSP (service provider); **Scope:** Create and remove CTD session resources (calls), receive status notifications and retrieve recordings when available.                                                                                                                                          |
 | **Pre-conditions**          | The client application has been onboarded and is authorized to call the API (has a valid access token with required scopes); the client knows the `apiRoot` and can send HTTP requests; if event delivery is required, the client provides a reachable `sink` URL and optional `sinkCredential`.                                                                                                     |
 | **Activities / Steps**      | Start: Client calls `POST /calls` with `caller`, `callee` and optional `sink`/`sinkCredential`. Flow: Provider places calls to both parties and manages the session; Provider delivers status notifications as CloudEvents to the configured `sink`. End: Client calls `DELETE /calls/{callId}` or session ends normally (call disconnected).                                                |
@@ -43,7 +43,7 @@
 - CloudEvents and notifications
 
   - Providers MUST deliver status notifications as CloudEvents in structured mode (`Content-Type: application/cloudevents+json`).
-  - The CloudEvent MUST include `id`, `source`, `type`, `specversion`, `time`, `datacontenttype` and `subject` (subject should identify the resource, e.g. `/calls/{callId}`). `datacontenttype` for our events is `application/json`.
+  - The CloudEvent MUST include `id`, `source`, `type`, `specversion`, `time`, and `datacontenttype`. `datacontenttype` for our events is `application/json`.
   - The event `data` payload for `EventCTDStatusChanged` contains `callId`, `caller`, `callee`, `timestamp` and `status` (an object):
 
 ```json
@@ -60,6 +60,6 @@
 
 1. Client POSTs to `/calls` with `caller`, `callee`, optional `sink`/`sinkCredential`.
 2. Provider returns `201 Created` with call details including `callId`.
-3. Provider sends CloudEvents to `sink` as the call progresses; each event's `subject` is `/calls/{callId}`.
+3. Provider sends CloudEvents to `sink` as the call progresses with call status updates.
 4. When the call ends, provider sends a final `disconnected` state event including `callDuration` and, if recording was enabled, `recordingResult`.
 5. Client can `GET /calls/{callId}/recording` to download the recording resource if available.
