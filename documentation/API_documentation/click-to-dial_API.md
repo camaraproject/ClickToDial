@@ -2,7 +2,9 @@
 
 The Click to Dial API allows users to initiate and manage calls via an enterprise platform or application. The API processes call requests, sets up the call, and provides optional notifications and call recording features.
 
-## 1\. Introduction
+## 1. Introduction
+
+The Click to Dial API provides a standardized interface to initiate and manage voice call sessions between two parties. It allows API consumers to create a call session, retrieve call status and details, terminate an active call, and retrieve call recordings (if enabled).
 
 
 
