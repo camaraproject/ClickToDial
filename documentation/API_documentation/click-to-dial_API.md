@@ -2,9 +2,11 @@
 
 The Click to Dial API allows users to initiate and manage calls via an enterprise platform or application. The API processes call requests, sets up the call, and provides optional notifications and call recording features.
 
-## 1\. Introduction
+## 1. Introduction
 
- The API displays the enterprise business number to both users during a call, masking both the caller and callee's real numbers to preserve privacy. Real-time feedback and notifications are supported via HTTP callbacks. Enterprise members share a pool of minutes, with the enterprise bearing unified payment, eliminating issues such as exceeding limits or wasting leftover package resources, thus reducing costs and increasing efficiency for the enterprise.
+The Click to Dial API provides a standardized interface to initiate and manage voice call sessions between two parties. It allows API consumers to create a call session, retrieve call status and details, terminate an active call, and retrieve call recordings (if enabled).
+
+
 
 ## 2\. Quick Start
 
@@ -206,10 +208,10 @@ Note: Additional common CAMARA error responses may be defined in the `CAMARA_com
 ## CloudEvent delivery notes
 
 - Providers MUST send status notifications as CloudEvents in structured mode. The HTTP header must be `Content-Type: application/cloudevents+json`.
-- The CloudEvent MUST include the attributes: `id`, `source`, `type`, `specversion`, `time`, and `subject` (subject should identify the resource, e.g. `/calls/{callId}`).
+- The CloudEvent MUST include the attributes: `id`, `source`, `type`, `specversion`, and `time`.
 - The CloudEvent attribute `datacontenttype` MUST be `application/json` for the `data` payload.
 
-The CloudEvent `data` payload for Click-to-Dial `EventCTDStatusChanged` includes `callId`, `caller`, `callee`, `timestamp` and `status` (where `status` is an object with `state` and optional `reason`). Providers MUST set the CloudEvent `subject` to the affected resource (for example `/calls/{callId}`) and set `datacontenttype` to `application/json`.
+The CloudEvent `data` payload for Click-to-Dial `EventCTDStatusChanged` includes `callId`, `caller`, `callee`, `timestamp` and `status` (where `status` is an object with `state` and optional `reason`). Providers MUST set `datacontenttype` to `application/json`.
 
 Example CloudEvent (structured mode) — `CALL_STATUS_CHANGED_EXAMPLE` from the OpenAPI spec:
 
@@ -217,7 +219,7 @@ Example CloudEvent (structured mode) — `CALL_STATUS_CHANGED_EXAMPLE` from the 
 {
   "id": "83a0d986-0866-4f38-b8c0-fc65bfcda452",
   "source": "https://api.example.com/click-to-dial",
-  "subject": "/calls/123e4567-e89b-12d3-a456-426614174000",
+
   "specversion": "1.0",
   "datacontenttype": "application/json",
   "type": "org.camaraproject.click-to-dial.v0.status-changed",
