@@ -1,6 +1,6 @@
 # Overview
 
-The Click to Dial API allows users to initiate and manage calls via an enterprise platform or application. The API processes call requests, sets up the call, and provides optional notifications and call recording features.
+The Click to Dial API allows API consumers to initiate and manage voice calls between two parties. The API processes call requests, sets up the call, and provides optional status notifications and call recording features.
 
 ## 1. Introduction
 
@@ -190,8 +190,6 @@ When a request is syntactically correct but semantically invalid, the API return
 | `RECORDING_NOT_SUPPORTED` | Recording is not supported for this call. |
 | `CALLER_NOT_AVAILABLE` | Caller number is currently not reachable or not allowed to start a call. |
 | `CALLEE_NOT_AVAILABLE` | Callee number is currently not reachable or not allowed to receive a call. |
-| `INSUFFICIENT_BALANCE` | The account does not have sufficient balance or quota to start this call. |
-| `RESTRICTED_DESTINATION` | The destination number is restricted and cannot be called. |
 
 Example 422 response:
 

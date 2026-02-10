@@ -14,7 +14,7 @@ Sandbox API Repository to describe, develop, document, and test the ClickToDial 
 * API Repository [Click To Dial](https://lf-camaraproject.atlassian.net/wiki/x/3DHe)
 
 ## Scope
-* Service APIs for “Click-To-Dial” (see APIBacklog.md)  
+* Service APIs for “Click-To-Dial”  
 * It provides the API consumer with the ability to:  
   * establish a voice call between a caller and callee
   * terminate an active call
