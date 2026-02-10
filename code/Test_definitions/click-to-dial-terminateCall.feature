@@ -12,7 +12,8 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     And the header "Content-Type" is set to "application/json"
     And the header "Authorization" is set to a valid access token
     And the header "x-correlator" is set to a valid UUID
-        # Path parameters not explicitly overwritten in the Scenarios can take any values compliant with the schema
+    And the header "x-correlator" complies with the schema at "#/components/schemas/XCorrelator"
+    # Path parameters not explicitly overwritten in the Scenarios can take any values compliant with the schema
 
     # Success scenarios
   @terminatecall_success
