@@ -24,7 +24,7 @@ This release contains the definition and documentation of
 
 The API definition(s) are based on
 
-- Commonalities v0.6.0
+- Commonalities v0.7.0
 - Identity and Consent Management v0.4.0
 
 ## click-to-dial v0.1.0-rc.1
@@ -53,8 +53,6 @@ click-to-dial v0.1.0-rc.1 is a pre-release version of the click-to-dial API.
   - `RECORDING_NOT_SUPPORTED`
   - `CALLER_NOT_AVAILABLE`
   - `CALLEE_NOT_AVAILABLE`
-  - `INSUFFICIENT_BALANCE`
-  - `RESTRICTED_DESTINATION`
 
 ### Changed
 
