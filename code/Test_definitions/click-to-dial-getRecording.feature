@@ -7,10 +7,13 @@ Feature: CAMARA Click to Dial API, vwip - Operation getRecording
     # References to OAS spec schemas refer to schemas specified in click-to-dial.yaml
 
   Background: Common getRecording setup
-    Given an environment at "apiRoot"       |
+    Given an environment at "apiRoot"
+    And the resource "/click-to-dial/v0.1rc1/calls/{callId}/recording"
     And the header "Content-Type" is set to "application/json"
     And the header "Authorization" is set to a valid access token
-        # Path parameters not explicitly overwritten in the Scenarios can take any values compliant with the schema
+    And the header "x-correlator" is set to a valid UUID
+    And the header "x-correlator" complies with the schema at "#/components/schemas/XCorrelator"
+    # Path parameters not explicitly overwritten in the Scenarios can take any values compliant with the schema
 
     # Success scenarios
   @getrecording_success
