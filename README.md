@@ -22,11 +22,23 @@ Sandbox API Repository to describe, develop, document, and test the ClickToDial 
 * Describe, develop, document and test the APIs  
 * Started: September 2023  
 
+<!-- CAMARA:RELEASE-INFO:START -->
+<!-- The following section is automatically maintained by the CAMARA project-administration tooling: https://github.com/camaraproject/project-administration -->
+
 ## Release Information
-<!-- Use/uncomment one or multiple the following options -->
-Pre-releases of this sub project are available in https://github.com/camaraproject/ClickToDial/releases
-<!-- The latest public release is available here: https://github.com/camaraproject/ClickToDial/releases/latest -->
-For changes see [CHANGELOG.md](https://github.com/camaraproject/ClickToDial/blob/main/CHANGELOG.md) 
+
+> [!NOTE]
+> This repository has only pre-release versions available yet. Pre-releases are for testing and may change before public release.
+
+* **PREVIEW**: The latest pre-release is [r1.1](https://github.com/camaraproject/ClickToDial/releases/tag/r1.1) (alpha), with the following API versions:
+  * **click-to-dial v0.1.0-alpha.1**
+  [[YAML]](https://github.com/camaraproject/ClickToDial/blob/r1.1/code/API_definitions/click-to-dial.yaml)
+  [[ReDoc]](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.1/code/API_definitions/click-to-dial.yaml&nocors)
+  [[Swagger]](https://camaraproject.github.io/swagger-ui/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.1/code/API_definitions/click-to-dial.yaml)
+* For changes see [CHANGELOG.md](https://github.com/camaraproject/ClickToDial/blob/main/CHANGELOG.md)
+
+_The above section is automatically synchronized by CAMARA project-administration._
+<!-- CAMARA:RELEASE-INFO:END -->
 
 ## Contributing
 * Meetings are held virtually
