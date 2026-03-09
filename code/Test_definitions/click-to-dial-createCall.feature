@@ -1,4 +1,4 @@
-Feature: CAMARA Click to Dial API, vwip - Operation createCall
+Feature: CAMARA Click to Dial API, 0.1.0-rc.1 - Operation createCall
     # Input to be provided by the implementation to the tester
     #
     # Implementation indications:
@@ -8,7 +8,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
 
   Background: Common createCall setup
     Given an environment at "apiRoot"
-    And the resource "/click-to-dial/vwip/calls"
+    And the resource "/click-to-dial/v0.1rc1/calls"
     And the header "Content-Type" is set to "application/json"
     And the header "Authorization" is set to a valid access token
     And the header "x-correlator" is set to a valid UUID
