@@ -51,7 +51,7 @@ The API definition(s) are based on
 
 ## click-to-dial 0.1.0-rc.2
 
-**click-to-dial 0.1.0-rc.2 is ...**
+**click-to-dial 0.1.0-rc.2 is the second release candidate of the click-to-dial API.**
 
 - API definition **with inline documentation**:
   - [View it on ReDoc](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.3/code/API_definitions/click-to-dial.yaml&nocors)
@@ -60,19 +60,27 @@ The API definition(s) are based on
 
 ### Added
 
-* _To be filled during release review_
+* Added callback security documentation for ClickToDial status notifications using `notificationsBearerAuth`.
+* Added Commonalities r4.2 synchronized common artifacts under `code/common`, including `.sync-manifest.yaml`.
 
 ### Changed
 
-* _To be filled during release review_
+* Aligned the ClickToDial API definition with Commonalities r4.2 / `0.8.0-rc.2`.
+* Aligned the ClickToDial API definition with Identity and Consent Management r4.2 / `0.5.0`.
+* Updated CAMARA error response schemas to follow the Commonalities r4.2 `ErrorInfo` response template.
+* Updated ClickToDial status change callback events to use the Commonalities r4.2 CloudEvents envelope while keeping the ClickToDial-specific event type and payload.
+* Replaced the ClickToDial-specific `CALL_ALREADY_ACTIVE` 409 error code with the Commonalities-aligned `ALREADY_EXISTS` code.
+* Aligned reusable schemas such as phone number, sink credentials, x-correlator, timestamps, and notification-related schemas with Commonalities r4.2.
+* Renamed local OAS schema components to PascalCase without changing JSON property names or API wire format.
 
 ### Fixed
 
-* _To be filled during release review_
+* Fixed callback response documentation by adding secured-operation error responses for notification delivery.
+* Fixed CAMARA Validation findings so the API definition validates with zero errors and zero warnings.
 
 ### Removed
 
-* _To be filled during release review_
+* Removed obsolete local wrapper schemas that are now referenced directly from Commonalities r4.2 artifacts.
 
 **Full Changelog**: https://github.com/camaraproject/ClickToDial/compare/r1.2...r1.3
 
