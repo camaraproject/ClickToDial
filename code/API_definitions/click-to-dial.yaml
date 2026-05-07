@@ -111,7 +111,7 @@ paths:
                 content:
                   application/cloudevents+json:
                     schema:
-                      $ref: '#/components/schemas/EventCTDStatusChanged'
+                      $ref: '#/components/schemas/CallStatusChangedEvent'
                     examples:
                       CALL_STATUS_CHANGED_EXAMPLE:
                         $ref: '#/components/examples/CALL_STATUS_CHANGED_EXAMPLE'
@@ -140,7 +140,7 @@ paths:
           required: true
           description: Unique call identifier
           schema:
-            $ref: "#/components/schemas/callId"
+            $ref: "#/components/schemas/CallId"
         - $ref: "#/components/parameters/x-correlator"
       responses:
         '200':
@@ -177,7 +177,7 @@ paths:
           required: true
           description: Unique call identifier
           schema:
-            $ref: "#/components/schemas/callId"
+            $ref: "#/components/schemas/CallId"
         - $ref: "#/components/parameters/x-correlator"
       responses:
         '204':
@@ -212,7 +212,7 @@ paths:
           required: true
           description: Unique call identifier
           schema:
-            $ref: "#/components/schemas/callId"
+            $ref: "#/components/schemas/CallId"
         - $ref: "#/components/parameters/x-correlator"
       responses:
         '200':
@@ -249,13 +249,12 @@ components:
       $ref: "../common/CAMARA_common.yaml#/components/parameters/x-correlator"
 
   schemas:
-    XCorrelator:
-      $ref: "../common/CAMARA_common.yaml#/components/schemas/XCorrelator"
-
-    callId:
+    CallId:
       description: Call identification
       type: string
+      minLength: 1
       maxLength: 256
+      pattern: '^[A-Za-z0-9._~:-]{1,256}$'
       example: 'call_550e8400-e29b-41d4-a716-446655440000'
 
     Call:
@@ -263,13 +262,13 @@ components:
       type: object
       properties:
         callId:
-          $ref: '#/components/schemas/callId'
+          $ref: '#/components/schemas/CallId'
         caller:
           $ref: '#/components/schemas/Caller'
         callee:
           $ref: '#/components/schemas/Callee'
         status:
-          $ref: '#/components/schemas/status'
+          $ref: '#/components/schemas/CallStatus'
         createdAt:
           $ref: '../common/CAMARA_common.yaml#/components/schemas/DateTime'
         recordingEnabled:
@@ -291,7 +290,7 @@ components:
         callee:
           $ref: '#/components/schemas/Callee'
         sink:
-          $ref: '#/components/schemas/sink'
+          $ref: '#/components/schemas/Sink'
         sinkCredential:
           $ref: '#/components/schemas/SinkCredential'
         recordingEnabled:
@@ -334,7 +333,7 @@ components:
     PhoneNumber:
       $ref: "../common/CAMARA_common.yaml#/components/schemas/PhoneNumber"
 
-    sink:
+    Sink:
       description: The address to which events shall be delivered, using the HTTP protocol.
       type: string
       format: uri
@@ -344,15 +343,12 @@ components:
     SinkCredential:
       $ref: "../common/CAMARA_event_common.yaml#/components/schemas/SinkCredential"
 
-    AccessTokenCredential:
-      $ref: "../common/CAMARA_event_common.yaml#/components/schemas/AccessTokenCredential"
-
     RecordingResource:
       description: Recording file for a Click to Dial call
       type: object
       properties:
         callId:
-          $ref: '#/components/schemas/callId'
+          $ref: '#/components/schemas/CallId'
         content:
           type: string
           format: byte
@@ -373,22 +369,20 @@ components:
         - content
         - contentType
 
-    EventCTDStatusChanged:
+    CallStatusChangedEvent:
       description: ClickToDial call status changed event
       allOf:
         - $ref: "../common/CAMARA_event_common.yaml#/components/schemas/CloudEvent"
         - type: object
           properties:
             type:
-              type: string
-              enum:
-                - "org.camaraproject.click-to-dial.v0.status-changed"
+              $ref: "#/components/schemas/EventType"
             data:
               type: object
               description: Event details depending on the event type
               properties:
                 callId:
-                  $ref: "#/components/schemas/callId"
+                  $ref: "#/components/schemas/CallId"
                 caller:
                   $ref: "#/components/schemas/PhoneNumber"
                 callee:
@@ -400,15 +394,15 @@ components:
                     and `reason` contains an optional disconnection reason when applicable.
                   properties:
                     state:
-                      $ref: "#/components/schemas/status"
+                      $ref: "#/components/schemas/CallStatus"
                     reason:
-                      $ref: "#/components/schemas/reason"
+                      $ref: "#/components/schemas/DisconnectionReason"
                   required:
                     - state
                 recordingResult:
-                  $ref: "#/components/schemas/recordingResult"
+                  $ref: "#/components/schemas/RecordingResult"
                 callDuration:
-                  $ref: "#/components/schemas/callDuration"
+                  $ref: "#/components/schemas/CallDuration"
                 timestamp:
                   $ref: "../common/CAMARA_common.yaml#/components/schemas/DateTime"
               required:
@@ -421,7 +415,13 @@ components:
             - type
             - data
 
-    status:
+    EventType:
+      description: Supported ClickToDial event types.
+      type: string
+      enum:
+        - "org.camaraproject.click-to-dial.v0.status-changed"
+
+    CallStatus:
       description: Call status
       type: string
       enum:
@@ -433,7 +433,7 @@ components:
         - failed
       example: 'callingCaller'
 
-    reason:
+    DisconnectionReason:
       description: This field indicates the disconnection reason. This field is mandatory when status is 'disconnected'.
       type: string
       enum:
@@ -448,7 +448,7 @@ components:
         - other
       example: 'hangUp'
 
-    recordingResult:
+    RecordingResult:
       description: Recording Result. This field is mandatory when recording is enabled and the call is finished.
       type: string
       enum:
@@ -457,18 +457,12 @@ components:
         - fail
       example: 'success'
 
-    callDuration:
+    CallDuration:
       description: This field indicates the duration of the calls, in seconds. This field is mandatory when status is 'disconnected'.
       type: string
       maxLength: 256
       pattern: '^[0-9]+$'
       example: '1600'
-
-    ErrorInfo:
-      $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
-
-    CloudEvent:
-      $ref: "../common/CAMARA_event_common.yaml#/components/schemas/CloudEvent"
 
   responses:
     Generic400:
