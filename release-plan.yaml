@@ -16,17 +16,17 @@ repository:
   # Initialized to the latest release; update when planning the next release.
   # - New release cycle (increment first number, reset second to 1)
   # - Progression in same cycle (increment second number)
-  target_release_tag: r1.2
+  target_release_tag: r1.3
 
   # Release type being prepared (must be set before release can be triggered)
   # Options: none | pre-release-alpha | pre-release-rc | public-release | maintenance-release
-  target_release_type: pre-release-rc
+  target_release_type: public-release
 
 # Dependencies on Commonalities and ICM releases
 # Update per ReleaseManagement requirements for each release cycle
 dependencies:
-  commonalities_release: r4.1
-  identity_consent_management_release: r4.1
+  commonalities_release: r4.2
+  identity_consent_management_release: r4.2
 
 # APIs in this repository
 # - api_name: kebab-case identifier (must be filename in code/API_definitions/)
@@ -34,7 +34,7 @@ dependencies:
 apis:
   - api_name: click-to-dial
     target_api_version: 0.1.0
-    target_api_status: rc
+    target_api_status: public
     main_contacts:
       - YadingFang
       - Wojiaozhenghao
