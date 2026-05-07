@@ -49,6 +49,12 @@ servers:
         default: http://localhost:9091
         description: API root, defined by the service provider, e.g. `api.example.com` or `api.example.com/somepath`
 
+tags:
+  - name: Calls
+    description: Operations related to Click to Dial calls
+  - name: Recording
+    description: Operations related to Call Recordings
+
 paths:
   /calls:
     post:
@@ -112,6 +118,8 @@ paths:
               responses:
                 '2XX':
                   description: Event successfully received by the sink.
+                '400':
+                  $ref: '#/components/responses/Generic400'
                 '401':
                   $ref: '#/components/responses/Generic401'
                 '403':
@@ -247,6 +255,7 @@ components:
     callId:
       description: Call identification
       type: string
+      maxLength: 256
       example: 'call_550e8400-e29b-41d4-a716-446655440000'
 
     Call:
@@ -305,6 +314,7 @@ components:
         recordingEnabled: true
 
     Caller:
+      description: The phone number of the caller.
       type: object
       properties:
         number:
@@ -313,6 +323,7 @@ components:
         - number
 
     Callee:
+      description: The phone number of the callee.
       type: object
       properties:
         number:
@@ -327,6 +338,7 @@ components:
       description: The address to which events shall be delivered, using the HTTP protocol.
       type: string
       format: uri
+      maxLength: 2048
       example: "https://endpoint.example.com/sink"
 
     SinkCredential:
@@ -343,6 +355,8 @@ components:
           $ref: '#/components/schemas/callId'
         content:
           type: string
+          format: byte
+          maxLength: 20971520
           description: Base64 encoded audio content.
         contentType:
           type: string
@@ -446,6 +460,8 @@ components:
     callDuration:
       description: This field indicates the duration of the calls, in seconds. This field is mandatory when status is 'disconnected'.
       type: string
+      maxLength: 256
+      pattern: '^[0-9]+$'
       example: '1600'
 
     ErrorInfo:
