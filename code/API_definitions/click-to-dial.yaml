@@ -36,7 +36,7 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
   version: wip
-  x-camara-commonalities: "0.7"
+  x-camara-commonalities: "0.8.0-rc.2"
 
 externalDocs:
   description: Product documentation at CAMARA
@@ -48,6 +48,12 @@ servers:
       apiRoot:
         default: http://localhost:9091
         description: API root, defined by the service provider, e.g. `api.example.com` or `api.example.com/somepath`
+
+tags:
+  - name: Calls
+    description: Operations related to Click to Dial calls
+  - name: Recording
+    description: Operations related to Call Recordings
 
 paths:
   /calls:
@@ -95,6 +101,8 @@ paths:
           '{$request.body#/sink}':
             post:
               summary: Call status changed event
+              security:
+                - notificationsBearerAuth: []
               description: |
                 Event notification delivered to the sink URL when the call status
                 changes (CloudEvents structured mode).
@@ -110,6 +118,12 @@ paths:
               responses:
                 '2XX':
                   description: Event successfully received by the sink.
+                '400':
+                  $ref: '#/components/responses/Generic400'
+                '401':
+                  $ref: '#/components/responses/Generic401'
+                '403':
+                  $ref: '#/components/responses/Generic403'
   /calls/{callId}:
     get:
       tags:
@@ -222,39 +236,26 @@ paths:
 components:
   securitySchemes:
     openId:
-      type: openIdConnect
-      description: This API uses OpenID Connect for authentication and authorization.
-      openIdConnectUrl: "https://example.com/.well-known/openid-configuration"
+      $ref: "../common/CAMARA_common.yaml#/components/securitySchemes/openId"
     notificationsBearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: "{$request.body#/sinkCredential.credentialType}"
+      $ref: "../common/CAMARA_event_common.yaml#/components/securitySchemes/notificationsBearerAuth"
 
   headers:
     x-correlator:
-      description: Correlation id for the different services
-      schema:
-        $ref: '#/components/schemas/XCorrelator'
-      example: 'b4333c46-49c0-4f62-80d7-f0ef930f1c46'
+      $ref: "../common/CAMARA_common.yaml#/components/headers/x-correlator"
 
   parameters:
     x-correlator:
-      name: x-correlator
-      in: header
-      description: Correlation ID for the different services
-      schema:
-        $ref: '#/components/schemas/XCorrelator'
-      example: 'b4333c46-49c0-4f62-80d7-f0ef930f1c46'
+      $ref: "../common/CAMARA_common.yaml#/components/parameters/x-correlator"
 
   schemas:
     XCorrelator:
-      type: string
-      pattern: '^[a-zA-Z0-9-_:;./<>{}]{0,256}$'
-      description: Correlation id for tracking API calls across systems.
+      $ref: "../common/CAMARA_common.yaml#/components/schemas/XCorrelator"
 
     callId:
       description: Call identification
       type: string
+      maxLength: 256
       example: 'call_550e8400-e29b-41d4-a716-446655440000'
 
     Call:
@@ -270,12 +271,7 @@ components:
         status:
           $ref: '#/components/schemas/status'
         createdAt:
-          type: string
-          format: date-time
-          description: >
-            Time when the call session was created.
-            It must follow RFC 3339 and must have time zone.
-            Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ.
+          $ref: '../common/CAMARA_common.yaml#/components/schemas/DateTime'
         recordingEnabled:
           type: boolean
           description: Whether recording is enabled for this call.
@@ -318,6 +314,7 @@ components:
         recordingEnabled: true
 
     Caller:
+      description: The phone number of the caller.
       type: object
       properties:
         number:
@@ -326,6 +323,7 @@ components:
         - number
 
     Callee:
+      description: The phone number of the callee.
       type: object
       properties:
         number:
@@ -334,66 +332,20 @@ components:
         - number
 
     PhoneNumber:
-      description: Phone number in E.164 format
-      type: string
-      pattern: '^\+[1-9]\d{1,14}$'
-      example: '+12345678'
+      $ref: "../common/CAMARA_common.yaml#/components/schemas/PhoneNumber"
 
     sink:
       description: The address to which events shall be delivered, using the HTTP protocol.
       type: string
       format: uri
+      maxLength: 2048
       example: "https://endpoint.example.com/sink"
 
     SinkCredential:
-      description: A sink credential provides authentication or authorization information necessary to enable delivery of events to a target.
-      type: object
-      properties:
-        credentialType:
-          description: "The type of the credential. MUST be set to ACCESSTOKEN. Discriminator for credential subtypes."
-          type: string
-          enum:
-            - ACCESSTOKEN
-      discriminator:
-        propertyName: credentialType
-        mapping:
-          ACCESSTOKEN: "#/components/schemas/AccessTokenCredential"
-      required:
-        - credentialType
+      $ref: "../common/CAMARA_event_common.yaml#/components/schemas/SinkCredential"
 
     AccessTokenCredential:
-      description: An access token credential.
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/SinkCredential"
-        - type: object
-          properties:
-            credentialType:
-              description: MUST be `ACCESSTOKEN` for this concrete credential schema.
-              type: string
-              enum:
-                - ACCESSTOKEN
-              example: ACCESSTOKEN
-            accessToken:
-              description: REQUIRED. An access token is a previously acquired token granting access to the target resource.
-              type: string
-            accessTokenExpiresUtc:
-              type: string
-              format: date-time
-              description: >
-                REQUIRED. An absolute UTC instant at which the token shall be considered expired.
-                It must follow RFC 3339 and must have time zone.
-                Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ.
-            accessTokenType:
-              description: REQUIRED. Type of the access token (See [OAuth 2.0](https://tools.ietf.org/html/rfc6749#section-7.1)).
-              type: string
-              enum:
-                - bearer
-          required:
-            - credentialType
-            - accessToken
-            - accessTokenExpiresUtc
-            - accessTokenType
+      $ref: "../common/CAMARA_event_common.yaml#/components/schemas/AccessTokenCredential"
 
     RecordingResource:
       description: Recording file for a Click to Dial call
@@ -403,6 +355,8 @@ components:
           $ref: '#/components/schemas/callId'
         content:
           type: string
+          format: byte
+          maxLength: 20971520
           description: Base64 encoded audio content.
         contentType:
           type: string
@@ -413,33 +367,32 @@ components:
             - audio/mpeg
             - audio/ogg
         generatedAt:
-          type: string
-          format: date-time
-          description: >
-            Timestamp when the recording was generated.
-            It must follow RFC 3339 and must have time zone.
-            Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ.
+          $ref: '../common/CAMARA_common.yaml#/components/schemas/DateTime'
       required:
         - callId
         - content
         - contentType
 
     EventCTDStatusChanged:
-      description: Common attributes of Click to Dial
+      description: ClickToDial call status changed event
       allOf:
-        - $ref: "#/components/schemas/CloudEvent"
+        - $ref: "../common/CAMARA_event_common.yaml#/components/schemas/CloudEvent"
         - type: object
           properties:
+            type:
+              type: string
+              enum:
+                - "org.camaraproject.click-to-dial.v0.status-changed"
             data:
               type: object
               description: Event details depending on the event type
               properties:
                 callId:
-                  $ref: '#/components/schemas/callId'
+                  $ref: "#/components/schemas/callId"
                 caller:
-                  $ref: '#/components/schemas/PhoneNumber'
+                  $ref: "#/components/schemas/PhoneNumber"
                 callee:
-                  $ref: '#/components/schemas/PhoneNumber'
+                  $ref: "#/components/schemas/PhoneNumber"
                 status:
                   type: object
                   description: |
@@ -447,17 +400,17 @@ components:
                     and `reason` contains an optional disconnection reason when applicable.
                   properties:
                     state:
-                      $ref: '#/components/schemas/status'
+                      $ref: "#/components/schemas/status"
                     reason:
-                      $ref: '#/components/schemas/reason'
+                      $ref: "#/components/schemas/reason"
                   required:
                     - state
                 recordingResult:
-                  $ref: '#/components/schemas/recordingResult'
+                  $ref: "#/components/schemas/recordingResult"
                 callDuration:
-                  $ref: '#/components/schemas/callDuration'
+                  $ref: "#/components/schemas/callDuration"
                 timestamp:
-                  $ref: '#/components/schemas/timestamp'
+                  $ref: "../common/CAMARA_common.yaml#/components/schemas/DateTime"
               required:
                 - callId
                 - caller
@@ -465,6 +418,7 @@ components:
                 - status
                 - timestamp
           required:
+            - type
             - data
 
     status:
@@ -506,87 +460,15 @@ components:
     callDuration:
       description: This field indicates the duration of the calls, in seconds. This field is mandatory when status is 'disconnected'.
       type: string
+      maxLength: 256
+      pattern: '^[0-9]+$'
       example: '1600'
 
-    timestamp:
-      description: >
-        Time stamp, UTC time.
-        It must follow RFC 3339 and must have time zone.
-        Recommended format is yyyy-MM-dd'T'HH:mm:ss.SSSZ.
-      type: string
-      format: date-time
-      example: '2017-12-04T18:07:57Z'
-
     ErrorInfo:
-      description: Common schema for errors
-      type: object
-      properties:
-        status:
-          type: integer
-          description: HTTP status code returned along with this error response
-        code:
-          type: string
-          description: Code given to this error
-        message:
-          type: string
-          description: Detailed error description
-      required:
-        - status
-        - code
-        - message
+      $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
 
     CloudEvent:
-      description: |
-        Event compliant with the CloudEvents specification.
-        Note: Providers MUST deliver events using CloudEvents structured mode
-        (HTTP header `Content-Type: application/cloudevents+json`).
-      type: object
-      properties:
-        id:
-          description: Identifier of this event, unique within the event `source` context. UUID is recommended.
-          type: string
-          format: uuid
-          example: 83a0d986-0866-4f38-b8c0-fc65bfcda452
-        source:
-          description: |
-            Identifies the context in which an event happened in the Provider implementation.
-            It SHOULD be an absolute URI identifying the producer (for example the API root or producer instance).
-          type: string
-          format: uri-reference
-          example: https://api.example.com/click-to-dial
-        type:
-          description: The type of the event. Use a vendor namespaced event type.
-          type: string
-          enum:
-            - "org.camaraproject.click-to-dial.v0.status-changed"
-        specversion:
-          description: Version of the specification to which this event conforms (must be 1.0 if it conforms to cloudevents 1.0.2 version)
-          type: string
-          enum:
-            - "1.0"
-        datacontenttype:
-          description: 'media-type that describes the event payload encoding, must be "application/json" for CAMARA APIs'
-          type: string
-          enum:
-            - "application/json"
-        data:
-          description: Event notification details payload, which depends on the event type
-          type: object
-        time:
-          description: |
-            Timestamp of when the occurrence happened. It must follow RFC 3339
-          type: string
-          format: date-time
-      discriminator:
-        propertyName: 'type'
-        mapping:
-          org.camaraproject.click-to-dial.v0.status-changed: "#/components/schemas/EventCTDStatusChanged"
-      required:
-        - id
-        - source
-        - specversion
-        - type
-        - time
+      $ref: "../common/CAMARA_event_common.yaml#/components/schemas/CloudEvent"
 
   responses:
     Generic400:
@@ -597,7 +479,17 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorInfo"
+            allOf:
+              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - type: object
+                properties:
+                  status:
+                    enum:
+                      - 400
+                  code:
+                    enum:
+                      - INVALID_ARGUMENT
+                      - OUT_OF_RANGE
           examples:
             GENERIC_400_INVALID_ARGUMENT:
               description: Invalid Argument. Generic Syntax Exception
@@ -620,14 +512,23 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorInfo"
+            allOf:
+              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - type: object
+                properties:
+                  status:
+                    enum:
+                      - 401
+                  code:
+                    enum:
+                      - UNAUTHENTICATED
           examples:
             GENERIC_401_UNAUTHENTICATED:
               description: Request cannot be authenticated.
               value:
                 status: 401
                 code: UNAUTHENTICATED
-                message: Request not authenticated due to missing, invalid, or expired credentials.
+                message: Request not authenticated due to missing, invalid, or expired credentials. A new authentication is required.
 
     Generic403:
       description: Forbidden
@@ -637,7 +538,17 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorInfo"
+            allOf:
+              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - type: object
+                properties:
+                  status:
+                    enum:
+                      - 403
+                  code:
+                    enum:
+                      - PERMISSION_DENIED
+                      - INVALID_TOKEN_CONTEXT
           examples:
             GENERIC_403_PERMISSION_DENIED:
               description: Permission denied. OAuth2 token access does not have the required scope or when the user fails operational security
@@ -650,7 +561,7 @@ components:
               value:
                 status: 403
                 code: INVALID_TOKEN_CONTEXT
-                message: "{{field}} is not consistent with access token."
+                message: "Request body is not consistent with access token."
 
     Generic404:
       description: Not found
@@ -660,7 +571,17 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorInfo"
+            allOf:
+              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - type: object
+                properties:
+                  status:
+                    enum:
+                      - 404
+                  code:
+                    enum:
+                      - NOT_FOUND
+                      - IDENTIFIER_NOT_FOUND
           examples:
             GENERIC_404_NOT_FOUND:
               description: Resource is not found
@@ -677,7 +598,24 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorInfo"
+            allOf:
+              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - type: object
+                properties:
+                  status:
+                    enum:
+                      - 422
+                  code:
+                    enum:
+                      - SERVICE_NOT_APPLICABLE
+                      - MISSING_IDENTIFIER
+                      - UNSUPPORTED_IDENTIFIER
+                      - UNNECESSARY_IDENTIFIER
+                      - INVALID_PHONE_NUMBER
+                      - SAME_CALLER_CALLEE
+                      - RECORDING_NOT_SUPPORTED
+                      - CALLER_NOT_AVAILABLE
+                      - CALLEE_NOT_AVAILABLE
           examples:
             INVALID_PHONE_NUMBER:
               value:
@@ -714,12 +652,21 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorInfo"
+            allOf:
+              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - type: object
+                properties:
+                  status:
+                    enum:
+                      - 409
+                  code:
+                    enum:
+                      - ALREADY_EXISTS
           examples:
-            CALL_ALREADY_ACTIVE:
+            ALREADY_EXISTS:
               value:
                 status: 409
-                code: CALL_ALREADY_ACTIVE
+                code: ALREADY_EXISTS
                 message: An active call already exists for the given caller and callee.
 
   examples:
