@@ -354,21 +354,25 @@ components:
         - contentType
 
     EventCTDStatusChanged:
-      description: Common attributes of Click to Dial
+      description: ClickToDial call status changed event
       allOf:
-        - $ref: "#/components/schemas/CloudEvent"
+        - $ref: "../common/CAMARA_event_common.yaml#/components/schemas/CloudEvent"
         - type: object
           properties:
+            type:
+              type: string
+              enum:
+                - "org.camaraproject.click-to-dial.v0.status-changed"
             data:
               type: object
               description: Event details depending on the event type
               properties:
                 callId:
-                  $ref: '#/components/schemas/callId'
+                  $ref: "#/components/schemas/callId"
                 caller:
-                  $ref: '#/components/schemas/PhoneNumber'
+                  $ref: "#/components/schemas/PhoneNumber"
                 callee:
-                  $ref: '#/components/schemas/PhoneNumber'
+                  $ref: "#/components/schemas/PhoneNumber"
                 status:
                   type: object
                   description: |
@@ -376,17 +380,67 @@ components:
                     and `reason` contains an optional disconnection reason when applicable.
                   properties:
                     state:
-                      $ref: '#/components/schemas/status'
+                      $ref: "#/components/schemas/status"
                     reason:
-                      $ref: '#/components/schemas/reason'
+                      $ref: "#/components/schemas/reason"
                   required:
                     - state
                 recordingResult:
-                  $ref: '#/components/schemas/recordingResult'
+                  $ref: "#/components/schemas/recordingResult"
                 callDuration:
-                  $ref: '#/components/schemas/callDuration'
+                  $ref: "#/components/schemas/callDuration"
                 timestamp:
-      $ref: '../common/CAMARA_common.yaml#/components/schemas/DateTime'
+                  $ref: "../common/CAMARA_common.yaml#/components/schemas/DateTime"
+              required:
+                - callId
+                - caller
+                - callee
+                - status
+                - timestamp
+          required:
+            - type
+            - data
+
+    status:
+      description: Call status
+      type: string
+      enum:
+        - initiating
+        - callingCaller
+        - callingCallee
+        - connected
+        - disconnected
+        - failed
+      example: 'callingCaller'
+
+    reason:
+      description: This field indicates the disconnection reason. This field is mandatory when status is 'disconnected'.
+      type: string
+      enum:
+        - hangUp
+        - callerBusy
+        - callerNoAnswer
+        - callerFailure
+        - callerAbandon
+        - calleeBusy
+        - calleeNoAnswer
+        - calleeFailure
+        - other
+      example: 'hangUp'
+
+    recordingResult:
+      description: Recording Result. This field is mandatory when recording is enabled and the call is finished.
+      type: string
+      enum:
+        - success
+        - noRecord
+        - fail
+      example: 'success'
+
+    callDuration:
+      description: This field indicates the duration of the calls, in seconds. This field is mandatory when status is 'disconnected'.
+      type: string
+      example: '1600'
 
     ErrorInfo:
       $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
