@@ -95,6 +95,8 @@ paths:
           '{$request.body#/sink}':
             post:
               summary: Call status changed event
+              security:
+                - notificationsBearerAuth: []
               description: |
                 Event notification delivered to the sink URL when the call status
                 changes (CloudEvents structured mode).
@@ -110,6 +112,10 @@ paths:
               responses:
                 '2XX':
                   description: Event successfully received by the sink.
+                '401':
+                  $ref: '#/components/responses/Generic401'
+                '403':
+                  $ref: '#/components/responses/Generic403'
   /calls/{callId}:
     get:
       tags:
