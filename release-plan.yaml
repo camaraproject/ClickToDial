@@ -20,7 +20,7 @@ repository:
 
   # Release type being prepared (must be set before release can be triggered)
   # Options: none | pre-release-alpha | pre-release-rc | public-release | maintenance-release
-  target_release_type: public-release
+  target_release_type: pre-release-rc
 
 # Dependencies on Commonalities and ICM releases
 # Update per ReleaseManagement requirements for each release cycle
@@ -34,7 +34,7 @@ dependencies:
 apis:
   - api_name: click-to-dial
     target_api_version: 0.1.0
-    target_api_status: public
+    target_api_status: rc
     main_contacts:
       - YadingFang
       - Wojiaozhenghao
