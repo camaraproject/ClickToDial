@@ -1,5 +1,4 @@
 openapi: 3.0.3
-
 info:
   title: Click to Dial Service
   description: |
@@ -42,30 +41,25 @@ info:
 
     This API rejects requests with JSON request bodies that contain properties not declared in this specification, at any nesting level. Unknown properties result in a `400 INVALID_ARGUMENT` response.
     <!-- CAMARA:MANDATORY:request-body-strictness:END -->
-
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: wip
-  x-camara-commonalities: "0.8.0"
-
-externalDocs:
-  description: Product documentation at CAMARA
-  url: https://github.com/camaraproject/ClickToDial
-
+  version: 0.1.0
+  x-camara-commonalities: 0.8.0
 servers:
-  - url: '{apiRoot}/click-to-dial/vwip'
+  - url: '{apiRoot}/click-to-dial/v0.1'
     variables:
       apiRoot:
         default: http://localhost:9091
         description: API root, defined by the service provider, e.g. `api.example.com` or `api.example.com/somepath`
-
 tags:
   - name: Calls
     description: Operations related to Click to Dial calls
   - name: Recording
     description: Operations related to Call Recordings
-
+externalDocs:
+  description: Product documentation at CAMARA
+  url: https://github.com/camaraproject/ClickToDial
 paths:
   /calls:
     post:
@@ -77,9 +71,9 @@ paths:
       operationId: createCall
       security:
         - openId:
-            - "click-to-dial:calls:create"
+            - click-to-dial:calls:create
       parameters:
-        - $ref: "#/components/parameters/x-correlator"
+        - $ref: '#/components/parameters/x-correlator'
       requestBody:
         description: Create a Click to Dial call session.
         required: true
@@ -96,7 +90,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Call"
+                $ref: '#/components/schemas/Call'
         '400':
           $ref: '#/components/responses/Generic400'
         '401':
@@ -127,14 +121,14 @@ paths:
                       CALL_STATUS_CHANGED_EXAMPLE:
                         $ref: '#/components/examples/CALL_STATUS_CHANGED_EXAMPLE'
               responses:
-                '2XX':
-                  description: Event successfully received by the sink.
                 '400':
                   $ref: '#/components/responses/Generic400'
                 '401':
                   $ref: '#/components/responses/Generic401'
                 '403':
                   $ref: '#/components/responses/Generic403'
+                2XX:
+                  description: Event successfully received by the sink.
   /calls/{callId}:
     get:
       tags:
@@ -144,15 +138,15 @@ paths:
       operationId: getCall
       security:
         - openId:
-            - "click-to-dial:calls:read"
+            - click-to-dial:calls:read
       parameters:
         - name: callId
           in: path
           required: true
           description: Unique call identifier
           schema:
-            $ref: "#/components/schemas/CallId"
-        - $ref: "#/components/parameters/x-correlator"
+            $ref: '#/components/schemas/CallId'
+        - $ref: '#/components/parameters/x-correlator'
       responses:
         '200':
           description: Call details
@@ -162,7 +156,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Call"
+                $ref: '#/components/schemas/Call'
         '400':
           $ref: '#/components/responses/Generic400'
         '401':
@@ -171,7 +165,6 @@ paths:
           $ref: '#/components/responses/Generic403'
         '404':
           $ref: '#/components/responses/Generic404'
-
     delete:
       tags:
         - Calls
@@ -181,15 +174,15 @@ paths:
       operationId: terminateCall
       security:
         - openId:
-            - "click-to-dial:calls:delete"
+            - click-to-dial:calls:delete
       parameters:
         - name: callId
           in: path
           required: true
           description: Unique call identifier
           schema:
-            $ref: "#/components/schemas/CallId"
-        - $ref: "#/components/parameters/x-correlator"
+            $ref: '#/components/schemas/CallId'
+        - $ref: '#/components/parameters/x-correlator'
       responses:
         '204':
           description: Call terminated
@@ -206,7 +199,6 @@ paths:
           $ref: '#/components/responses/Generic404'
         '409':
           $ref: '#/components/responses/Conflict409'
-
   /calls/{callId}/recording:
     get:
       tags:
@@ -216,15 +208,15 @@ paths:
       operationId: getRecording
       security:
         - openId:
-            - "click-to-dial:recordings:read"
+            - click-to-dial:recordings:read
       parameters:
         - name: callId
           in: path
           required: true
           description: Unique call identifier
           schema:
-            $ref: "#/components/schemas/CallId"
-        - $ref: "#/components/parameters/x-correlator"
+            $ref: '#/components/schemas/CallId'
+        - $ref: '#/components/parameters/x-correlator'
       responses:
         '200':
           description: Call recording resource
@@ -234,7 +226,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecordingResource"
+                $ref: '#/components/schemas/RecordingResource'
         '400':
           $ref: '#/components/responses/Generic400'
         '401':
@@ -243,31 +235,39 @@ paths:
           $ref: '#/components/responses/Generic403'
         '404':
           $ref: '#/components/responses/Generic404'
-
 components:
   securitySchemes:
     openId:
-      $ref: "../common/CAMARA_common.yaml#/components/securitySchemes/openId"
+      type: openIdConnect
+      openIdConnectUrl: https://example.com/.well-known/openid-configuration
+      description: OpenID Connect authentication via discovery metadata.
     notificationsBearerAuth:
-      $ref: "../common/CAMARA_event_common.yaml#/components/securitySchemes/notificationsBearerAuth"
-
+      type: http
+      scheme: bearer
+      bearerFormat: '{$request.body#/sinkCredential.credentialType}'
+      description: |
+        Bearer token for notification delivery. Token format is determined
+        by `sinkCredential.credentialType` in the subscription request.
   headers:
     x-correlator:
-      $ref: "../common/CAMARA_common.yaml#/components/headers/x-correlator"
-
+      description: Correlation id for the different services
+      schema:
+        $ref: '#/components/schemas/XCorrelator'
   parameters:
     x-correlator:
-      $ref: "../common/CAMARA_common.yaml#/components/parameters/x-correlator"
-
+      name: x-correlator
+      in: header
+      description: Correlation id for the different services
+      schema:
+        $ref: '#/components/schemas/XCorrelator'
   schemas:
     CallId:
       description: Call identification
       type: string
       minLength: 1
       maxLength: 256
-      pattern: '^[A-Za-z0-9._~:-]{1,256}$'
-      example: 'call_550e8400-e29b-41d4-a716-446655440000'
-
+      pattern: ^[A-Za-z0-9._~:-]{1,256}$
+      example: call_550e8400-e29b-41d4-a716-446655440000
     Call:
       description: Click to Dial call session resource
       type: object
@@ -281,7 +281,7 @@ components:
         status:
           $ref: '#/components/schemas/CallStatus'
         createdAt:
-          $ref: '../common/CAMARA_common.yaml#/components/schemas/DateTime'
+          $ref: '#/components/schemas/DateTime'
         recordingEnabled:
           type: boolean
           description: Whether recording is enabled for this call.
@@ -291,7 +291,6 @@ components:
         - callee
         - status
         - createdAt
-
     CreateCallRequest:
       description: Request to create a new Click to Dial call session
       type: object
@@ -313,17 +312,16 @@ components:
         - callee
       example:
         caller:
-          number: "+441234567890"
+          number: '+441234567890'
         callee:
-          number: "+441234567891"
-        sink: "https://endpoint.example.com/sink"
+          number: '+441234567891'
+        sink: https://endpoint.example.com/sink
         sinkCredential:
           credentialType: ACCESSTOKEN
-          accessToken: "ya29.A0AR...exampletoken"
-          accessTokenExpiresUtc: "2026-01-01T00:00:00Z"
+          accessToken: ya29.A0AR...exampletoken
+          accessTokenExpiresUtc: '2026-01-01T00:00:00Z'
           accessTokenType: bearer
         recordingEnabled: true
-
     Caller:
       description: The phone number of the caller.
       type: object
@@ -333,7 +331,6 @@ components:
           $ref: '#/components/schemas/PhoneNumber'
       required:
         - number
-
     Callee:
       description: The phone number of the callee.
       type: object
@@ -343,20 +340,36 @@ components:
           $ref: '#/components/schemas/PhoneNumber'
       required:
         - number
-
     PhoneNumber:
-      $ref: "../common/CAMARA_common.yaml#/components/schemas/PhoneNumber"
-
+      description: A public identifier addressing a telephone subscription. In mobile networks it corresponds to the MSISDN (Mobile Station International Subscriber Directory Number). In order to be globally unique it has to be formatted in international format, according to E.164 standard, prefixed with '+'.
+      type: string
+      pattern: ^\+[1-9][0-9]{4,14}$
+      maxLength: 16
+      example: '+123456789'
     Sink:
       description: The address to which events shall be delivered, using the HTTP protocol.
       type: string
       format: uri
       maxLength: 2048
-      example: "https://endpoint.example.com/sink"
-
+      example: https://endpoint.example.com/sink
     SinkCredential:
-      $ref: "../common/CAMARA_event_common.yaml#/components/schemas/SinkCredential"
-
+      description: A sink credential provides authentication or authorization information necessary to enable delivery of events to a target.
+      type: object
+      properties:
+        credentialType:
+          type: string
+          enum:
+            - ACCESSTOKEN
+            - PRIVATE_KEY_JWT
+          description: |
+            The type of the credential - MUST be set to ACCESSTOKEN or PRIVATE_KEY_JWT for now
+      discriminator:
+        propertyName: credentialType
+        mapping:
+          ACCESSTOKEN: '#/components/schemas/AccessTokenCredential'
+          PRIVATE_KEY_JWT: '#/components/schemas/PrivateKeyJWTCredential'
+      required:
+        - credentialType
     RecordingResource:
       description: Recording file for a Click to Dial call
       type: object
@@ -377,30 +390,29 @@ components:
             - audio/mpeg
             - audio/ogg
         generatedAt:
-          $ref: '../common/CAMARA_common.yaml#/components/schemas/DateTime'
+          $ref: '#/components/schemas/DateTime'
       required:
         - callId
         - content
         - contentType
-
     CallStatusChangedEvent:
       description: ClickToDial call status changed event
       allOf:
-        - $ref: "../common/CAMARA_event_common.yaml#/components/schemas/CloudEvent"
+        - $ref: '#/components/schemas/CloudEvent'
         - type: object
           properties:
             type:
-              $ref: "#/components/schemas/EventType"
+              $ref: '#/components/schemas/EventType'
             data:
               type: object
               description: Event details depending on the event type
               properties:
                 callId:
-                  $ref: "#/components/schemas/CallId"
+                  $ref: '#/components/schemas/CallId'
                 caller:
-                  $ref: "#/components/schemas/PhoneNumber"
+                  $ref: '#/components/schemas/PhoneNumber'
                 callee:
-                  $ref: "#/components/schemas/PhoneNumber"
+                  $ref: '#/components/schemas/PhoneNumber'
                 status:
                   type: object
                   description: |
@@ -408,17 +420,17 @@ components:
                     and `reason` contains an optional disconnection reason when applicable.
                   properties:
                     state:
-                      $ref: "#/components/schemas/CallStatus"
+                      $ref: '#/components/schemas/CallStatus'
                     reason:
-                      $ref: "#/components/schemas/DisconnectionReason"
+                      $ref: '#/components/schemas/DisconnectionReason'
                   required:
                     - state
                 recordingResult:
-                  $ref: "#/components/schemas/RecordingResult"
+                  $ref: '#/components/schemas/RecordingResult'
                 callDuration:
-                  $ref: "#/components/schemas/CallDuration"
+                  $ref: '#/components/schemas/CallDuration'
                 timestamp:
-                  $ref: "../common/CAMARA_common.yaml#/components/schemas/DateTime"
+                  $ref: '#/components/schemas/DateTime'
               required:
                 - callId
                 - caller
@@ -428,13 +440,11 @@ components:
           required:
             - type
             - data
-
     EventType:
       description: Supported ClickToDial event types.
       type: string
       enum:
-        - "org.camaraproject.click-to-dial.v0.status-changed"
-
+        - org.camaraproject.click-to-dial.v0.status-changed
     CallStatus:
       description: Call status
       type: string
@@ -445,8 +455,7 @@ components:
         - connected
         - disconnected
         - failed
-      example: 'callingCaller'
-
+      example: callingCaller
     DisconnectionReason:
       description: This field indicates the disconnection reason. This field is mandatory when status is 'disconnected'.
       type: string
@@ -460,8 +469,7 @@ components:
         - calleeNoAnswer
         - calleeFailure
         - other
-      example: 'hangUp'
-
+      example: hangUp
     RecordingResult:
       description: Recording Result. This field is mandatory when recording is enabled and the call is finished.
       type: string
@@ -469,26 +477,174 @@ components:
         - success
         - noRecord
         - fail
-      example: 'success'
-
+      example: success
     CallDuration:
       description: This field indicates the duration of the calls, in seconds. This field is mandatory when status is 'disconnected'.
       type: string
       maxLength: 256
-      pattern: '^[0-9]+$'
+      pattern: ^[0-9]+$
       example: '1600'
-
+    XCorrelator:
+      type: string
+      description: Correlator string, UUID format recommended but any string matching the pattern can be used
+      pattern: ^[a-zA-Z0-9-_:;.\/<>{}]{0,256}$
+      maxLength: 256
+      example: b4333c46-49c0-4f62-80d7-f0ef930f1c46
+    AccessTokenCredential:
+      type: object
+      description: An access token credential. This type of credential is meant to be used by API Consumers that have limited capabilities to handle authorization requests.
+      allOf:
+        - $ref: '#/components/schemas/SinkCredential'
+        - type: object
+          properties:
+            accessToken:
+              description: REQUIRED. An access token is a token granting access to the target resource.
+              type: string
+              maxLength: 4096
+              writeOnly: true
+            accessTokenExpiresUtc:
+              type: string
+              format: date-time
+              maxLength: 64
+              description: |
+                REQUIRED. An absolute (UTC) timestamp at which the token shall be considered expired.
+                In the case of an ACCESS_TOKEN_EXPIRED termination reason, implementation should notify the client before the expiration date.
+                If the access token is a JWT and registered "exp" (Expiration Time) claim is present, the two expiry times should match.
+                It must follow [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) and must have time zone.
+              example: '2023-07-03T12:27:08.312Z'
+            accessTokenType:
+              description: REQUIRED. Type of the access token (See [OAuth 2.0](https://tools.ietf.org/html/rfc6749#section-7.1)).
+              type: string
+              writeOnly: true
+              enum:
+                - bearer
+          required:
+            - accessToken
+            - accessTokenExpiresUtc
+            - accessTokenType
+    PrivateKeyJWTCredential:
+      type: object
+      description: Use PRIVATE_KEY_JWT to get an access token. This type of credential is to be used by clients that have an authorization server.
+      allOf:
+        - $ref: '#/components/schemas/SinkCredential'
+        - type: object
+          properties:
+            clientId:
+              description: The client ID used to authenticate when requesting an access token using PRIVATE_KEY_JWT.
+              type: string
+              maxLength: 128
+              writeOnly: true
+            tokenUri:
+              description: The URI where to request an access token using PRIVATE_KEY_JWT.
+              type: string
+              format: uri
+              maxLength: 2048
+              pattern: ^https:\/\/.+$
+              writeOnly: true
+            jwksUri:
+              description: The URI used to request the public key to verify that the JWT assertion was signed by PRIVATE_KEY_JWT.
+              type: string
+              format: uri
+              maxLength: 2048
+              pattern: ^https:\/\/.+$
+              readOnly: true
+    DateTime:
+      type: string
+      format: date-time
+      maxLength: 64
+      description: Timestamp. It must follow [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) and must have time zone.
+      example: '2018-04-05T17:31:00Z'
+    ErrorInfo:
+      type: object
+      description: A structured error response providing details about a failed request, including the HTTP status code, an error code, and a human-readable message
+      required:
+        - status
+        - code
+        - message
+      properties:
+        status:
+          type: integer
+          format: int32
+          minimum: 100
+          maximum: 599
+          description: HTTP response status code
+        code:
+          type: string
+          maxLength: 96
+          description: A human-readable code to describe the error
+        message:
+          type: string
+          maxLength: 512
+          description: A human-readable description of what the event represents
+    Source:
+      type: string
+      format: uri-reference
+      minLength: 1
+      maxLength: 2048
+      description: |
+        Identifies the context in which an event happened - be a non-empty `URI-reference` like:
+        - URI with a DNS authority:
+          * https://github.com/cloudevents
+          * mailto:cncf-wg-serverless@lists.cncf.io
+        - Universally-unique URN with a UUID:
+          * urn:uuid:6e8bc430-9c3a-11d9-9669-0800200c9a66
+        - Application-specific identifier:
+          * /cloudevents/spec/pull/123
+          * 1-555-123-4567
+      example: https://notificationSendServer12.example.com
+    CloudEvent:
+      type: object
+      description: |
+        CloudEvents 1.0 specification envelope.
+        This schema is the stable base for all CAMARA event notifications.
+        It imposes no constraints on `type` values or `data` structure —
+        those concerns belong to the API-specific and lifecycle group schemas.
+      required:
+        - id
+        - source
+        - specversion
+        - type
+        - time
+      properties:
+        id:
+          type: string
+          maxLength: 256
+          description: Identifier of this event, unique within the source context.
+        source:
+          $ref: '#/components/schemas/Source'
+        type:
+          type: string
+          maxLength: 512
+          description: |
+            Identifies the event type. CAMARA APIs use reverse-DNS notation:
+            `org.camaraproject.<api-name>.<event-version>.<event-name>`
+            The api-name segment makes each type globally unique across API groups.
+        specversion:
+          type: string
+          description: Version of the specification to which this event conforms (must be 1.0 if it conforms to cloudevents 1.0.2 version)
+          enum:
+            - '1.0'
+        datacontenttype:
+          type: string
+          description: media-type that describes the event payload encoding, must be "application/json" for CAMARA APIs
+          enum:
+            - application/json
+        data:
+          type: object
+          description: Event details payload. Structure is defined by each concrete event schema.
+        time:
+          $ref: '#/components/schemas/DateTime'
   responses:
     Generic400:
       description: Bad Request
       headers:
         x-correlator:
-          $ref: "#/components/headers/x-correlator"
+          $ref: '#/components/headers/x-correlator'
       content:
         application/json:
           schema:
             allOf:
-              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - $ref: '#/components/schemas/ErrorInfo'
               - type: object
                 properties:
                   status:
@@ -511,17 +667,16 @@ components:
                 status: 400
                 code: OUT_OF_RANGE
                 message: Client specified an invalid range.
-
     Generic401:
       description: Unauthorized
       headers:
         x-correlator:
-          $ref: "#/components/headers/x-correlator"
+          $ref: '#/components/headers/x-correlator'
       content:
         application/json:
           schema:
             allOf:
-              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - $ref: '#/components/schemas/ErrorInfo'
               - type: object
                 properties:
                   status:
@@ -537,17 +692,16 @@ components:
                 status: 401
                 code: UNAUTHENTICATED
                 message: Request not authenticated due to missing, invalid, or expired credentials. A new authentication is required.
-
     Generic403:
       description: Forbidden
       headers:
         x-correlator:
-          $ref: "#/components/headers/x-correlator"
+          $ref: '#/components/headers/x-correlator'
       content:
         application/json:
           schema:
             allOf:
-              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - $ref: '#/components/schemas/ErrorInfo'
               - type: object
                 properties:
                   status:
@@ -569,18 +723,17 @@ components:
               value:
                 status: 403
                 code: INVALID_TOKEN_CONTEXT
-                message: "Request body is not consistent with access token."
-
+                message: Request body is not consistent with access token.
     Generic404:
       description: Not found
       headers:
         x-correlator:
-          $ref: "#/components/headers/x-correlator"
+          $ref: '#/components/headers/x-correlator'
       content:
         application/json:
           schema:
             allOf:
-              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - $ref: '#/components/schemas/ErrorInfo'
               - type: object
                 properties:
                   status:
@@ -597,17 +750,16 @@ components:
                 status: 404
                 code: NOT_FOUND
                 message: The specified resource is not found.
-
     UnprocessableEntity422:
       description: Unprocessable Entity
       headers:
         x-correlator:
-          $ref: "#/components/headers/x-correlator"
+          $ref: '#/components/headers/x-correlator'
       content:
         application/json:
           schema:
             allOf:
-              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - $ref: '#/components/schemas/ErrorInfo'
               - type: object
                 properties:
                   status:
@@ -650,18 +802,16 @@ components:
                 status: 422
                 code: CALLEE_NOT_AVAILABLE
                 message: Callee number is currently not reachable or not allowed to receive a call.
-
-
     Conflict409:
       description: Conflict
       headers:
         x-correlator:
-          $ref: "#/components/headers/x-correlator"
+          $ref: '#/components/headers/x-correlator'
       content:
         application/json:
           schema:
             allOf:
-              - $ref: "../common/CAMARA_common.yaml#/components/schemas/ErrorInfo"
+              - $ref: '#/components/schemas/ErrorInfo'
               - type: object
                 properties:
                   status:
@@ -676,7 +826,6 @@ components:
                 status: 409
                 code: ALREADY_EXISTS
                 message: An active call already exists for the given caller and callee.
-
   examples:
     CALL_STATUS_CHANGED_EXAMPLE:
       description: |
@@ -687,17 +836,17 @@ components:
       value:
         id: 83a0d986-0866-4f38-b8c0-fc65bfcda452
         source: https://api.example.com/click-to-dial
-        specversion: "1.0"
+        specversion: '1.0'
         datacontenttype: application/json
         type: org.camaraproject.click-to-dial.v0.status-changed
-        time: 2021-12-12T00:00:00Z
+        time: '2021-12-12T00:00:00Z'
         data:
-          callId: "123e4567-e89b-12d3-a456-426614174000"
-          caller: "+12345678"
-          callee: "+12345678"
+          callId: 123e4567-e89b-12d3-a456-426614174000
+          caller: '+12345678'
+          callee: '+12345678'
           status:
-            state: "disconnected"
-            reason: "hangUp"
-          recordingResult: "success"
-          callDuration: "1600"
-          timestamp: "2017-12-04T18:07:57Z"
+            state: disconnected
+            reason: hangUp
+          recordingResult: success
+          callDuration: '1600'
+          timestamp: '2017-12-04T18:07:57Z'
