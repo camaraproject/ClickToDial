@@ -28,12 +28,14 @@ Sandbox API Repository to describe, develop, document, and test the ClickToDial 
 ## Release Information
 
 > [!NOTE]
-> This repository has only pre-release versions available yet. Pre-releases are for testing and may change before public release.
+> Please be aware that the project will have frequent updates to the main branch. There are no compatibility guarantees associated with code in any branch, including main, until a new release is created. For example, changes may be reverted before a release is created. **For best results, use the latest available release**.
 
-* The latest pre-release is [r1.3](https://github.com/camaraproject/ClickToDial/releases/tag/r1.3) (release candidate), with the following API versions:
-  * **click-to-dial 0.1.0-rc.2**
-  [[YAML]](https://github.com/camaraproject/ClickToDial/blob/r1.3/code/API_definitions/click-to-dial.yaml)  [[ReDoc]](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.3/code/API_definitions/click-to-dial.yaml&nocors)  [[Swagger]](https://camaraproject.github.io/swagger-ui/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.3/code/API_definitions/click-to-dial.yaml)
+* The latest public release is [r1.4](https://github.com/camaraproject/ClickToDial/releases/tag/r1.4) (Spring26), with the following API versions:
+  * **click-to-dial 0.1.0**
+  [[YAML]](https://github.com/camaraproject/ClickToDial/blob/r1.4/code/API_definitions/click-to-dial.yaml)  [[ReDoc]](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.4/code/API_definitions/click-to-dial.yaml&nocors)  [[Swagger]](https://camaraproject.github.io/swagger-ui/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.4/code/API_definitions/click-to-dial.yaml)
 
+* The latest public release is always available here: https://github.com/camaraproject/ClickToDial/releases/latest
+* Other releases of this repository are available in https://github.com/camaraproject/ClickToDial/releases
 * For changes see [CHANGELOG](https://github.com/camaraproject/ClickToDial/tree/main/CHANGELOG)
 
 _The above section is automatically synchronized by CAMARA project-administration._
