@@ -2,7 +2,7 @@ repository:
   repository_name: ClickToDial
   release_tag: r1.4
   release_type: public-release
-  release_date: null
+  release_date: '2026-06-01T17:46:31Z'
   src_commit_sha: b2308cb8035cb0237550a97e1caab297d3d88d03
 apis:
 - api_name: click-to-dial
