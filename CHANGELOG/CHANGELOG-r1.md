@@ -2,6 +2,7 @@
 
 <!-- TOC:START -->
 ## Table of Contents
+- **[r1.4](#r14)**
 - [r1.3](#r13)
 - [r1.2](#r12)
 - [r1.1](#r11)
@@ -15,6 +16,59 @@ The below sections record the changes for each API version in each release as fo
 * for the first release-candidate, all changes since the last public release
 * for subsequent release-candidate(s), only the delta to the previous release-candidate
 * for a public release, the consolidated changes since the previous public release
+
+# r1.4
+
+## Release Notes
+
+This public release contains the definition and documentation of
+* click-to-dial 0.1.0
+
+The API definition(s) are based on
+* Commonalities 0.8.0
+* Identity and Consent Management 0.5.0
+
+## click-to-dial 0.1.0
+
+**click-to-dial 0.1.0 is the initial public version of the ClickToDial API.**
+
+- API definition **with inline documentation**:
+  - [View it on ReDoc](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.4/code/API_definitions/click-to-dial.yaml&nocors)
+  - [View it on Swagger Editor](https://camaraproject.github.io/swagger-ui/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.4/code/API_definitions/click-to-dial.yaml)
+  - OpenAPI [YAML spec file](https://github.com/camaraproject/ClickToDial/blob/r1.4/code/API_definitions/click-to-dial.yaml)
+
+### Added
+
+* Added the initial public ClickToDial API definition with operations to create a call, retrieve call details, terminate a call, and retrieve call recordings when available.
+* Added callback support for ClickToDial call status change notifications using the CAMARA CloudEvents-based event model.
+* Added support for notification sink credentials aligned with the CAMARA event subscription model.
+* Added Gherkin test definitions for the main ClickToDial operations, including create call, get call, terminate call, and get recording.
+* Added API documentation and external API description content for public visibility.
+
+### Changed
+
+* Aligned the ClickToDial API definition with Commonalities r4.3 / `0.8.0`.
+* Aligned the ClickToDial API definition with Identity and Consent Management r4.2 / `0.5.0`.
+* Updated the API to use a CAMARA-compliant RESTful call resource model under `/calls`.
+* Updated CAMARA error response schemas and common reusable components to follow the applicable Commonalities model.
+* Updated callback notification security and callback response documentation.
+* Updated the ClickToDial event model to use the Commonalities CloudEvents envelope while retaining the ClickToDial-specific event type and payload.
+* Replaced the ClickToDial-specific `CALL_ALREADY_ACTIVE` 409 error code with the Commonalities-aligned `ALREADY_EXISTS` code.
+* Updated schema naming and validation constraints to comply with CAMARA validation rules.
+* Updated request-body documentation and schema constraints to align with Commonalities r4.3 request body strictness requirements.
+
+### Fixed
+
+* Fixed CAMARA validation findings so the API definition validates with zero errors and zero warnings.
+* Fixed authorization header usage in test definitions.
+* Fixed x-correlator handling and resource URLs in test definitions.
+* Fixed callback secured-operation response documentation by adding required error responses.
+
+### Removed
+
+* Removed obsolete local wrapper schemas now referenced directly from Commonalities artifacts.
+
+**Full Changelog**: https://github.com/camaraproject/ClickToDial/compare/r1.1...r1.4
 
 # r1.3
 
