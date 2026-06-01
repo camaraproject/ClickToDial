@@ -84,7 +84,7 @@ The API definition(s) are based on
 
 ## click-to-dial 0.1.0
 
-**click-to-dial 0.1.0 is the initial public release of the ClickToDial API.**
+**click-to-dial 0.1.0 is the initial public version of the ClickToDial API.**
 
 - API definition **with inline documentation**:
   - [View it on ReDoc](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r1.4/code/API_definitions/click-to-dial.yaml&nocors)
