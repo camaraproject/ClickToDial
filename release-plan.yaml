@@ -10,17 +10,17 @@ repository:
   # Options: independent (default) | meta-release
   release_track: meta-release
   # Uncomment and set when planning a meta-release participation:
-  meta_release: Spring26
+  meta_release: Sync26
 
   # Target CAMARA release tag.
   # Initialized to the latest release; update when planning the next release.
   # - New release cycle (increment first number, reset second to 1)
   # - Progression in same cycle (increment second number)
-  target_release_tag: r1.4
+  target_release_tag: r2.1
 
   # Release type being prepared (must be set before release can be triggered)
   # Options: none | pre-release-alpha | pre-release-rc | public-release | maintenance-release
-  target_release_type: public-release
+  target_release_type: pre-release-rc
 
 # Dependencies on Commonalities and ICM releases
 # Update per ReleaseManagement requirements for each release cycle
@@ -33,8 +33,8 @@ dependencies:
 # - target_api_status: draft (no file yet) | alpha | rc | public
 apis:
   - api_name: click-to-dial
-    target_api_version: 0.1.0
-    target_api_status: public
+    target_api_version: 1.0.0
+    target_api_status: rc
     main_contacts:
       - YadingFang
       - Wojiaozhenghao
