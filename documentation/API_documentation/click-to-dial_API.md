@@ -137,7 +137,7 @@ The call session progresses through the following states (representing the `stat
 
 ##### sinkCredential (for `ACCESSTOKEN` type)
 
-The `SinkCredential` is a discriminator-based object. Currently the only supported `credentialType` is `ACCESSTOKEN` and the concrete `AccessTokenCredential` MUST include the fields below.
+The SinkCredential is a discriminator-based object defined by CAMARA Commonalities. The currently defined credential types include ACCESSTOKEN and PRIVATE_KEY_JWT. The example below uses ACCESSTOKEN. When ACCESSTOKEN is used, the provider sets Authorization: Bearer <accessToken> when delivering event notifications.
 
 | Name                  | Description                                   | Required | Example                |
 | --------------------- | --------------------------------------------- | -------- | ---------------------- |
@@ -159,7 +159,7 @@ Status notifications are delivered as CloudEvents (see CloudEvent section below)
 | recordingResult | Recording result when recording enabled                  | Cond.    | `success`,`noRecord`,`fail`                                                   |
 | callDuration    | Duration in seconds (present when call ended)            | Cond.    |                                                                               |
 | timestamp       | UTC timestamp of the event / state change                | Yes      | RFC 3339 format                                                               |
-| callId          | Identifier of the call (matches the `callId` returned)   | Yes      | UUID style string                                                             |
+| callId          | Identifier of the call (matches the `callId` returned)   | Yes      | String identifier compliant with the CallId schema                            |
 
 #### Release Call
 

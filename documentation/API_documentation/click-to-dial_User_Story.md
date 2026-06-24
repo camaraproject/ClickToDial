@@ -38,7 +38,7 @@
 
 - `SinkCredential` and authentication
 
-  - `SinkCredential` is a discriminator object. Currently the only supported `credentialType` is `ACCESSTOKEN` and the concrete `AccessTokenCredential` MUST include `accessToken`, `accessTokenExpiresUtc` and `accessTokenType`.
+  - The SinkCredential is a discriminator-based object defined by CAMARA Commonalities. The currently defined credential types include ACCESSTOKEN and PRIVATE_KEY_JWT. When ACCESSTOKEN is used, the concrete AccessTokenCredential MUST include `accessToken`, `accessTokenExpiresUtc` and `accessTokenType`.
   - When `sinkCredential` is provided, the provider will use the credential to authenticate HTTP requests to the `sink` when delivering events. The provider should set the `Authorization` header (e.g., `Authorization: Bearer <accessToken>`) when posting events.
 - CloudEvents and notifications
 
@@ -71,7 +71,7 @@
   4. The provider begins establishing the call and sends a sequence of CloudEvents in structured mode (`Content-Type: application/cloudevents+json`) using the `CallStatusChangedEvent` format to the `sink` URL, authenticating using the provided token as `Authorization: Bearer <accessToken>`.
   5. The status transitions through `callingCaller`, `callingCallee`, and finally `connected` when both parties answer.
 * **Acceptance Criteria**:
-  * The HTTP response returns `201 Created` with a valid UUID `callId` and `status` object.
+  * The HTTP response returns `201 Created` with a valid callId compliant with the CallId schema and `status` object.
   * The provider sends structured CloudEvents with correct headers and schema.
   * Callback delivery failures do not roll back the call setup session.
   * The API consumer can query `GET /calls/{callId}` to reconcile the state.
@@ -114,5 +114,5 @@
 1. Client POSTs to `/calls` with `caller`, `callee`, optional `sink`/`sinkCredential` and `recordingEnabled: true`.
 2. Provider returns `201 Created` with call details including `callId`.
 3. Provider sends CloudEvents to `sink` as the call progresses with call status updates.
-4. When the call ends, provider sends a final `disconnected` state event including `callDuration` and `recordingResult: success`.
-5. Client calls `GET /calls/{callId}/recording` to download the recording resource.
+4. When the call ends, the provider sends a final status event. If recording was requested, the event can include recordingResult, such as success, noRecord, or fail.
+5. If recordingResult indicates success, the client can call GET /calls/{callId}/recording to download the recording resource.
