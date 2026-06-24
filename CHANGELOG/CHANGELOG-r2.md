@@ -60,13 +60,6 @@ Changes documented below are compared to version 0.1.0.
 
 ### Added
 
-* N/A
-* ### Breaking changes
-
-* N/A
-
-### Added
-
 * Added detailed ClickToDial call lifecycle documentation, clarifying the provider-managed aggregate call session state and the `initiating`, `callingCaller`, `callingCallee`, `connected`, `disconnected`, and `failed` status values.
 * Added detailed user stories and acceptance criteria for creating ClickToDial calls with status notifications, terminating active calls, and retrieving recordings after completed recorded calls.
 * Added enhanced Gherkin test scenarios for rainy-day and edge-case behavior across `createCall`, `getCall`, `terminateCall`, and `getRecording`, including malformed and unknown `callId`, authentication and authorization failures, invalid caller/callee inputs, recording availability, and callback event validation.
