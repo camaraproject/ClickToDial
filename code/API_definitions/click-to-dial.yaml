@@ -212,7 +212,10 @@ paths:
       tags:
         - Recording
       summary: Get call recording
-      description: Retrieve the recording associated with the given callId.
+      description: |
+        Retrieve the recording associated with the given callId.
+        A recording can be retrieved successfully only if recording was explicitly enabled during creation (`recordingEnabled: true`), is supported by the provider, the call session has completed, and a recording was actually generated.
+        If no recording is available, the API returns `404 Not Found` with the code `NOT_FOUND` (or `422 RECORDING_NOT_SUPPORTED` during call creation if the provider immediately knows recording cannot be enabled).
       operationId: getRecording
       security:
         - openId:
@@ -293,7 +296,11 @@ components:
         - createdAt
 
     CreateCallRequest:
-      description: Request to create a new Click to Dial call session
+      description: |
+        Request to create a new Click to Dial call session.
+        If a `sink` URL is provided, status notifications (CloudEvents in structured mode) will be delivered to it.
+        If a `sinkCredential` of type `ACCESSTOKEN` is provided, the access token is used as a Bearer token in the `Authorization` header during event delivery.
+        Callback delivery failure does not roll back or cancel a successfully created call session; API consumers can query `GET /calls/{callId}` to reconcile state.
       type: object
       additionalProperties: false
       properties:
@@ -384,7 +391,10 @@ components:
         - contentType
 
     CallStatusChangedEvent:
-      description: ClickToDial call status changed event
+      description: |
+        ClickToDial call status changed event delivered to the configured `sink` URL as a CloudEvent in structured mode.
+        When using `sinkCredential` with type `ACCESSTOKEN`, the provider sets the HTTP `Authorization` header to `Authorization: Bearer <accessToken>`.
+        Transient callback delivery failures may be retried according to provider policy, and delivery failures do not roll back the call session.
       allOf:
         - $ref: "../common/CAMARA_event_common.yaml#/components/schemas/CloudEvent"
         - type: object
@@ -436,7 +446,14 @@ components:
         - "org.camaraproject.click-to-dial.v0.status-changed"
 
     CallStatus:
-      description: Call status
+      description: |
+        The call status state representing the current step in the lifecycle of the overall session. Note that this API exposes an aggregate provider-managed call session state rather than separate independent caller and callee leg APIs.
+        * `initiating`: The call session has been created. The provider is preparing to start the call process.
+        * `callingCaller`: The provider is placing the outbound call to the caller, waiting for them to answer.
+        * `callingCallee`: The caller has answered, and the provider is placing the outbound call to the callee.
+        * `connected`: Both caller and callee have answered, and they are now connected in an active call session.
+        * `disconnected`: The call session has ended (e.g. one party hung up, or terminated by client). A disconnection reason is provided (e.g., `hangUp`, `callerBusy`, `calleeBusy`, etc.).
+        * `failed`: The call session failed to establish (e.g., caller or callee did not answer, or carrier network error).
       type: string
       enum:
         - initiating
