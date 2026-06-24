@@ -1,0 +1,13 @@
+repository:
+  repository_name: ClickToDial
+  release_tag: r2.1
+  release_type: pre-release-rc
+  release_date: null
+  src_commit_sha: 7b347a92e9ecc86956ad1b9aaf53efd11eb57a04
+apis:
+- api_name: click-to-dial
+  api_version: 0.2.0-rc.1
+  api_title: Click to Dial Service
+dependencies:
+  commonalities_release: r4.3 (0.8.0)
+  identity_consent_management_release: r4.2 (0.5.0)
