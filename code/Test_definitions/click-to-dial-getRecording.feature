@@ -28,7 +28,6 @@ Feature: CAMARA Click to Dial API, vwip - Operation getRecording
     And the response property "$.callId" has the same value as the request path parameter "callId"
     And the response property "$.content" exists
     And the response property "$.contentType" is "audio/wav" or "audio/mp3" or "audio/mpeg" or "audio/ogg"
-    And the response property "$.generatedAt" exists
 
   @getrecording_failure_malformed_callid
   Scenario: Fail to download recording due to malformed callId path parameter

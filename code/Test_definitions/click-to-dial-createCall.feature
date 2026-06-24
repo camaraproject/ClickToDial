@@ -63,8 +63,8 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
       | $.id                   | unique per event                                                                       |
       | $.type                 | = "org.camaraproject.click-to-dial.v0.status-changed"                                  |
       | $.data.callId          | = createCall response property "$.callId"                                              |
-      | $.data.caller          | = createCall request property "$.caller"                                               |
-      | $.data.callee          | = createCall request property "$.callee"                                               |
+      | $.data.caller          | = createCall request property "$.caller.number"                                        |
+      | $.data.callee          | = createCall request property "$.callee.number"                                        |
       | $.data.status.state    | in [initiating, callingCaller, callingCallee, connected, disconnected, failed]         |
       | $.data.status.reason   | present iff state="disconnected" and in [hangUp, callerBusy, callerNoAnswer, callerFailure, callerAbandon, calleeBusy, calleeNoAnswer, calleeFailure, other] |
       | $.data.recordingResult | optional; if present, in [success, noRecord, fail]                                     |
