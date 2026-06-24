@@ -26,37 +26,44 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     And the response header "x-correlator" has the same value as the request header "x-correlator"
     And the response body complies with the OAS schema at "/components/schemas/Call"
 
-  @getcall_failure_invalid_request
-  Scenario: Fail to get call details due to invalid request
-    Given an invalid request with missing or malformed path parameter
+  @getcall_failure_malformed_callid
+  Scenario: Fail to get call details due to malformed callId path parameter
+    Given the request path parameter "callId" is set to a value that does not comply with the CallId schema
     When the request "getCall" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 400
+    And the response property "$.code" is "INVALID_ARGUMENT"
 
   @getcall_failure_authentication
-  Scenario: Fail to get call details due to authentication failure
+  Scenario: Fail to get call details due to invalid or missing token
     Given an invalid or missing authentication token for the service
     And the request path parameter "callId" is set to a valid call identifier
     When the request "getCall" is sent
     Then the response status code is 401
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 401
+    And the response property "$.code" is "UNAUTHENTICATED"
 
   @getcall_failure_authorization
-  Scenario: Fail to get call details due to authorization failure
+  Scenario: Fail to get call details due to insufficient permission
     Given a valid authentication token with insufficient permissions
     And the request path parameter "callId" is set to a valid call identifier
     When the request "getCall" is sent
     Then the response status code is 403
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 403
+    And the response property "$.code" is "PERMISSION_DENIED"
 
-  @getcall_failure_invalid_callidentifier
-  Scenario: Fail to get call details due to unknown call identifier
-    Given an invalid call identifier
-    And the request path parameter "callId" is set to that identifier
+  @getcall_failure_unknown_callid
+  Scenario: Fail to get call details due to well-formed but unknown callId
+    Given the request path parameter "callId" is set to a well-formed callId that does not exist in the system
     When the request "getCall" is sent
     Then the response status code is 404
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 404
+    And the response property "$.code" is "NOT_FOUND"

@@ -30,36 +30,55 @@ Feature: CAMARA Click to Dial API, vwip - Operation getRecording
     And the response property "$.contentType" is "audio/wav" or "audio/mp3" or "audio/mpeg" or "audio/ogg"
     And the response property "$.generatedAt" exists
 
-  @getrecording_failure_missing_callid
-  Scenario: Fail to download recording due to missing callId in getRecording request
+  @getrecording_failure_malformed_callid
+  Scenario: Fail to download recording due to malformed callId path parameter
+    Given the request path parameter "callId" is set to a value that does not comply with the CallId schema
     When the request "getRecording" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 400
+    And the response property "$.code" is "INVALID_ARGUMENT"
 
   @getrecording_failure_authentication
-  Scenario: Fail to download recording due to authentication failure in getRecording request
+  Scenario: Fail to download recording due to invalid or missing token
     Given an invalid or missing authentication token for the service
     And the request path parameter "callId" is set to a valid call identifier
     When the request "getRecording" is sent
     Then the response status code is 401
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 401
+    And the response property "$.code" is "UNAUTHENTICATED"
 
-  @getrecording_failure_invalid_callidentifier
-  Scenario: Fail to download recording due to invalid call identifier in getRecording request
-    Given an invalid call identifier
+  @getrecording_failure_authorization
+  Scenario: Fail to download recording due to insufficient permission
+    Given a valid authentication token with insufficient permissions
+    And the request path parameter "callId" is set to a valid call identifier
+    When the request "getRecording" is sent
+    Then the response status code is 403
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 403
+    And the response property "$.code" is "PERMISSION_DENIED"
+
+  @getrecording_failure_unknown_callid
+  Scenario: Fail to download recording due to well-formed but unknown callId
+    Given the request path parameter "callId" is set to a well-formed callId that does not exist in the system
+    When the request "getRecording" is sent
+    Then the response status code is 404
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 404
+    And the response property "$.code" is "NOT_FOUND"
+
+  @getrecording_failure_no_recording
+  Scenario: Fail to download recording because it is not available for a valid call
+    Given a valid call identifier for a call with no available recording
     And the request path parameter "callId" is set to that identifier
     When the request "getRecording" is sent
     Then the response status code is 404
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
-
-  @getrecording_failure_not_found
-  Scenario: Fail to download recording because it is not available
-    Given a call identifier with no available recording
-    And the request path parameter "callId" is set to that identifier
-    When the request "getRecording" is sent
-    Then the response status code is 404
-    And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 404
+    And the response property "$.code" is "NOT_FOUND"
