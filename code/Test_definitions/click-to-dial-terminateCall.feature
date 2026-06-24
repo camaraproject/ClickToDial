@@ -23,36 +23,54 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     When the request "terminateCall" is sent
     Then the response status code is 204
 
-  @terminatecall_failure_missing_callid
-  Scenario: Fail to terminate call due to missing callId path parameter
+  @terminatecall_failure_malformed_callid
+  Scenario: Fail to terminate call due to malformed callId path parameter
+    Given the request path parameter "callId" is set to a value that does not comply with the CallId schema
     When the request "terminateCall" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 400
+    And the response property "$.code" is "INVALID_ARGUMENT"
 
   @terminatecall_failure_authentication
-  Scenario: Fail to terminate call due to authentication failure
+  Scenario: Fail to terminate call due to invalid or missing token
     Given an invalid or missing authentication token for the service
     And the request path parameter "callId" is set to a valid call identifier
     When the request "terminateCall" is sent
     Then the response status code is 401
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 401
+    And the response property "$.code" is "UNAUTHENTICATED"
 
-  @terminatecall_failure_invalid_callidentifier
-  Scenario: Fail to terminate call due to invalid call identifier
-    Given an invalid call identifier
-    And the request path parameter "callId" is set to that identifier
+  @terminatecall_failure_authorization
+  Scenario: Fail to terminate call due to insufficient permission
+    Given a valid authentication token with insufficient permissions
+    And the request path parameter "callId" is set to a valid call identifier
+    When the request "terminateCall" is sent
+    Then the response status code is 403
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 403
+    And the response property "$.code" is "PERMISSION_DENIED"
+
+  @terminatecall_failure_unknown_callid
+  Scenario: Fail to terminate call due to well-formed but unknown callId
+    Given the request path parameter "callId" is set to a well-formed callId that does not exist in the system
     When the request "terminateCall" is sent
     Then the response status code is 404
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 404
+    And the response property "$.code" is "NOT_FOUND"
 
   @terminatecall_failure_conflict
   Scenario: Fail to terminate call due to conflicting state
-    Given a call identifier for a call that cannot be terminated (already ended or conflicting state)
+    Given a call identifier for a call in a state that cannot be terminated (already ended or conflicting state)
     And the request path parameter "callId" is set to that identifier
     When the request "terminateCall" is sent
     Then the response status code is 409
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 409

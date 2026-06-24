@@ -45,7 +45,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And an event is received at the address of the request property "$.sink"
     And the event header "Authorization" is set to "Bearer " + the value of the request property "$.sinkCredential.accessToken"
     And the event header "Content-Type" is "application/cloudevents+json"
-    And the event body complies with the OAS schema at "#/components/schemas/EventCTDStatusChanged"
+    And the event body complies with the OAS schema at "#/components/schemas/CallStatusChangedEvent"
 
   @createcall_event_notification
   Scenario: Event body fields follow ClickToDial status rules
@@ -63,23 +63,35 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
       | $.id                   | unique per event                                                                       |
       | $.type                 | = "org.camaraproject.click-to-dial.v0.status-changed"                                  |
       | $.data.callId          | = createCall response property "$.callId"                                              |
-      | $.data.caller          | = createCall request property "$.caller"                                               |
-      | $.data.callee          | = createCall request property "$.callee"                                               |
+      | $.data.caller          | = createCall request property "$.caller.number"                                        |
+      | $.data.callee          | = createCall request property "$.callee.number"                                        |
       | $.data.status.state    | in [initiating, callingCaller, callingCallee, connected, disconnected, failed]         |
       | $.data.status.reason   | present iff state="disconnected" and in [hangUp, callerBusy, callerNoAnswer, callerFailure, callerAbandon, calleeBusy, calleeNoAnswer, calleeFailure, other] |
       | $.data.recordingResult | optional; if present, in [success, noRecord, fail]                                     |
       | $.data.callDuration    | present iff state="disconnected"                                                       |
       | $.data.timestamp       | time of state change                                                                   |
 
-  @createcall_failure_missing_fields
-  Scenario: Fail to initiate call due to missing required fields in createCall request
-    And the request property "$.caller" is removed from the request body
+  @createcall_failure_missing_caller
+  Scenario: Fail to initiate call due to missing caller in createCall request
+    Given the request property "$.caller" is removed from the request body
     And the request property "$.callee" is set to a valid callee number in E.164 format
     When the request "createCall" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 400
+    And the response property "$.code" is "INVALID_ARGUMENT"
+
+  @createcall_failure_missing_callee
+  Scenario: Fail to initiate call due to missing callee in createCall request
+    Given the request property "$.caller" is set to a valid caller number in E.164 format
+    And the request property "$.callee" is removed from the request body
+    When the request "createCall" is sent
+    Then the response status code is 400
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 400
+    And the response property "$.code" is "INVALID_ARGUMENT"
 
   @createcall_failure_authentication
   Scenario: Fail to initiate call due to authentication failure in createCall request
@@ -91,13 +103,98 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 401
+    And the response property "$.code" is "UNAUTHENTICATED"
 
   @createcall_failure_invalid_caller
   Scenario: Fail to initiate call due to invalid caller number format in createCall request
-    And the request property "$.caller" is set to an invalid caller number (not E.164)
+    Given the request property "$.caller.number" is set to an invalid phone number (not in E.164 format)
     And the request property "$.callee" is set to a valid callee number in E.164 format
     When the request "createCall" is sent
     Then the response status code is 422
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
+    And the response property "$.code" is "INVALID_PHONE_NUMBER"
+
+  @createcall_failure_invalid_callee
+  Scenario: Fail to initiate call due to invalid callee number format in createCall request
+    Given the request property "$.caller" is set to a valid caller number in E.164 format
+    And the request property "$.callee.number" is set to an invalid phone number (not in E.164 format)
+    When the request "createCall" is sent
+    Then the response status code is 422
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 422
+    And the response property "$.code" is "INVALID_PHONE_NUMBER"
+
+  @createcall_failure_same_caller_callee
+  Scenario: Fail to initiate call when caller and callee numbers are the same
+    Given the request property "$.caller.number" is set to "+34666666666"
+    And the request property "$.callee.number" is set to "+34666666666"
+    When the request "createCall" is sent
+    Then the response status code is 422
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 422
+    And the response property "$.code" is "SAME_CALLER_CALLEE"
+
+  @createcall_failure_unknown_property
+  Scenario: Fail to initiate call due to unknown additional property in request body
+    Given the request property "$.unknownProperty" is set to "someValue"
+    And the request property "$.caller" is set to a valid caller number in E.164 format
+    And the request property "$.callee" is set to a valid callee number in E.164 format
+    When the request "createCall" is sent
+    Then the response status code is 400
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 400
+    And the response property "$.code" is "INVALID_ARGUMENT"
+
+  @createcall_failure_recording_not_supported
+  Scenario: Fail to initiate call when recording is requested but not supported
+    Given the request property "$.caller" is set to a valid caller number in E.164 format
+    And the request property "$.callee" is set to a valid callee number in E.164 format
+    And the request property "$.recordingEnabled" is set to true
+    And recording is not supported for the requested call
+    When the request "createCall" is sent
+    Then the response status code is 422
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 422
+    And the response property "$.code" is "RECORDING_NOT_SUPPORTED"
+
+  @createcall_failure_caller_not_available
+  Scenario: Fail to initiate call when the caller is not available
+    Given the request property "$.caller" is set to a valid caller number in E.164 format
+    And the caller number is not available or not allowed to start a call
+    And the request property "$.callee" is set to a valid callee number in E.164 format
+    When the request "createCall" is sent
+    Then the response status code is 422
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 422
+    And the response property "$.code" is "CALLER_NOT_AVAILABLE"
+
+  @createcall_failure_callee_not_available
+  Scenario: Fail to initiate call when the callee is not available
+    Given the request property "$.caller" is set to a valid caller number in E.164 format
+    And the request property "$.callee" is set to a valid callee number in E.164 format
+    And the callee number is not available or not allowed to receive a call
+    When the request "createCall" is sent
+    Then the response status code is 422
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 422
+    And the response property "$.code" is "CALLEE_NOT_AVAILABLE"
+
+  @createcall_failure_invalid_sink
+  Scenario: Fail to initiate call due to invalid sink URI
+    Given the request property "$.caller" is set to a valid caller number in E.164 format
+    And the request property "$.callee" is set to a valid callee number in E.164 format
+    And the request property "$.sink" is set to an invalid URI
+    When the request "createCall" is sent
+    Then the response status code is 400
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 400
+    And the response property "$.code" is "INVALID_ARGUMENT"
