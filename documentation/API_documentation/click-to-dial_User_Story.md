@@ -44,7 +44,7 @@
 
   - Providers MUST deliver status notifications as CloudEvents in structured mode (`Content-Type: application/cloudevents+json`).
   - The CloudEvent MUST include `id`, `source`, `type`, `specversion`, `time`, and `datacontenttype`. `datacontenttype` for our events is `application/json`.
-  - The event `data` payload for `EventCTDStatusChanged` contains `callId`, `caller`, `callee`, `timestamp` and `status` (an object):
+  - The event `data` payload for `CallStatusChangedEvent` contains `callId`, `caller`, `callee`, `timestamp` and `status` (an object):
 
 ```json
 "status": {
@@ -56,10 +56,63 @@
 - `status.state` values: `initiating`, `callingCaller`, `callingCallee`, `connected`, `disconnected`, `failed`.
 - `status.reason` is present only when `status.state` is `disconnected` and must be one of the documented disconnection reasons.
 
+## Detailed Use Cases
+
+### Use Case 1: Create ClickToDial call with status notifications
+
+* **Goal**: An API consumer application initiates a voice call between a caller and a callee, and requests asynchronous status updates about the call session.
+* **Pre-conditions**:
+  * The application has obtained an OIDC access token with the scope `click-to-dial:calls:create`.
+  * The application has set up a reachable endpoint (`sink` URL) capable of receiving HTTP POST requests.
+* **Steps**:
+  1. The API consumer calls `POST /calls` with the `caller` and `callee` numbers, the `sink` URL, and the corresponding `sinkCredential` of type `ACCESSTOKEN`.
+  2. The provider validates the request (numbers are correct, format is E.164, etc.).
+  3. The provider returns `201 Created` with the call details, including a unique `callId` and `status` set to `initiating`.
+  4. The provider begins establishing the call and sends a sequence of CloudEvents in structured mode (`Content-Type: application/cloudevents+json`) using the `CallStatusChangedEvent` format to the `sink` URL, authenticating using the provided token as `Authorization: Bearer <accessToken>`.
+  5. The status transitions through `callingCaller`, `callingCallee`, and finally `connected` when both parties answer.
+* **Acceptance Criteria**:
+  * The HTTP response returns `201 Created` with a valid UUID `callId` and `status` object.
+  * The provider sends structured CloudEvents with correct headers and schema.
+  * Callback delivery failures do not roll back the call setup session.
+  * The API consumer can query `GET /calls/{callId}` to reconcile the state.
+
+### Use Case 2: Terminate an active ClickToDial call
+
+* **Goal**: An API consumer application terminates an active call session.
+* **Pre-conditions**:
+  * An active ClickToDial call session is currently in progress (state is `callingCaller`, `callingCallee`, or `connected`).
+  * The application has obtained an OIDC access token with the scope `click-to-dial:calls:delete`.
+* **Steps**:
+  1. The API consumer calls `DELETE /calls/{callId}` using the call's unique identifier.
+  2. The provider terminates the active voice session and releases network resources.
+  3. The provider returns `204 No Content`.
+  4. The provider sends a final `CallStatusChangedEvent` with state `disconnected` and reason `hangUp` (or other appropriate reason) to the configured `sink` URL.
+* **Acceptance Criteria**:
+  * The API response is `204 No Content`.
+  * Any subsequent `GET /calls/{callId}` returns details with status `disconnected`.
+  * A final status notification is sent with `disconnected` state.
+
+### Use Case 3: Retrieve recording after a completed recorded call
+
+* **Goal**: An API consumer application retrieves the audio recording of a completed call session.
+* **Pre-conditions**:
+  * The ClickToDial call was created with `recordingEnabled` set to `true`.
+  * The call session has ended and reached a final state (`disconnected` or `failed`).
+  * The provider supports recording and a recording file was successfully generated.
+  * The application has obtained an OIDC access token with the scope `click-to-dial:recordings:read`.
+* **Steps**:
+  1. The call ends, and the provider sends the final `CallStatusChangedEvent` containing `recordingResult: success`.
+  2. The API consumer calls `GET /calls/{callId}/recording`.
+  3. The provider returns `200 OK` with the base64 encoded audio content and correct MIME type.
+* **Acceptance Criteria**:
+  * If the call final event reports `recordingResult` as `success`, the recording must be accessible.
+  * `GET /calls/{callId}/recording` returns `200 OK` with the base64 encoded audio byte content.
+  * If recording is not available (e.g. `recordingResult: noRecord` or call is still active), the API returns `404 Not Found` with the code `NOT_FOUND`.
+
 ## Example end-to-end
 
-1. Client POSTs to `/calls` with `caller`, `callee`, optional `sink`/`sinkCredential`.
+1. Client POSTs to `/calls` with `caller`, `callee`, optional `sink`/`sinkCredential` and `recordingEnabled: true`.
 2. Provider returns `201 Created` with call details including `callId`.
 3. Provider sends CloudEvents to `sink` as the call progresses with call status updates.
-4. When the call ends, provider sends a final `disconnected` state event including `callDuration` and, if recording was enabled, `recordingResult`.
-5. Client can `GET /calls/{callId}/recording` to download the recording resource if available.
+4. When the call ends, provider sends a final `disconnected` state event including `callDuration` and `recordingResult: success`.
+5. Client calls `GET /calls/{callId}/recording` to download the recording resource.
