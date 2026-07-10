@@ -12,10 +12,16 @@ The Click to Dial API provides a standardized interface to initiate and manage v
 
 ### 2.1 Prerequisites
 
-- **Authentication**: Obtain an OpenID Connect access token from your API provider.
+- **Authentication**: Obtain an OpenID Connect access token from your API provider's authorization server, then send it as a Bearer token on every request. The `security` section of the OpenAPI definition uses the `openId` scheme; each operation lists the scope it requires (for example `click-to-dial:calls:create` for `POST /calls`).
+
+  Per the CAMARA Security & Interoperability Profile, the API Consumer authenticates to the authorization server using `private_key_jwt` (a signed JWT client assertion) rather than a shared `client_secret`. The grant type and any additional parameters are agreed with the provider at onboarding, so the exact token request depends on that agreement:
 
   ```bash
-  curl -X POST "{openid_token_url}" -d "grant_type=client_credentials&client_id={your_id}&client_secret={your_secret}"
+  curl -X POST "{openid_token_url}" \
+       -d "client_id={your_id}" \
+       -d "client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer" \
+       -d "client_assertion={signed_jwt}" \
+       -d "scope=click-to-dial:calls:create"
   ```
 
 ### 2.2 Quick Try
@@ -94,7 +100,7 @@ curl -X GET "{apiRoot}/calls/{callId}/recording" \
 
 ## 3\. Authentication and Authorization
 
-This API uses **OpenID Connect** for authentication and authorization. Obtain your access token from your provider and use it in the Authorization header for all API requests.
+This API uses **OpenID Connect** for authentication and authorization, following the CAMARA Security & Interoperability Profile. The API Consumer authenticates to the authorization server using `private_key_jwt` (a signed JWT client assertion); a shared `client_secret` is not an accepted client-authentication method. Obtain your access token from your provider and use it in the Authorization header for all API requests. Each operation requires the scope declared for it in the OpenAPI `security` section.
 
 ## 4\. API Documentation
 
@@ -134,6 +140,7 @@ The call session progresses through the following states (representing the `stat
 | callee         | Called party number (E.164, with "+")               | Yes      | "+87654321"                  |
 | sink           | (Optional) Callback URL for status notifications    | No       | `<https://yourapp.com/notify>` |
 | sinkCredential | (Optional) Callback authentication info (see below) | No       | (see below)                  |
+| recordingEnabled | (Optional) Request call recording for this call   | No       | `true`                       |
 
 ##### sinkCredential (for `ACCESSTOKEN` type)
 
@@ -231,10 +238,10 @@ Note: Additional common CAMARA error responses may be defined in the `CAMARA_com
 ## CloudEvent delivery notes
 
 - Providers MUST send status notifications as CloudEvents in structured mode. The HTTP header must be `Content-Type: application/cloudevents+json`.
-- The CloudEvent MUST include the attributes: `id`, `source`, `type`, `specversion`, and `time`.
-- The CloudEvent attribute `datacontenttype` MUST be `application/json` for the `data` payload.
+- The CloudEvent MUST include the attributes required by `CloudEvent` in the OpenAPI definition: `id`, `source`, `specversion`, `type`, and `time`.
+- When the `datacontenttype` attribute is present, it describes the `data` payload and is `application/json` for this API.
 
-The CloudEvent `data` payload for Click-to-Dial `CallStatusChangedEvent` includes `callId`, `caller`, `callee`, `timestamp` and `status` (where `status` is an object with `state` and optional `reason`). Providers MUST set `datacontenttype` to `application/json`.
+The CloudEvent `data` payload for Click-to-Dial `CallStatusChangedEvent` includes `callId`, `caller`, `callee`, `timestamp` and `status` (where `status` is an object with `state` and optional `reason`). Events for this API set `datacontenttype` to `application/json`, matching the `data` payload.
 
 Example CloudEvent (structured mode) — `CALL_STATUS_CHANGED_EXAMPLE` from the OpenAPI spec:
 
@@ -250,7 +257,7 @@ Example CloudEvent (structured mode) — `CALL_STATUS_CHANGED_EXAMPLE` from the 
   "data": {
     "callId": "123e4567-e89b-12d3-a456-426614174000",
     "caller": "+12345678",
-    "callee": "+12345678",
+    "callee": "+87654321",
     "status": {
       "state": "disconnected",
       "reason": "hangUp"
