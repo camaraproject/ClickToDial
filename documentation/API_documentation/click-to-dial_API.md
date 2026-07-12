@@ -12,11 +12,11 @@ The Click to Dial API provides a standardized interface to initiate and manage v
 
 ### 2.1 Prerequisites
 
-- **Authentication**: Obtain an OpenID Connect access token from your API provider.
-
-  ```bash
-  curl -X POST "{openid_token_url}" -d "grant_type=client_credentials&client_id={your_id}&client_secret={your_secret}"
-  ```
+- **Authentication**: Obtain an OpenID Connect access token from the API provider's Authorization Server.
+  - The API Consumer must use `private_key_jwt` client authentication, in accordance with the [CAMARA Security & Interoperability Profile](https://github.com/camaraproject/IdentityAndConsentManagement/blob/r4.2/documentation/CAMARA-Security-Interoperability.md#client-authentication).
+  - The specific authorization flows, grant types, and other parameters are determined during onboarding between the API Consumer and the API Provider.
+  - API requests carry the access token in the `Authorization` header as `Bearer <access_token>`.
+  - The OpenAPI definition specifies the `openId` security scheme and the required scopes for each operation.
 
 ### 2.2 Quick Try
 
@@ -94,13 +94,22 @@ curl -X GET "{apiRoot}/calls/{callId}/recording" \
 
 ## 3\. Authentication and Authorization
 
-This API uses **OpenID Connect** for authentication and authorization. Obtain your access token from your provider and use it in the Authorization header for all API requests.
+This API uses **OpenID Connect** for authentication and authorization.
+- The API Consumer obtains an access token from the API Provider's Authorization Server.
+- The API Consumer must use `private_key_jwt` client authentication, in accordance with the [CAMARA Security & Interoperability Profile](https://github.com/camaraproject/IdentityAndConsentManagement/blob/r4.2/documentation/CAMARA-Security-Interoperability.md#client-authentication).
+- The specific authorization flows, grant types, and other parameters to be used will be agreed during the onboarding process between the API Consumer and the API Provider.
+- API requests carry the access token in the `Authorization` header as `Bearer <access_token>`.
+- The OpenAPI definition specifies the `openId` security scheme and the required scopes for each operation.
 
 ## 4\. API Documentation
 
 ### 4.1 API Version
 
-wip
+The OpenAPI definition version in the `main` branch may remain as `wip` until a release snapshot is created. Released versions and their corresponding API versions are determined by GitHub Releases, the CHANGELOG, and the OpenAPI definition under the specific release tag.
+
+- [OpenAPI definition](../../code/API_definitions/click-to-dial.yaml)
+- [CHANGELOG](../../CHANGELOG/)
+- [GitHub Releases](https://github.com/camaraproject/ClickToDial/releases)
 
 ### 4.2 Details
 
@@ -128,12 +137,13 @@ The call session progresses through the following states (representing the `stat
 
 ##### Click to Dial Initiation Request
 
-| Name           | Description                                         | Required | Example                      |
-| -------------- | --------------------------------------------------- | -------- | ---------------------------- |
-| caller         | Calling party number (E.164, with "+")              | Yes      | "+12345678"                  |
-| callee         | Called party number (E.164, with "+")               | Yes      | "+87654321"                  |
-| sink           | (Optional) Callback URL for status notifications    | No       | `<https://yourapp.com/notify>` |
-| sinkCredential | (Optional) Callback authentication info (see below) | No       | (see below)                  |
+| Name             | Description                                         | Required | Example                        |
+| ---------------- | --------------------------------------------------- | -------- | ------------------------------ |
+| caller           | Calling party number (E.164, with "+")              | Yes      | "+12345678"                    |
+| callee           | Called party number (E.164, with "+")               | Yes      | "+87654321"                    |
+| sink             | (Optional) Callback URL for status notifications    | No       | `<https://yourapp.com/notify>` |
+| sinkCredential   | (Optional) Callback authentication info (see below) | No       | (see below)                    |
+| recordingEnabled | Whether call recording is enabled.                  | No       | true                           |
 
 ##### sinkCredential (for `ACCESSTOKEN` type)
 
@@ -232,9 +242,9 @@ Note: Additional common CAMARA error responses may be defined in the `CAMARA_com
 
 - Providers MUST send status notifications as CloudEvents in structured mode. The HTTP header must be `Content-Type: application/cloudevents+json`.
 - The CloudEvent MUST include the attributes: `id`, `source`, `type`, `specversion`, and `time`.
-- The CloudEvent attribute `datacontenttype` MUST be `application/json` for the `data` payload.
+- The `datacontenttype` attribute is optional in the CloudEvent schema. When present, it describes the media type of the data payload. For a JSON data payload, its value is `application/json`.
 
-The CloudEvent `data` payload for Click-to-Dial `CallStatusChangedEvent` includes `callId`, `caller`, `callee`, `timestamp` and `status` (where `status` is an object with `state` and optional `reason`). Providers MUST set `datacontenttype` to `application/json`.
+The CloudEvent `data` payload for Click-to-Dial `CallStatusChangedEvent` includes `callId`, `caller`, `callee`, `timestamp` and `status` (where `status` is an object with `state` and optional `reason`).
 
 Example CloudEvent (structured mode) — `CALL_STATUS_CHANGED_EXAMPLE` from the OpenAPI spec:
 
@@ -250,7 +260,7 @@ Example CloudEvent (structured mode) — `CALL_STATUS_CHANGED_EXAMPLE` from the 
   "data": {
     "callId": "123e4567-e89b-12d3-a456-426614174000",
     "caller": "+12345678",
-    "callee": "+12345678",
+    "callee": "+87654321",
     "status": {
       "state": "disconnected",
       "reason": "hangUp"
@@ -341,10 +351,7 @@ N/A
 
 ### 4.9 Release Notes
 
-This section lists release notes for historical versions.
-The current version on the main branch is **wip**.
-
-- **0.1.0-alpha.1** — Initial release (archived).
+Please refer to the [CHANGELOG](../../CHANGELOG/) and [GitHub Releases](https://github.com/camaraproject/ClickToDial/releases) for the history of released versions and details of changes.
 
 ## References
 

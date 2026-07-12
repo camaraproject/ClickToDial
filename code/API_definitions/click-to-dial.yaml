@@ -711,7 +711,7 @@ components:
         data:
           callId: "123e4567-e89b-12d3-a456-426614174000"
           caller: "+12345678"
-          callee: "+12345678"
+          callee: "+87654321"
           status:
             state: "disconnected"
             reason: "hangUp"
