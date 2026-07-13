@@ -61,15 +61,23 @@ Changes documented below are compared to version 0.1.0.
 
 ### Added
 
-* N/A
+* Added detailed ClickToDial call lifecycle documentation, clarifying the provider-managed aggregate call session state and the `initiating`, `callingCaller`, `callingCallee`, `connected`, `disconnected`, and `failed` status values.
+* Added detailed user stories and acceptance criteria for creating ClickToDial calls with status notifications, terminating active calls, and retrieving recordings after completed recorded calls.
+* Added enhanced Gherkin test scenarios for rainy-day and edge-case behavior across `createCall`, `getCall`, `terminateCall`, and `getRecording`, including malformed and unknown `callId`, authentication and authorization failures, invalid caller/callee inputs, recording availability, and callback event validation.
 
 ### Changed
 
-* N/A
+* Clarified callback delivery behavior for status notifications, including structured CloudEvents delivery, `CallStatusChangedEvent` usage, sink credential handling, retry behavior, and state reconciliation using `GET /calls/{callId}`.
+* Clarified recording availability conditions for `GET /calls/{callId}/recording`, including when a recording can be retrieved and when `404 NOT_FOUND` is returned.
+* Improved OpenAPI descriptions for call status, callback events, call creation, and recording retrieval without changing API behavior.
 
 ### Fixed
 
-* N/A
+* Fixed stale documentation and test references from `EventCTDStatusChanged` to the current `CallStatusChangedEvent` schema.
+* Fixed Gherkin test expectations to align callback event `caller` and `callee` values with the phone number payload defined in the OpenAPI schema.
+* Fixed recording retrieval test expectations to avoid requiring optional `generatedAt` in `RecordingResource`.
+* Corrected supplementary API authentication guidance to use `private_key_jwt` client authentication and reference onboarding-defined authorization flows and operation-specific scopes.
+* Aligned supplementary documentation and examples with the OpenAPI definition by documenting `recordingEnabled`, treating `datacontenttype` as optional, removing stale version information, and using valid reserved E.164 example numbers.
 
 ### Removed
 
