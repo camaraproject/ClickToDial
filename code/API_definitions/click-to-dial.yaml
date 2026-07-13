@@ -320,9 +320,9 @@ components:
         - callee
       example:
         caller:
-          number: "+441234567890"
+          number: "+447700900000"
         callee:
-          number: "+441234567891"
+          number: "+447700900123"
         sink: "https://endpoint.example.com/sink"
         sinkCredential:
           credentialType: ACCESSTOKEN
@@ -710,8 +710,8 @@ components:
         time: 2021-12-12T00:00:00Z
         data:
           callId: "123e4567-e89b-12d3-a456-426614174000"
-          caller: "+12345678"
-          callee: "+12345678"
+          caller: "+447700900000"
+          callee: "+447700900123"
           status:
             state: "disconnected"
             reason: "hangUp"

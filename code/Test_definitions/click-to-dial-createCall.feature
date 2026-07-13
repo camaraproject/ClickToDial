@@ -129,8 +129,8 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
 
   @createcall_failure_same_caller_callee
   Scenario: Fail to initiate call when caller and callee numbers are the same
-    Given the request property "$.caller.number" is set to "+34666666666"
-    And the request property "$.callee.number" is set to "+34666666666"
+    Given the request property "$.caller.number" is set to "+447700900000"
+    And the request property "$.callee.number" is set to "+447700900000"
     When the request "createCall" is sent
     Then the response status code is 422
     And the response header "Content-Type" is "application/json"
