@@ -27,8 +27,8 @@ curl -X POST "{apiRoot}/calls" \
      -H "Authorization: Bearer {access_token}" \
      -H "Content-Type: application/json" \
      -d '{
-      "caller": { "number": "+12345678" }, 
-      "callee": { "number": "+87654321" },
+      "caller": { "number": "+447700900000" },
+      "callee": { "number": "+447700900123" },
       "sink": "https://yourapp.example.com/clicktodialstatusnotify",
       "sinkCredential": {
         "credentialType": "ACCESSTOKEN",
@@ -45,8 +45,8 @@ curl -X POST "{apiRoot}/calls" \
 ```json
 {
   "callId": "123e4567-e89b-12d3-a456-426614174000",
-  "caller": { "number": "+12345678" },
-  "callee": { "number": "+87654321" },
+  "caller": { "number": "+447700900000" },
+  "callee": { "number": "+447700900123" },
   "status": "initiating",
   "createdAt": "2025-12-11T12:00:00Z",
   "recordingEnabled": true
@@ -87,7 +87,7 @@ curl -X GET "{apiRoot}/calls/{callId}/recording" \
 
 ### 2.3 Key Tips
 
-- **Number Format:** All phone numbers (caller, callee) must be in E.164 format, e.g., "+12345678".
+- **Number Format:** All phone numbers (caller, callee) must be in E.164 format, e.g., "+447700900000".
 - **Authentication:** Use OpenID Connect; include your access token as a Bearer token.
 - **Status Codes:** 201 = created (POST /calls), 200 = success for reads, 204 = no content (DELETE /calls/{callId}), 400 = bad input, 401 = unauthorized, 403 = forbidden, 404 = not found, 409 = conflict, 422 = validation error.
 - **Debugging:** Error responses include a code and description/message.
@@ -139,8 +139,8 @@ The call session progresses through the following states (representing the `stat
 
 | Name             | Description                                         | Required | Example                        |
 | ---------------- | --------------------------------------------------- | -------- | ------------------------------ |
-| caller           | Calling party number (E.164, with "+")              | Yes      | "+12345678"                    |
-| callee           | Called party number (E.164, with "+")               | Yes      | "+87654321"                    |
+| caller           | Calling party number (E.164, with "+")              | Yes      | "+447700900000"                |
+| callee           | Called party number (E.164, with "+")               | Yes      | "+447700900123"                |
 | sink             | (Optional) Callback URL for status notifications    | No       | `<https://yourapp.com/notify>` |
 | sinkCredential   | (Optional) Callback authentication info (see below) | No       | (see below)                    |
 | recordingEnabled | Whether call recording is enabled.                  | No       | true                           |
@@ -259,8 +259,8 @@ Example CloudEvent (structured mode) — `CALL_STATUS_CHANGED_EXAMPLE` from the 
   "time": "2021-12-12T00:00:00Z",
   "data": {
     "callId": "123e4567-e89b-12d3-a456-426614174000",
-    "caller": "+12345678",
-    "callee": "+87654321",
+    "caller": "+447700900000",
+    "callee": "+447700900123",
     "status": {
       "state": "disconnected",
       "reason": "hangUp"
@@ -315,8 +315,8 @@ curl -X POST "{apiRoot}/calls" \
   -H "Authorization: Bearer {access_token}" \
   -H "Content-Type: application/json" \
   -d '{
-    "caller": { "number": "+12345678" },
-    "callee": { "number": "+87654321" },
+    "caller": { "number": "+447700900000" },
+    "callee": { "number": "+447700900123" },
     "sink": "https://yourapp.example.com/clicktodialstatusnotify",
     "sinkCredential": {
       "credentialType": "ACCESSTOKEN",

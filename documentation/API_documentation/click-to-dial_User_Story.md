@@ -23,8 +23,8 @@
 
 ```json
 {
-  "caller": { "number": "+441234567890" },
-  "callee": { "number": "+441234567891" },
+  "caller": { "number": "+447700900000" },
+  "callee": { "number": "+447700900123" },
   "sink": "https://example.com/sink",
   "sinkCredential": {
     "credentialType": "ACCESSTOKEN",
@@ -43,7 +43,8 @@
 - CloudEvents and notifications
 
   - Providers MUST deliver status notifications as CloudEvents in structured mode (`Content-Type: application/cloudevents+json`).
-  - The CloudEvent MUST include `id`, `source`, `type`, `specversion`, `time`, and `datacontenttype`. `datacontenttype` for our events is `application/json`.
+  - The CloudEvent MUST include `id`, `source`, `type`, `specversion`, and `time`.
+  - The `datacontenttype` attribute is optional and, when present for the JSON payload, has the value `application/json`.
   - The event `data` payload for `CallStatusChangedEvent` contains `callId`, `caller`, `callee`, `timestamp` and `status` (an object):
 
 ```json
