@@ -188,13 +188,27 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response property "$.code" is "CALLEE_NOT_AVAILABLE"
 
   @createcall_failure_invalid_sink
-  Scenario: Fail to initiate call due to invalid sink URI
+  Scenario: Fail to initiate call due to a non-HTTPS sink URI
     Given the request property "$.caller" is set to a valid caller number in E.164 format
     And the request property "$.callee" is set to a valid callee number in E.164 format
-    And the request property "$.sink" is set to an invalid URI
+    And the request property "$.sink" is set to a valid HTTP URL that does not use HTTPS
     When the request "createCall" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 400
     And the response property "$.code" is "INVALID_ARGUMENT"
+
+  @createcall_failure_event_notifications_not_supported
+  Scenario: Fail to initiate call when event notifications capability is not supported
+    Given the request property "$.caller" is set to a valid caller number in E.164 format
+    And the request property "$.callee" is set to a valid callee number in E.164 format
+    And the request property "$.sink" is set to a valid HTTPS URL
+    And the API provider does not implement event notification delivery for the operation "createCall"
+    When the request "createCall" is sent
+    Then the response status code is 422
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 422
+    And the response property "$.code" is "EVENT_NOTIFICATIONS_NOT_SUPPORTED"
+    And no call resource is created
