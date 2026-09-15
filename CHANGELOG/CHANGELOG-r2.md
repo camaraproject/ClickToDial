@@ -2,6 +2,7 @@
 
 <!-- TOC:START -->
 ## Table of Contents
+- [r2.2](#r22)
 - [r2.1](#r21)
 <!-- TOC:END -->
 
@@ -13,6 +14,54 @@ The below sections record the changes for each API version in each release as fo
 * for the first release-candidate, all changes since the last public release
 * for subsequent release-candidate(s), only the delta to the previous release-candidate
 * for a public release, the consolidated changes since the previous public release
+
+# r2.2
+
+## Release Notes
+
+This release candidate contains the definition and documentation of
+* click-to-dial 0.2.0-rc.2
+
+The API definition(s) are based on
+* Commonalities r4.4 (0.9.0)
+* Identity and Consent Management r4.2 (0.5.0)
+
+## click-to-dial 0.2.0-rc.2
+
+**click-to-dial 0.2.0-rc.2 is a release-candidate version of this API.**
+
+Changes documented below are compared to version 0.2.0-rc.1.
+
+- API definition **with inline documentation**:
+  - [View it on ReDoc](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r2.2/code/API_definitions/click-to-dial.yaml&nocors)
+  - [View it on Swagger Editor](https://camaraproject.github.io/swagger-ui/?url=https://raw.githubusercontent.com/camaraproject/ClickToDial/r2.2/code/API_definitions/click-to-dial.yaml)
+  - OpenAPI [YAML spec file](https://github.com/camaraproject/ClickToDial/blob/r2.2/code/API_definitions/click-to-dial.yaml)
+
+### Breaking changes
+
+* Restricted CreateCallRequest.sink to HTTPS URLs. Requests containing a non-HTTPS sink are rejected with 400 INVALID_ARGUMENT.
+
+### Added
+
+* Added 422 EVENT_NOTIFICATIONS_NOT_SUPPORTED for createCall when a request contains a sink but the API provider does not support event notification delivery. In this case, no call resource is created.
+
+### Changed
+
+* Aligned the ClickToDial API definition with Commonalities r4.4 / 0.9.0.
+* Restricted CreateCallRequest.sink to HTTPS URLs by reusing the Commonalities Sink schema.
+* Replaced the deprecated local generic 400, 401, 403, 404, and 409 error responses with the corresponding reusable Commonalities responses.
+
+### Fixed
+
+* Added the x-correlator parameter to the call status callback request and the x-correlator header to its successful '2XX' response.
+* Updated the mandatory additional error responses documentation to the canonical Commonalities r4.4 text.
+* Updated createCall test coverage for HTTPS-only sinks and unsupported event notification delivery.
+
+### Removed
+
+* Removed the duplicated local Sink schema and deprecated local generic error response components.
+
+**Full Changelog**: https://github.com/camaraproject/ClickToDial/compare/r2.1...r2.2
 
 # r2.1
 
