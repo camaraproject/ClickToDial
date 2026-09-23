@@ -89,7 +89,7 @@ curl -X GET "{apiRoot}/calls/{callId}/recording" \
 
 - **Number Format:** All phone numbers (caller, callee) must be in E.164 format, e.g., "+447700900000".
 - **Authentication:** Use OpenID Connect; include your access token as a Bearer token.
-- **Status Codes:** 201 = created (POST /calls), 200 = success for reads, 204 = no content (DELETE /calls/{callId}), 400 = bad input, 401 = unauthorized, 403 = forbidden, 404 = not found, 409 = conflict, 422 = validation error.
+- **Errors:** Refer to the [OpenAPI definition](../../code/API_definitions/click-to-dial.yaml) for the operation-specific HTTP status codes and CAMARA error codes.
 - **Debugging:** Error responses include a code and description/message.
 
 ## 3\. Authentication and Authorization
@@ -202,7 +202,7 @@ The `recordingResult` in the final callback event helps indicate whether a recor
 
 ### 4.4 Errors
 
-Errors follow the standard format:
+Error responses use the standard CAMARA `ErrorInfo` structure:
 
 ```json
 {
@@ -212,31 +212,7 @@ Errors follow the standard format:
 }
 ```
 
-Reference the [OpenAPI YAML](../../code/API_definitions/click-to-dial.yaml) for exact error codes and descriptions.
-
-#### 4.4.1 422 — Business error codes (Unprocessable Entity)
-
-When a request is syntactically correct but semantically invalid, the API returns `422 Unprocessable Entity` with a business `code` describing the error. The following 422 business error codes are defined in the OpenAPI spec:
-
-| Code | Description |
-| ---- | ----------- |
-| `INVALID_PHONE_NUMBER` | Caller or callee number is not a valid E.164 phone number. |
-| `SAME_CALLER_CALLEE` | Caller and callee cannot be the same number. |
-| `RECORDING_NOT_SUPPORTED` | Recording is not supported for this call. |
-| `CALLER_NOT_AVAILABLE` | Caller number is currently not reachable or not allowed to start a call. |
-| `CALLEE_NOT_AVAILABLE` | Callee number is currently not reachable or not allowed to receive a call. |
-
-Example 422 response:
-
-```json
-{
-  "status": 422,
-  "code": "INVALID_PHONE_NUMBER",
-  "message": "Caller or callee number is not a valid E.164 phone number."
-}
-```
-
-Note: Additional common CAMARA error responses may be defined in the `CAMARA_common.yaml` referenced by this API's readiness checklist. Always consult the OpenAPI YAML for the authoritative list.
+The [OpenAPI definition](../../code/API_definitions/click-to-dial.yaml) is the authoritative source for the operation-specific HTTP status codes and CAMARA error codes supported by this API.
 
 ## CloudEvent delivery notes
 
