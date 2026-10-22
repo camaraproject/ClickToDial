@@ -33,7 +33,7 @@ curl -X POST "{apiRoot}/calls" \
       "sinkCredential": {
         "credentialType": "ACCESSTOKEN",
         "accessToken": "{sink_access_token}",
-        "accessTokenExpiresUtc": "2025-12-31T23:59:59Z",
+        "accessTokenExpiresUtc": "2027-12-31T23:59:59Z",
         "accessTokenType": "bearer"
       },
       "recordingEnabled": true
@@ -154,7 +154,7 @@ The SinkCredential is a discriminator-based object defined by CAMARA Commonaliti
 | --------------------- | --------------------------------------------- | -------- | ---------------------- |
 | credentialType        | Must be `ACCESSTOKEN` (discriminator)         | Yes      | `ACCESSTOKEN`          |
 | accessToken           | Access token used to authenticate event POSTs | Yes      | `sink_token`           |
-| accessTokenExpiresUtc | UTC expiry timestamp for the access token     | Yes      | `2025-12-31T23:59:59Z` |
+| accessTokenExpiresUtc | UTC expiry timestamp for the access token     | Yes      | `2027-12-31T23:59:59Z` |
 | accessTokenType       | Token type (OAuth token type)                 | Yes      | `bearer`               |
 
 ##### Click to Dial Status Notify (callback payload)
@@ -252,11 +252,14 @@ Example CloudEvent (structured mode) — `CALL_STATUS_CHANGED_EXAMPLE` from the 
 ### Callback Authentication, Retries, and Resilience
 
 * **Optional callback authentication**: `sinkCredential` is optional in the CAMARA implicit subscription model. Without it, notifications can be delivered to an HTTPS `sink` that does not require Bearer authentication. When a credential is provided, the provider MUST use the specified authentication mechanism; for `ACCESSTOKEN`, it MUST set `Authorization: Bearer <accessToken>` using the supplied token. Authenticated callbacks are recommended for production. The callback runs from Provider to Consumer; creating a call still requires the Consumer's OAuth/OpenID access token for the Provider API.
+* **Token lifetime (`ACCESSTOKEN`)**: `accessTokenExpiresUtc` is the absolute UTC timestamp at which the access token shall be considered expired. Token expiration SHOULD occur after the end of the call's lifetime, allowing the consumer to receive notifications throughout the call. If the token expires while the call is still active, the consumer will stop receiving notifications, as specified in [Commonalities r4.4 Event Guide §3.4](https://github.com/camaraproject/Commonalities/blob/r4.4/documentation/CAMARA-API-Event-Subscription-and-Notification-Guide.md#34-subscription-ended-event).
 * **Subscription and sink echo**: Without `sink`, no implicit notification subscription is created. If a supplied `sink` is accepted, the 201 response MUST echo the same URL, and subsequent `GET /calls/{callId}` responses return the registered sink. Call responses do not return `sinkCredential`, access tokens, or other credential secrets. If notification delivery is unsupported, the existing `422 EVENT_NOTIFICATIONS_NOT_SUPPORTED` response applies and no call is created.
 * **Consumer verification**: Callbacks without authentication risk forged events and spoofed call state. Consumers SHOULD validate the CloudEvent `id`, `time`, `source`, `type`, and event schema, and handle duplicates and replay according to their policy. Bearer authentication alone does not prevent all replay attacks. Do not trigger sensitive or irreversible actions solely from an unverified callback; use `GET /calls/{callId}` to confirm authoritative state when needed.
 * **Delivery Retries**: Providers SHOULD ensure event `id` uniqueness. Transient callback delivery failures (e.g., connection timeouts, DNS resolution failures, or receiving `5xx` server error responses from the client's `sink` URL) may be retried by the provider according to its internal retry and backoff policy.
 * **Session Resilience**: A callback delivery failure does **not** roll back or cancel a successfully created call session. The call session will continue to be processed and connected normally.
 * **State Reconciliation**: API consumers can actively reconcile the call session state at any time by calling `GET /calls/{callId}` to retrieve the current status of the call. This is particularly useful if status notification events are delayed or fail to be delivered.
+
+The shared r4.4 `AccessTokenCredential.accessTokenExpiresUtc` schema description still refers to explicit-subscription `ACCESS_TOKEN_EXPIRED` termination notifications. CTD uses the call-specific implicit-subscription guidance above; the shared credential schema is reused unchanged.
 
 ## Call flow (sequence diagram)
 
@@ -300,7 +303,7 @@ curl -X POST "{apiRoot}/calls" \
     "sinkCredential": {
       "credentialType": "ACCESSTOKEN",
       "accessToken": "{sink_access_token}",
-      "accessTokenExpiresUtc": "2025-12-31T23:59:59Z",
+      "accessTokenExpiresUtc": "2027-12-31T23:59:59Z",
       "accessTokenType": "bearer"
     }
   }'
