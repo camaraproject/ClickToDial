@@ -119,10 +119,13 @@ paths:
               parameters:
                 - $ref: "../common/CAMARA_common.yaml#/components/parameters/x-correlator"
               security:
+                - {}
                 - notificationsBearerAuth: []
               description: |
                 Event notification delivered to the sink URL when the call status
                 changes (CloudEvents structured mode).
+                The sink uses HTTPS and may accept notifications without Bearer authentication when no `sinkCredential` was provided.
+                If `sinkCredential` was provided, the provider uses the specified authentication mechanism.
               requestBody:
                 required: true
                 content:
@@ -134,7 +137,7 @@ paths:
                         $ref: '#/components/examples/CALL_STATUS_CHANGED_EXAMPLE'
               responses:
                 '2XX':
-                  description: Event successfully received by the sink.
+                  description: Event successfully received by the sink, including 204 No Content.
                   headers:
                     x-correlator:
                       $ref: "../common/CAMARA_common.yaml#/components/headers/x-correlator"
@@ -144,6 +147,10 @@ paths:
                   $ref: '../common/CAMARA_common.yaml#/components/responses/Unauthenticated401'
                 '403':
                   $ref: '../common/CAMARA_common.yaml#/components/responses/PermissionDenied403'
+                '410':
+                  $ref: '../common/CAMARA_event_common.yaml#/components/responses/SinkGone410'
+                '429':
+                  $ref: '../common/CAMARA_common.yaml#/components/responses/TooManyRequests429'
   /calls/{callId}:
     get:
       tags:
@@ -294,6 +301,13 @@ components:
           $ref: '#/components/schemas/CallStatus'
         createdAt:
           $ref: '../common/CAMARA_common.yaml#/components/schemas/DateTime'
+        sink:
+          description: |
+            The HTTPS notification endpoint registered for this call, if any.
+            When provided and accepted during call creation, the same sink MUST be returned in the 201 response and subsequent GET responses.
+            Notification credentials and other secrets are not returned in the Call resource.
+          allOf:
+            - $ref: '../common/CAMARA_event_common.yaml#/components/schemas/Sink'
         recordingEnabled:
           type: boolean
           description: Whether recording is enabled for this call.
@@ -308,6 +322,7 @@ components:
       description: |
         Request to create a new Click to Dial call session.
         If a `sink` URL is provided, status notifications (CloudEvents in structured mode) will be delivered to it.
+        Without `sink`, no implicit event subscription is created. `sinkCredential` is optional; without it, the HTTPS sink does not require Bearer authentication.
         If a `sinkCredential` of type `ACCESSTOKEN` is provided, the access token is used as a Bearer token in the `Authorization` header during event delivery.
         Callback delivery failure does not roll back or cancel a successfully created call session; API consumers can query `GET /calls/{callId}` to reconcile state.
       type: object

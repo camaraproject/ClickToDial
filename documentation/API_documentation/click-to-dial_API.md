@@ -49,6 +49,7 @@ curl -X POST "{apiRoot}/calls" \
   "callee": { "number": "+447700900123" },
   "status": "initiating",
   "createdAt": "2025-12-11T12:00:00Z",
+  "sink": "https://yourapp.example.com/clicktodialstatusnotify",
   "recordingEnabled": true
 }
 ```
@@ -250,7 +251,9 @@ Example CloudEvent (structured mode) — `CALL_STATUS_CHANGED_EXAMPLE` from the 
 
 ### Callback Authentication, Retries, and Resilience
 
-* **Authentication**: When delivering events to a client's `sink` URL that requires authentication, the provider MUST use the provided `sinkCredential`. If the credential type is `ACCESSTOKEN`, the provider MUST set the HTTP `Authorization` header to `Authorization: Bearer <accessToken>` (using the value of the `accessToken` field from the request).
+* **Optional callback authentication**: `sinkCredential` is optional in the CAMARA implicit subscription model. Without it, notifications can be delivered to an HTTPS `sink` that does not require Bearer authentication. When a credential is provided, the provider MUST use the specified authentication mechanism; for `ACCESSTOKEN`, it MUST set `Authorization: Bearer <accessToken>` using the supplied token. Authenticated callbacks are recommended for production. The callback runs from Provider to Consumer; creating a call still requires the Consumer's OAuth/OpenID access token for the Provider API.
+* **Subscription and sink echo**: Without `sink`, no implicit notification subscription is created. If a supplied `sink` is accepted, the 201 response MUST echo the same URL, and subsequent `GET /calls/{callId}` responses return the registered sink. Call responses do not return `sinkCredential`, access tokens, or other credential secrets. If notification delivery is unsupported, the existing `422 EVENT_NOTIFICATIONS_NOT_SUPPORTED` response applies and no call is created.
+* **Consumer verification**: Callbacks without authentication risk forged events and spoofed call state. Consumers SHOULD validate the CloudEvent `id`, `time`, `source`, `type`, and event schema, and handle duplicates and replay according to their policy. Bearer authentication alone does not prevent all replay attacks. Do not trigger sensitive or irreversible actions solely from an unverified callback; use `GET /calls/{callId}` to confirm authoritative state when needed.
 * **Delivery Retries**: Providers SHOULD ensure event `id` uniqueness. Transient callback delivery failures (e.g., connection timeouts, DNS resolution failures, or receiving `5xx` server error responses from the client's `sink` URL) may be retried by the provider according to its internal retry and backoff policy.
 * **Session Resilience**: A callback delivery failure does **not** roll back or cancel a successfully created call session. The call session will continue to be processed and connected normally.
 * **State Reconciliation**: API consumers can actively reconcile the call session state at any time by calling `GET /calls/{callId}` to retrieve the current status of the call. This is particularly useful if status notification events are delayed or fail to be delivered.
