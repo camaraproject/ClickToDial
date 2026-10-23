@@ -3,6 +3,8 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     #
     # Implementation indications:
     # * apiRoot: API root of the server URL
+    # * A notification-capable provider and monitored HTTPS sinks with and without Bearer authentication are needed for event scenarios.
+    # * These are declarative test definitions; subscription inspection and new absence assertions require implementation-specific step bindings.
     #
     # References to OAS spec schemas refer to schemas specified in click-to-dial.yaml
 
@@ -22,6 +24,8 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
   Scenario: Common validations for createCall success scenario
     Given the request property "$.caller" is set to a valid caller number in E.164 format
     And the request property "$.callee" is set to a valid callee number in E.164 format
+    And the request property "$.sink" is removed from the request body
+    And the request property "$.sinkCredential" is removed from the request body
     When the request "createCall" is sent
     Then the response status code is 201
     And the response header "Content-Type" is "application/json"
@@ -30,20 +34,44 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response property "$.callId" exists
     And the response property "$.caller" has the same value as createCall request property "$.caller"
     And the response property "$.callee" has the same value as createCall request property "$.callee"
+    And the response property "$.sink" does not exist
+    And no implicit event subscription is created for the call
 
   @createcall_event_notification
   Scenario: Events are received when sink and access token credential are provided
     Given the request property "$.caller" is set to a valid caller number in E.164 format
     And the request property "$.callee" is set to a valid callee number in E.164 format
-    And the request property "$.sink" is set to a URL where events can be monitored
+    And the request property "$.sink" is set to a valid HTTPS URL where events can be monitored
     And the request property "$.sinkCredential.credentialType" is set to "ACCESSTOKEN"
     And the request property "$.sinkCredential.accessTokenType" is set to "bearer"
     And the request property "$.sinkCredential.accessToken" is set to a valid access token accepted by the events receiver
     And the request property "$.sinkCredential.accessTokenExpiresUtc" is set to a future RFC3339 timestamp
     When the request "createCall" is sent
     Then the response status code is 201
+    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response property "$.sink" has the same value as createCall request property "$.sink"
+    And the response property "$.sinkCredential" does not exist
+    And the response property "$.accessToken" does not exist
+    And the response body does not contain the sink credential access token
     And an event is received at the address of the request property "$.sink"
     And the event header "Authorization" is set to "Bearer " + the value of the request property "$.sinkCredential.accessToken"
+    And the event header "Content-Type" is "application/cloudevents+json"
+    And the event body complies with the OAS schema at "#/components/schemas/CallStatusChangedEvent"
+
+  @createcall_event_notification_without_credential
+  Scenario: Events are received when sink is provided without sinkCredential
+    Given the request property "$.caller" is set to a valid caller number in E.164 format
+    And the request property "$.callee" is set to a valid callee number in E.164 format
+    And the request property "$.sink" is set to a valid HTTPS URL where events can be monitored without Bearer authentication
+    And the request property "$.sinkCredential" is removed from the request body
+    When the request "createCall" is sent
+    Then the response status code is 201
+    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response property "$.sink" has the same value as createCall request property "$.sink"
+    And the response property "$.sinkCredential" does not exist
+    And the response property "$.accessToken" does not exist
+    And an event is received at the address of the request property "$.sink"
+    And the event header "Authorization" does not exist
     And the event header "Content-Type" is "application/cloudevents+json"
     And the event body complies with the OAS schema at "#/components/schemas/CallStatusChangedEvent"
 

@@ -3,6 +3,8 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     #
     # Implementation indications:
     # * apiRoot: API root of the server URL
+    # * The registered-sink scenario needs a call created with a monitored HTTPS sink and an accepted ACCESSTOKEN sinkCredential.
+    # * These are declarative test definitions; the registered-sink setup and new absence assertions require implementation-specific step bindings.
     #
     # References to OAS spec schemas refer to schemas specified in click-to-dial.yaml
 
@@ -25,6 +27,21 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     And the response header "Content-Type" is "application/json"
     And the response header "x-correlator" has the same value as the request header "x-correlator"
     And the response body complies with the OAS schema at "/components/schemas/Call"
+
+  @getcall_success_registered_sink
+  Scenario: Get call details preserves the registered sink without exposing credentials
+    Given a valid call identifier obtained from a previous createCall response
+    And that call was created with a registered HTTPS sink and an accepted ACCESSTOKEN sinkCredential
+    And the request path parameter "callId" is set to that identifier
+    When the request "getCall" is sent
+    Then the response status code is 200
+    And the response header "Content-Type" is "application/json"
+    And the response header "x-correlator" has the same value as the request header "x-correlator"
+    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response property "$.sink" has the same value as createCall request property "$.sink"
+    And the response property "$.sinkCredential" does not exist
+    And the response property "$.accessToken" does not exist
+    And the response body does not contain the sink credential access token
 
   @getcall_failure_malformed_callid
   Scenario: Fail to get call details due to malformed callId path parameter
