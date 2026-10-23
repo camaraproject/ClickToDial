@@ -69,19 +69,27 @@ Changes documented below are compared to version 0.1.0.
 
 ### Breaking changes
 
-* N/A
+* Restricted `CreateCallRequest.sink` to HTTPS URLs only. Requests containing a non-HTTPS sink are rejected with `400 INVALID_ARGUMENT`.
+* Added `410 SinkGone410` and `429 TooManyRequests429` as documented responses for the callback operation.
 
 ### Added
 
-* N/A
+* Added `EVENT_NOTIFICATIONS_NOT_SUPPORTED` as a `422` error when `POST /calls` includes a `sink` but the provider does not support event notification delivery. No call resource is created in this case.
+* Added the optional `sink` property to the `Call` resource. An accepted sink URL is returned by `POST /calls` and subsequent `GET /calls/{callId}` responses. Credentials and access tokens are never returned.
 
 ### Changed
 
-* N/A
+* Restricted `CreateCallRequest.sink` to HTTPS URLs only, rejecting non-HTTPS values with `400 INVALID_ARGUMENT`.
+* Clarified callback authentication: `sinkCredential` is optional. When omitted, notifications may be delivered to an HTTPS sink without Bearer authentication. When a credential is provided, the specified authentication mechanism is used. Authentication for API requests remains unchanged.
+* Added the `410 SinkGone410` and `429 TooManyRequests429` callback responses.
+* Clarified `accessTokenExpiresUtc` semantics: token expiration SHOULD occur after the call's lifetime. If the token expires while the call is active, notifications stop.
+* Clarified the aggregate call lifecycle, recording availability conditions, callback delivery failure behavior, and state reconciliation through `GET /calls/{callId}`.
+* Aligned the API definition and documentation with Commonalities r4.4, including callback behavior and reusable error response definitions.
 
 ### Fixed
 
-* N/A
+* Added the `x-correlator` request header to callback notifications and the corresponding header to successful callback responses.
+* Corrected API documentation and examples to align with the OpenAPI definition and Commonalities, including authentication guidance and CloudEvents details.
 
 ### Removed
 
