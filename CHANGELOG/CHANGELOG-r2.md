@@ -76,6 +76,7 @@ Changes documented below are compared to version 0.1.0.
 
 * Added `EVENT_NOTIFICATIONS_NOT_SUPPORTED` as a `422` error when `POST /calls` includes a `sink` but the provider does not support event notification delivery. No call resource is created in this case.
 * Added the optional `sink` property to the `Call` resource. An accepted sink URL is returned by `POST /calls` and subsequent `GET /calls/{callId}` responses. Credentials and access tokens are never returned.
+* Added detailed user stories and acceptance criteria for creating calls with status notifications, terminating active calls, and retrieving recordings when available.
 
 ### Changed
 
