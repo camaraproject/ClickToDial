@@ -136,8 +136,8 @@ paths:
                       CALL_STATUS_CHANGED_EXAMPLE:
                         $ref: '#/components/examples/CALL_STATUS_CHANGED_EXAMPLE'
               responses:
-                '2XX':
-                  description: Event successfully received by the sink, including 204 No Content.
+                '204':
+                  description: Event successfully received by the sink.
                   headers:
                     x-correlator:
                       $ref: "../common/CAMARA_common.yaml#/components/headers/x-correlator"
@@ -194,6 +194,9 @@ paths:
       summary: Terminate an active call
       description: |
         Terminates an active Click to Dial call session identified by the given callId.
+        Successful termination ends the voice session but does not immediately delete the Call resource. It remains queryable with status `disconnected` while retained by the provider.
+        If the Call resource does not exist or is no longer retained, the API returns `404 NOT_FOUND`.
+        If the resource still exists but its state does not allow termination (for example, `disconnected` or `failed`), the API returns `409 INCOMPATIBLE_STATE`.
       operationId: terminateCall
       security:
         - openId:
@@ -221,7 +224,7 @@ paths:
         '404':
           $ref: '../common/CAMARA_common.yaml#/components/responses/NotFound404'
         '409':
-          $ref: '../common/CAMARA_common.yaml#/components/responses/AlreadyExists409'
+          $ref: '#/components/responses/TerminateCallConflict409'
 
   /calls/{callId}/recording:
     get:
@@ -231,7 +234,7 @@ paths:
       description: |
         Retrieve the recording associated with the given callId.
         A recording can be retrieved successfully only if recording was explicitly enabled during creation (`recordingEnabled: true`), is supported by the provider, the call session has completed, and a recording was actually generated.
-        If no recording is available, the API returns `404 Not Found` with the code `NOT_FOUND` (or `422 RECORDING_NOT_SUPPORTED` during call creation if the provider immediately knows recording cannot be enabled).
+        If no recording is available, the API returns `404 Not Found` with the code `NOT_FOUND` (or `422 CLICK_TO_DIAL.RECORDING_NOT_SUPPORTED` during call creation if the provider immediately knows recording cannot be enabled).
       operationId: getRecording
       security:
         - openId:
@@ -310,7 +313,10 @@ components:
             - $ref: '../common/CAMARA_event_common.yaml#/components/schemas/Sink'
         recordingEnabled:
           type: boolean
-          description: Whether recording is enabled for this call.
+          description: |
+            Whether recording is enabled for this call. When enabled, this property is true.
+            If omitted, recording is not enabled, equivalent to false.
+          default: false
       required:
         - callId
         - caller
@@ -340,7 +346,10 @@ components:
           $ref: '#/components/schemas/SinkCredential'
         recordingEnabled:
           type: boolean
-          description: Whether call recording is enabled.
+          description: |
+            Set to true to request call recording.
+            If false or omitted, recording is not enabled.
+          default: false
       required:
         - caller
         - callee
@@ -403,7 +412,13 @@ components:
             - audio/mpeg
             - audio/ogg
         generatedAt:
-          $ref: '../common/CAMARA_common.yaml#/components/schemas/DateTime'
+          description: |
+            Time at which the recording file was generated.
+            If omitted, the recording is available but its generation time was not provided or is unavailable.
+            Its omission does not affect the required content and contentType properties.
+            It must follow [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) and must have time zone.
+          allOf:
+            - $ref: '../common/CAMARA_common.yaml#/components/schemas/DateTime'
       required:
         - callId
         - content
@@ -515,6 +530,32 @@ components:
       example: '1600'
 
   responses:
+    TerminateCallConflict409:
+      description: The Call resource exists, but its state does not allow termination.
+      headers:
+        x-correlator:
+          $ref: '#/components/headers/x-correlator'
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../common/CAMARA_common.yaml#/components/schemas/ErrorInfo'
+              - type: object
+                properties:
+                  status:
+                    enum:
+                      - 409
+                  code:
+                    enum:
+                      - INCOMPATIBLE_STATE
+          examples:
+            GENERIC_409_INCOMPATIBLE_STATE:
+              description: An existing call has already ended and cannot be terminated again.
+              value:
+                status: 409
+                code: INCOMPATIBLE_STATE
+                message: The call is in state disconnected and cannot be terminated.
+
     UnprocessableEntity422:
       description: Unprocessable Entity
       headers:
@@ -536,37 +577,37 @@ components:
                       - MISSING_IDENTIFIER
                       - UNSUPPORTED_IDENTIFIER
                       - UNNECESSARY_IDENTIFIER
-                      - INVALID_PHONE_NUMBER
-                      - SAME_CALLER_CALLEE
-                      - RECORDING_NOT_SUPPORTED
-                      - CALLER_NOT_AVAILABLE
-                      - CALLEE_NOT_AVAILABLE
+                      - CLICK_TO_DIAL.INVALID_PHONE_NUMBER
+                      - CLICK_TO_DIAL.SAME_CALLER_CALLEE
+                      - CLICK_TO_DIAL.RECORDING_NOT_SUPPORTED
+                      - CLICK_TO_DIAL.CALLER_NOT_AVAILABLE
+                      - CLICK_TO_DIAL.CALLEE_NOT_AVAILABLE
                       - EVENT_NOTIFICATIONS_NOT_SUPPORTED
           examples:
             INVALID_PHONE_NUMBER:
               value:
                 status: 422
-                code: INVALID_PHONE_NUMBER
+                code: CLICK_TO_DIAL.INVALID_PHONE_NUMBER
                 message: Caller or callee number is not a valid E.164 phone number.
             SAME_CALLER_CALLEE:
               value:
                 status: 422
-                code: SAME_CALLER_CALLEE
+                code: CLICK_TO_DIAL.SAME_CALLER_CALLEE
                 message: Caller and callee cannot be the same number.
             RECORDING_NOT_SUPPORTED:
               value:
                 status: 422
-                code: RECORDING_NOT_SUPPORTED
+                code: CLICK_TO_DIAL.RECORDING_NOT_SUPPORTED
                 message: Recording is not supported for this call.
             CALLER_NOT_AVAILABLE:
               value:
                 status: 422
-                code: CALLER_NOT_AVAILABLE
+                code: CLICK_TO_DIAL.CALLER_NOT_AVAILABLE
                 message: Caller number is currently not reachable or not allowed to start a call.
             CALLEE_NOT_AVAILABLE:
               value:
                 status: 422
-                code: CALLEE_NOT_AVAILABLE
+                code: CLICK_TO_DIAL.CALLEE_NOT_AVAILABLE
                 message: Callee number is currently not reachable or not allowed to receive a call.
             EVENT_NOTIFICATIONS_NOT_SUPPORTED:
               $ref: '../common/CAMARA_event_common.yaml#/components/examples/GENERIC_422_EVENT_NOTIFICATIONS_NOT_SUPPORTED'

@@ -90,7 +90,8 @@
   4. The provider sends a final `CallStatusChangedEvent` with state `disconnected` and reason `hangUp` (or other appropriate reason) to the configured `sink` URL.
 * **Acceptance Criteria**:
   * The API response is `204 No Content`.
-  * Any subsequent `GET /calls/{callId}` returns details with status `disconnected`.
+  * Subsequent `GET /calls/{callId}` returns details with status `disconnected` while the Call resource is retained by the provider.
+  * A further termination request for an existing call in `disconnected` or `failed` state returns `409 INCOMPATIBLE_STATE`; an unknown or no-longer-retained Call resource returns `404 NOT_FOUND`.
   * A final status notification is sent with `disconnected` state.
 
 ### Use Case 3: Retrieve recording after a completed recorded call
