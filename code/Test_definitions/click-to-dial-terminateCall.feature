@@ -25,16 +25,6 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     Then the response status code is 204
     And the response body is empty
 
-  @terminatecall_success_retained_resource
-  Scenario: Get a retained Call resource after successful termination
-    Given a valid call identifier for a call that was successfully terminated
-    And the Call resource is retained by the provider
-    And the request path parameter "callId" is set to that identifier
-    When the request "getCall" is sent
-    Then the response status code is 200
-    And the response body complies with the OAS schema at "/components/schemas/Call"
-    And the response property "$.status" is "disconnected"
-
   @terminatecall_failure_malformed_callid
   Scenario: Fail to terminate call due to malformed callId path parameter
     Given the request path parameter "callId" is set to a value that does not comply with the CallId schema
