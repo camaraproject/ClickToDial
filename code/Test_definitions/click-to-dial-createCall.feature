@@ -4,6 +4,8 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     # Implementation indications:
     # * apiRoot: API root of the server URL
     # * A notification-capable provider and monitored HTTPS sinks with and without Bearer authentication are needed for event scenarios.
+    # * Event receivers acknowledge successful notifications with 204 and no response body.
+    # * The authorization scenario requires a valid token without click-to-dial:calls:create and otherwise valid caller/callee test data.
     # * These are declarative test definitions; subscription inspection and new absence assertions require implementation-specific step bindings.
     #
     # References to OAS spec schemas refer to schemas specified in click-to-dial.yaml
@@ -21,11 +23,12 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     # Success scenarios
 
   @createcall_success
-  Scenario: Common validations for createCall success scenario
+  Scenario: Create a call with recording disabled by default
     Given the request property "$.caller" is set to a valid caller number in E.164 format
     And the request property "$.callee" is set to a valid callee number in E.164 format
     And the request property "$.sink" is removed from the request body
     And the request property "$.sinkCredential" is removed from the request body
+    And the request property "$.recordingEnabled" is removed from the request body
     When the request "createCall" is sent
     Then the response status code is 201
     And the response header "Content-Type" is "application/json"
@@ -35,7 +38,21 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response property "$.caller" has the same value as createCall request property "$.caller"
     And the response property "$.callee" has the same value as createCall request property "$.callee"
     And the response property "$.sink" does not exist
+    And the response property "$.recordingEnabled" is false or does not exist
     And no implicit event subscription is created for the call
+
+  @createcall_success_recording_disabled
+  Scenario: Create a call with recording explicitly disabled
+    Given the request property "$.caller" is set to a valid caller number in E.164 format
+    And the request property "$.callee" is set to a valid callee number in E.164 format
+    And the request property "$.sink" is removed from the request body
+    And the request property "$.sinkCredential" is removed from the request body
+    And the request property "$.recordingEnabled" is set to false
+    When the request "createCall" is sent
+    Then the response status code is 201
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response property "$.recordingEnabled" is false or does not exist
 
   @createcall_event_notification
   Scenario: Events are received when sink and access token credential are provided
@@ -133,6 +150,21 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response property "$.status" is 401
     And the response property "$.code" is "UNAUTHENTICATED"
 
+  @createcall_failure_authorization
+  Scenario: Fail to initiate call due to insufficient permission
+    Given a valid authentication token with insufficient permissions
+    And the request property "$.caller" is set to a valid caller number in E.164 format
+    And the request property "$.callee" is set to a valid callee number in E.164 format
+    And the request property "$.sink" is removed from the request body
+    And the request property "$.sinkCredential" is removed from the request body
+    And the request property "$.recordingEnabled" is set to false
+    When the request "createCall" is sent
+    Then the response status code is 403
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 403
+    And the response property "$.code" is "PERMISSION_DENIED"
+
   @createcall_failure_invalid_caller
   Scenario: Fail to initiate call due to invalid caller number format in createCall request
     Given the request property "$.caller.number" is set to an invalid phone number (not in E.164 format)
@@ -142,7 +174,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
-    And the response property "$.code" is "INVALID_PHONE_NUMBER"
+    And the response property "$.code" is "CLICK_TO_DIAL.INVALID_PHONE_NUMBER"
 
   @createcall_failure_invalid_callee
   Scenario: Fail to initiate call due to invalid callee number format in createCall request
@@ -153,7 +185,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
-    And the response property "$.code" is "INVALID_PHONE_NUMBER"
+    And the response property "$.code" is "CLICK_TO_DIAL.INVALID_PHONE_NUMBER"
 
   @createcall_failure_same_caller_callee
   Scenario: Fail to initiate call when caller and callee numbers are the same
@@ -164,7 +196,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
-    And the response property "$.code" is "SAME_CALLER_CALLEE"
+    And the response property "$.code" is "CLICK_TO_DIAL.SAME_CALLER_CALLEE"
 
   @createcall_failure_unknown_property
   Scenario: Fail to initiate call due to unknown additional property in request body
@@ -189,7 +221,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
-    And the response property "$.code" is "RECORDING_NOT_SUPPORTED"
+    And the response property "$.code" is "CLICK_TO_DIAL.RECORDING_NOT_SUPPORTED"
 
   @createcall_failure_caller_not_available
   Scenario: Fail to initiate call when the caller is not available
@@ -201,7 +233,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
-    And the response property "$.code" is "CALLER_NOT_AVAILABLE"
+    And the response property "$.code" is "CLICK_TO_DIAL.CALLER_NOT_AVAILABLE"
 
   @createcall_failure_callee_not_available
   Scenario: Fail to initiate call when the callee is not available
@@ -213,7 +245,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
-    And the response property "$.code" is "CALLEE_NOT_AVAILABLE"
+    And the response property "$.code" is "CLICK_TO_DIAL.CALLEE_NOT_AVAILABLE"
 
   @createcall_failure_invalid_sink
   Scenario: Fail to initiate call due to a non-HTTPS sink URI

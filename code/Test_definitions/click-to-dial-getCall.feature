@@ -3,6 +3,8 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     #
     # Implementation indications:
     # * apiRoot: API root of the server URL
+    # * getCall requests require click-to-dial:calls:read; terminateCall setup credentials must not replace this read authorization.
+    # * The retained-after-termination scenario needs a Call successfully terminated during setup and still retained by the provider.
     # * The registered-sink scenario needs a call created with a monitored HTTPS sink and an accepted ACCESSTOKEN sinkCredential.
     # * These are declarative test definitions; the registered-sink setup and new absence assertions require implementation-specific step bindings.
     #
@@ -11,7 +13,6 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
   Background: Common getCall setup
     Given an environment at "apiRoot"
     And the resource "/click-to-dial/vwip/calls/{callId}"
-    And the header "Content-Type" is set to "application/json"
     And the header "Authorization" is set to a valid access token
     And the header "x-correlator" is set to a valid UUID
     And the header "x-correlator" complies with the schema at "#/components/schemas/XCorrelator"
@@ -27,6 +28,16 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     And the response header "Content-Type" is "application/json"
     And the response header "x-correlator" has the same value as the request header "x-correlator"
     And the response body complies with the OAS schema at "/components/schemas/Call"
+
+  @getcall_success_retained_after_termination
+  Scenario: Get a retained Call resource after successful termination
+    Given a valid call identifier for a call that was successfully terminated
+    And the Call resource is retained by the provider
+    And the request path parameter "callId" is set to that identifier
+    When the request "getCall" is sent
+    Then the response status code is 200
+    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response property "$.status" is "disconnected"
 
   @getcall_success_registered_sink
   Scenario: Get call details preserves the registered sink without exposing credentials

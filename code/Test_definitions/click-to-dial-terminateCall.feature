@@ -3,13 +3,13 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     #
     # Implementation indications:
     # * apiRoot: API root of the server URL
+    # * Final-state scenarios require retained Call resources; the removed-resource scenario requires a resource that is no longer retained.
     #
     # References to OAS spec schemas refer to schemas specified in click-to-dial.yaml
 
   Background: Common terminateCall setup
     Given an environment at "apiRoot"
     And the resource "/click-to-dial/vwip/calls/{callId}"
-    And the header "Content-Type" is set to "application/json"
     And the header "Authorization" is set to a valid access token
     And the header "x-correlator" is set to a valid UUID
     And the header "x-correlator" complies with the schema at "#/components/schemas/XCorrelator"
@@ -19,9 +19,11 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
   @terminatecall_success
   Scenario: Terminate call successfully
     Given a valid call identifier obtained from a previous createCall response
+    And the call is active and can be terminated
     And the request path parameter "callId" is set to that identifier
     When the request "terminateCall" is sent
     Then the response status code is 204
+    And the response body is empty
 
   @terminatecall_failure_malformed_callid
   Scenario: Fail to terminate call due to malformed callId path parameter
@@ -66,11 +68,27 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     And the response property "$.code" is "NOT_FOUND"
 
   @terminatecall_failure_conflict
-  Scenario: Fail to terminate call due to conflicting state
-    Given a call identifier for a call in a state that cannot be terminated (already ended or conflicting state)
+  Scenario Outline: Fail to terminate an existing retained call in a final state
+    Given a call identifier for an existing retained call in state "<state>"
     And the request path parameter "callId" is set to that identifier
     When the request "terminateCall" is sent
     Then the response status code is 409
     And the response header "Content-Type" is "application/json"
     And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
     And the response property "$.status" is 409
+    And the response property "$.code" is "INCOMPATIBLE_STATE"
+
+    Examples:
+      | state        |
+      | disconnected |
+      | failed       |
+
+  @terminatecall_failure_removed_call
+  Scenario: Fail to terminate a call whose resource is no longer retained
+    Given the request path parameter "callId" is set to a well-formed callId for a resource that is no longer retained
+    When the request "terminateCall" is sent
+    Then the response status code is 404
+    And the response header "Content-Type" is "application/json"
+    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response property "$.status" is 404
+    And the response property "$.code" is "NOT_FOUND"
