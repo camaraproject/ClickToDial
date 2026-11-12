@@ -1,4 +1,4 @@
-Feature: CAMARA Click to Dial API, vwip - Operation getCall
+Feature: CAMARA Click to Dial API, v0.2.0 - Operation getCall
     # Input to be provided by the implementation to the tester
     #
     # Implementation indications:
@@ -12,7 +12,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
 
   Background: Common getCall setup
     Given an environment at "apiRoot"
-    And the resource "/click-to-dial/vwip/calls/{callId}"
+    And the resource "/click-to-dial/v0.2/calls/{callId}"
     And the header "Authorization" is set to a valid access token
     And the header "x-correlator" is set to a valid UUID
     And the header "x-correlator" complies with the schema at "#/components/schemas/XCorrelator"
