@@ -70,23 +70,43 @@ Changes documented below are compared to version 0.1.0.
 
 ### Breaking changes
 
-* N/A
+* Restricted `CreateCallRequest.sink` to HTTPS URLs only. Non-HTTPS sink URLs are rejected with `400 INVALID_ARGUMENT`.
+* Restricted the successful callback acknowledgement response from the previously documented `2XX` range to an explicit `204 No Content`, without a response body.
+* Renamed the five ClickToDial-specific 422 error codes to `CLICK_TO_DIAL.INVALID_PHONE_NUMBER`, `CLICK_TO_DIAL.SAME_CALLER_CALLEE`, `CLICK_TO_DIAL.RECORDING_NOT_SUPPORTED`, `CLICK_TO_DIAL.CALLER_NOT_AVAILABLE`, and `CLICK_TO_DIAL.CALLEE_NOT_AVAILABLE`.
+* Changed the `409` error code for `terminateCall` from `ALREADY_EXISTS` to `INCOMPATIBLE_STATE` for retained Call resources in non-terminable states.
 
 ### Added
 
-* N/A
+* Added `422 EVENT_NOTIFICATIONS_NOT_SUPPORTED` for `POST /calls` when a `sink` is requested but the provider does not support event notification delivery. No Call resource is created.
+* Added the optional `sink` property to the Call resource. Accepted sink URLs are returned in the `POST /calls` response and subsequent `GET /calls/{callId}` responses without exposing credentials or access tokens.
+* Added detailed user stories and acceptance criteria for creating calls with status notifications, terminating active calls, and retrieving recordings when available.
+* Added enhanced Gherkin test scenarios for rainy-day and edge-case behavior across `createCall`, `getCall`, `terminateCall`, and `getRecording`, including HTTPS-only sinks, unsupported notifications, callbacks without `sinkCredential`, registered sink visibility without credentials, recording defaults, authorization failures, and termination conflict handling (#111, #122, #131, #144).
 
 ### Changed
 
-* N/A
+* Restricted `CreateCallRequest.sink` to HTTPS URLs only, rejecting non-HTTPS values with `400 INVALID_ARGUMENT`.
+* Required the consumer's sink to acknowledge successful callback notification receipt with `204 No Content`, without a response body, instead of the previously documented `2XX` response range.
+* Changed the five ClickToDial-specific 422 error codes to the `CLICK_TO_DIAL.` namespace. The shared Commonalities error `EVENT_NOTIFICATIONS_NOT_SUPPORTED` remains unchanged.
+* Changed `terminateCall` conflict handling to use `409 INCOMPATIBLE_STATE` for existing, retained Call resources that cannot be terminated. Unknown or no-longer-retained resources return `404 NOT_FOUND`.
+* Clarified callback authentication: `sinkCredential` is optional. Without it, an HTTPS sink may receive notifications without Bearer authentication. When a credential is provided, the provider uses the specified authentication mechanism. Authentication of consumer requests to the provider remains unchanged.
+* Documented `410 GONE` and `429 TOO_MANY_REQUESTS` as responses the consumer's sink may return to callback notifications.
+* Clarified `accessTokenExpiresUtc` semantics relative to the Call lifetime and the effect of token expiration on notification delivery.
+* Defined `recordingEnabled: false` as the default when the optional request property is omitted, and clarified the equivalent semantics for Call responses.
+* Clarified that `RecordingResource.generatedAt` is optional; its absence means that the generation time was not provided or is unavailable.
+* Clarified the aggregate Call lifecycle, recording availability, callback delivery failure behavior, and state reconciliation through `GET /calls/{callId}`.
+* Aligned the API definition and documentation with Commonalities r4.4, including callback behavior and reusable error response definitions.
 
 ### Fixed
 
-* N/A
+* Added the `x-correlator` request header to callback notifications and the corresponding header to successful callback responses.
+* Corrected API documentation and examples to align with the OpenAPI definition and Commonalities, including authentication guidance and CloudEvents details.
+* Fixed test definitions: replaced the obsolete `EventCTDStatusChanged` callback schema reference with `CallStatusChangedEvent`, corrected the expected event caller/callee number values, and removed the requirement for optional `generatedAt` in recording tests (#111).
+* Removed unnecessary request `Content-Type` requirements from GET and DELETE test scenarios, and added a `403 PERMISSION_DENIED` scenario for `createCall` (#144).
+* Updated termination and retained-resource query test scenarios to distinguish successful termination, retained final-state Call resources, and missing resources, with each query or termination scenario in its matching operation feature (#144).
 
 ### Removed
 
-* N/A
+* Removed the error codes `400 OUT_OF_RANGE` and `403 INVALID_TOKEN_CONTEXT` from the documented operation responses, and `404 IDENTIFIER_NOT_FOUND` from `getCall`, `terminateCall`, and `getRecording`, following the migration to Commonalities reusable error responses (#122).
 
 **Full Changelog**: https://github.com/camaraproject/ClickToDial/compare/r1.4...r2.3
 
