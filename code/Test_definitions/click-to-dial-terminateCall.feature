@@ -31,7 +31,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     When the request "terminateCall" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 400
     And the response property "$.code" is "INVALID_ARGUMENT"
 
@@ -42,7 +42,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     When the request "terminateCall" is sent
     Then the response status code is 401
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 401
     And the response property "$.code" is "UNAUTHENTICATED"
 
@@ -53,7 +53,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     When the request "terminateCall" is sent
     Then the response status code is 403
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 403
     And the response property "$.code" is "PERMISSION_DENIED"
 
@@ -63,7 +63,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     When the request "terminateCall" is sent
     Then the response status code is 404
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 404
     And the response property "$.code" is "NOT_FOUND"
 
@@ -74,7 +74,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     When the request "terminateCall" is sent
     Then the response status code is 409
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 409
     And the response property "$.code" is "INCOMPATIBLE_STATE"
 
@@ -89,6 +89,6 @@ Feature: CAMARA Click to Dial API, vwip - Operation terminateCall
     When the request "terminateCall" is sent
     Then the response status code is 404
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 404
     And the response property "$.code" is "NOT_FOUND"

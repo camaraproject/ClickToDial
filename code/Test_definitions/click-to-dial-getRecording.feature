@@ -23,7 +23,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getRecording
     Then the response status code is 200
     And the response header "Content-Type" is "application/json"
     # The response has to comply with the OAS schema for RecordingResource
-    And the response body complies with the OAS schema at "/components/schemas/RecordingResource"
+    And the response body complies with the OAS schema at "#/components/schemas/RecordingResource"
     And the response property "$.callId" has the same value as the request path parameter "callId"
     And the response property "$.content" exists
     And the response property "$.contentType" is "audio/wav" or "audio/mp3" or "audio/mpeg" or "audio/ogg"
@@ -34,7 +34,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getRecording
     When the request "getRecording" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 400
     And the response property "$.code" is "INVALID_ARGUMENT"
 
@@ -45,7 +45,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getRecording
     When the request "getRecording" is sent
     Then the response status code is 401
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 401
     And the response property "$.code" is "UNAUTHENTICATED"
 
@@ -56,7 +56,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getRecording
     When the request "getRecording" is sent
     Then the response status code is 403
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 403
     And the response property "$.code" is "PERMISSION_DENIED"
 
@@ -66,7 +66,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getRecording
     When the request "getRecording" is sent
     Then the response status code is 404
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 404
     And the response property "$.code" is "NOT_FOUND"
 
@@ -77,6 +77,6 @@ Feature: CAMARA Click to Dial API, vwip - Operation getRecording
     When the request "getRecording" is sent
     Then the response status code is 404
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 404
     And the response property "$.code" is "NOT_FOUND"
