@@ -18,7 +18,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the header "x-correlator" is set to a valid UUID
     And the header "x-correlator" complies with the schema at "#/components/schemas/XCorrelator"
     # Properties not explicitly overwritten in the Scenarios can take any values compliant with the schema
-    And the request body is set by default to a request body compliant with the schema at "/components/schemas/CreateCallRequest"
+    And the request body is set by default to a request body compliant with the schema at "#/components/schemas/CreateCallRequest"
 
     # Success scenarios
 
@@ -33,7 +33,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     Then the response status code is 201
     And the response header "Content-Type" is "application/json"
     # The response has to comply with the OAS schema for Call
-    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response body complies with the OAS schema at "#/components/schemas/Call"
     And the response property "$.callId" exists
     And the response property "$.caller" has the same value as createCall request property "$.caller"
     And the response property "$.callee" has the same value as createCall request property "$.callee"
@@ -51,7 +51,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 201
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response body complies with the OAS schema at "#/components/schemas/Call"
     And the response property "$.recordingEnabled" is false or does not exist
 
   @createcall_event_notification
@@ -65,7 +65,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the request property "$.sinkCredential.accessTokenExpiresUtc" is set to a future RFC3339 timestamp
     When the request "createCall" is sent
     Then the response status code is 201
-    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response body complies with the OAS schema at "#/components/schemas/Call"
     And the response property "$.sink" has the same value as createCall request property "$.sink"
     And the response property "$.sinkCredential" does not exist
     And the response property "$.accessToken" does not exist
@@ -83,7 +83,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the request property "$.sinkCredential" is removed from the request body
     When the request "createCall" is sent
     Then the response status code is 201
-    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response body complies with the OAS schema at "#/components/schemas/Call"
     And the response property "$.sink" has the same value as createCall request property "$.sink"
     And the response property "$.sinkCredential" does not exist
     And the response property "$.accessToken" does not exist
@@ -92,7 +92,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     And the event header "Content-Type" is "application/cloudevents+json"
     And the event body complies with the OAS schema at "#/components/schemas/CallStatusChangedEvent"
 
-  @createcall_event_notification
+  @createcall_event_payload_validation
   Scenario: Event body fields follow ClickToDial status rules
     Given the request property "$.caller" is set to a valid caller number in E.164 format
     And the request property "$.callee" is set to a valid callee number in E.164 format
@@ -123,7 +123,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 400
     And the response property "$.code" is "INVALID_ARGUMENT"
 
@@ -134,7 +134,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 400
     And the response property "$.code" is "INVALID_ARGUMENT"
 
@@ -146,7 +146,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 401
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 401
     And the response property "$.code" is "UNAUTHENTICATED"
 
@@ -161,7 +161,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 403
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 403
     And the response property "$.code" is "PERMISSION_DENIED"
 
@@ -172,7 +172,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 422
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
     And the response property "$.code" is "CLICK_TO_DIAL.INVALID_PHONE_NUMBER"
 
@@ -183,7 +183,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 422
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
     And the response property "$.code" is "CLICK_TO_DIAL.INVALID_PHONE_NUMBER"
 
@@ -194,7 +194,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 422
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
     And the response property "$.code" is "CLICK_TO_DIAL.SAME_CALLER_CALLEE"
 
@@ -206,7 +206,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 400
     And the response property "$.code" is "INVALID_ARGUMENT"
 
@@ -219,7 +219,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 422
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
     And the response property "$.code" is "CLICK_TO_DIAL.RECORDING_NOT_SUPPORTED"
 
@@ -231,7 +231,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 422
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
     And the response property "$.code" is "CLICK_TO_DIAL.CALLER_NOT_AVAILABLE"
 
@@ -243,7 +243,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 422
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
     And the response property "$.code" is "CLICK_TO_DIAL.CALLEE_NOT_AVAILABLE"
 
@@ -255,7 +255,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 400
     And the response property "$.code" is "INVALID_ARGUMENT"
 
@@ -268,7 +268,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation createCall
     When the request "createCall" is sent
     Then the response status code is 422
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 422
     And the response property "$.code" is "EVENT_NOTIFICATIONS_NOT_SUPPORTED"
     And no call resource is created

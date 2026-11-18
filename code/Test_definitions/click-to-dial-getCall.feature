@@ -27,7 +27,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     Then the response status code is 200
     And the response header "Content-Type" is "application/json"
     And the response header "x-correlator" has the same value as the request header "x-correlator"
-    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response body complies with the OAS schema at "#/components/schemas/Call"
 
   @getcall_success_retained_after_termination
   Scenario: Get a retained Call resource after successful termination
@@ -36,7 +36,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     And the request path parameter "callId" is set to that identifier
     When the request "getCall" is sent
     Then the response status code is 200
-    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response body complies with the OAS schema at "#/components/schemas/Call"
     And the response property "$.status" is "disconnected"
 
   @getcall_success_registered_sink
@@ -48,7 +48,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     Then the response status code is 200
     And the response header "Content-Type" is "application/json"
     And the response header "x-correlator" has the same value as the request header "x-correlator"
-    And the response body complies with the OAS schema at "/components/schemas/Call"
+    And the response body complies with the OAS schema at "#/components/schemas/Call"
     And the response property "$.sink" has the same value as createCall request property "$.sink"
     And the response property "$.sinkCredential" does not exist
     And the response property "$.accessToken" does not exist
@@ -60,7 +60,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     When the request "getCall" is sent
     Then the response status code is 400
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 400
     And the response property "$.code" is "INVALID_ARGUMENT"
 
@@ -71,7 +71,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     When the request "getCall" is sent
     Then the response status code is 401
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 401
     And the response property "$.code" is "UNAUTHENTICATED"
 
@@ -82,7 +82,7 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     When the request "getCall" is sent
     Then the response status code is 403
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 403
     And the response property "$.code" is "PERMISSION_DENIED"
 
@@ -92,6 +92,6 @@ Feature: CAMARA Click to Dial API, vwip - Operation getCall
     When the request "getCall" is sent
     Then the response status code is 404
     And the response header "Content-Type" is "application/json"
-    And the response body complies with the OAS schema at "/components/schemas/ErrorInfo"
+    And the response body complies with the OAS schema at "#/components/schemas/ErrorInfo"
     And the response property "$.status" is 404
     And the response property "$.code" is "NOT_FOUND"
